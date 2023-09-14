@@ -4,14 +4,91 @@
     "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Service/Service.csproj": {}
   },
   "projects": {
-    "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Service/Service.csproj": {
+    "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/DAL/DAL.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Service/Service.csproj",
-        "projectName": "Service",
-        "projectPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Service/Service.csproj",
+        "projectUniqueName": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/DAL/DAL.csproj",
+        "projectName": "DAL",
+        "projectPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/DAL/DAL.csproj",
         "packagesPath": "/Users/sander/.nuget/packages/",
-        "outputPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Service/obj/",
+        "outputPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/DAL/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/sander/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Model/Model.csproj": {
+                "projectPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Model/Model.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[7.0.11, )"
+            },
+            "Microsoft.EntityFrameworkCore.Relational": {
+              "target": "Package",
+              "version": "[7.0.11, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[7.0.11, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.11, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.308/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Model/Model.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Model/Model.csproj",
+        "projectName": "Model",
+        "projectPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Model/Model.csproj",
+        "packagesPath": "/Users/sander/.nuget/packages/",
+        "outputPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Model/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/sander/.nuget/NuGet/NuGet.Config"
@@ -37,6 +114,72 @@
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.308/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Service/Service.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Service/Service.csproj",
+        "projectName": "Service",
+        "projectPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Service/Service.csproj",
+        "packagesPath": "/Users/sander/.nuget/packages/",
+        "outputPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Service/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/sander/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/DAL/DAL.csproj": {
+                "projectPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/DAL/DAL.csproj"
+              },
+              "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Model/Model.csproj": {
+                "projectPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Model/Model.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

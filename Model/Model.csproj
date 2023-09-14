@@ -15,7 +15,4 @@
     <Folder Include="Entities\" />
     <Folder Include="DTOs\" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Entities\BaseEntity.cs" />
-  </ItemGroup>
 </Project>
