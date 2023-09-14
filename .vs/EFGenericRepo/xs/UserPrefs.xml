@@ -1,4 +1,4 @@
-﻿<Properties StartupConfiguration="{AC198BBC-5D7C-4EAB-AEB4-FC58A279A59E}|Default">
+﻿<Properties StartupConfiguration="{AC198BBC-5D7C-4EAB-AEB4-FC58A279A59E}|Default" GitUserInfo="UsingGIT">
   <MonoDevelop.Ide.ItemProperties.WebAPP FirstBuild="True" PreferredExecutionTarget="/Applications/Firefox.app" />
   <MonoDevelop.Ide.ItemProperties.DAL FirstBuild="True" />
   <MonoDevelop.Ide.ItemProperties.Model FirstBuild="True" />

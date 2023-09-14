@@ -1,11 +1,9 @@
 ﻿using System;
 namespace Service.Interfaces
 {
-	public class IEmployeeService
+	public interface IEmployeeService
 	{
-		public IEmployeeService()
-		{
-		}
+	
 	}
 }
 

@@ -5,9 +5,9 @@ using Model.Entities;
 
 namespace DAL.Repository
 {
-	public class Repository<T> : IRepository<T> where T : BaseEntity
-	{
-	
+    public class Repository<T> : IRepository<T> where T : BaseEntity
+    {
+
 
         private readonly CustomDbContext _context;
         private readonly DbSet<T> _entities;
@@ -47,7 +47,7 @@ namespace DAL.Repository
 
         public async Task<bool?> UpdateAsync(T entity)
         {
-            T? existingEntity = await _entities.FindAsync(entity.Id);
+            T? existingEntity = await _entities.FindAsync(entity.ID);
 
 
 
@@ -66,16 +66,10 @@ namespace DAL.Repository
         {
             var entity = await _entities.FindAsync(id);
 
-
-
             if (entity == null)
                 return false;
 
-
-
             _entities.Remove(entity);
-
-
 
             return await _context.SaveChangesAsync() > 0;
         }
