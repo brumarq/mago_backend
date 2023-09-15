@@ -8,9 +8,11 @@
 
   <ItemGroup>
     <None Remove="Interfaces\" />
+    <None Remove="Profiles\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Interfaces\" />
+    <Folder Include="Profiles\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Model\Model.csproj" />

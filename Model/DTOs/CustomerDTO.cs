@@ -6,4 +6,3 @@ namespace Model.DTOs
         public int CustomerNumber { get; set; }
     }
 }
-
