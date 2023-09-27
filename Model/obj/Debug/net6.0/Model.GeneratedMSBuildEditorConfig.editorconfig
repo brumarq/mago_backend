@@ -8,4 +8,4 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Model
-build_property.ProjectDir = /Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Model/
+build_property.ProjectDir = /Users/sander/Developer/Projects/InHolland/Cloud/Mago/MagoApi/Model/

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "wtuiUWewQJAtKd4td6S3W6TZBvvGjHEYMgkm9rDC1Cs7gV0nM6GXI4pjpnjySzKlKdxXytLZnC4YgjitISh+5A==",
+  "dgSpecHash": "xOJLooU2KXo2OxkY2UnDZ5Y0Rq3E2aSwoD4VHa7B9vJq0cwrWThzlhb0KkOxxNas6yw3zVKoj9gnCcfbrz0Ylg==",
   "success": true,
-  "projectFilePath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/WebApp/WebAPP.csproj",
+  "projectFilePath": "/Users/sander/Developer/Projects/InHolland/Cloud/Mago/MagoApi/WebApp/WebAPP.csproj",
   "expectedPackageFiles": [
     "/Users/sander/.nuget/packages/automapper/12.0.1/automapper.12.0.1.nupkg.sha512",
     "/Users/sander/.nuget/packages/automapper.extensions.microsoft.dependencyinjection/12.0.1/automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",

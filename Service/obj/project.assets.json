@@ -2695,11 +2695,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Service/Service.csproj",
+      "projectUniqueName": "/Users/sander/Developer/Projects/InHolland/Cloud/Mago/MagoApi/Service/Service.csproj",
       "projectName": "Service",
-      "projectPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Service/Service.csproj",
+      "projectPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Mago/MagoApi/Service/Service.csproj",
       "packagesPath": "/Users/sander/.nuget/packages/",
-      "outputPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Service/obj/",
+      "outputPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Mago/MagoApi/Service/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/sander/.nuget/NuGet/NuGet.Config"
@@ -2714,11 +2714,11 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/DAL/DAL.csproj": {
-              "projectPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/DAL/DAL.csproj"
+            "/Users/sander/Developer/Projects/InHolland/Cloud/Mago/MagoApi/DAL/DAL.csproj": {
+              "projectPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Mago/MagoApi/DAL/DAL.csproj"
             },
-            "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Model/Model.csproj": {
-              "projectPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Model/Model.csproj"
+            "/Users/sander/Developer/Projects/InHolland/Cloud/Mago/MagoApi/Model/Model.csproj": {
+              "projectPath": "/Users/sander/Developer/Projects/InHolland/Cloud/Mago/MagoApi/Model/Model.csproj"
             }
           }
         }

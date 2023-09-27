@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "6vzzQFtwhd0TycCTI0EGje1K7GThDu1XnwNWlRkAlTcd+RWSuiGR0Pd/nYvXBkbvs0gxngqzRXsDuI6DfqGUJw==",
+  "dgSpecHash": "bPSxXQNXKrYvOUAjutBcIM0ufDLq/hzjx9RsXl25VU8ZFl41YZoHvqFoNGumi4e2QCmuTXud3VlWRCxXqnQ6ow==",
   "success": true,
-  "projectFilePath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/DAL/DAL.csproj",
+  "projectFilePath": "/Users/sander/Developer/Projects/InHolland/Cloud/Mago/MagoApi/DAL/DAL.csproj",
   "expectedPackageFiles": [
     "/Users/sander/.nuget/packages/azure.core/1.25.0/azure.core.1.25.0.nupkg.sha512",
     "/Users/sander/.nuget/packages/azure.identity/1.7.0/azure.identity.1.7.0.nupkg.sha512",

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "mhYd90xF4w+CgCJJuBTzr8VyUQov6M/kQexstRGc9DxYO7kMmnzWgBKSycqgfvkPHZg808/9U5akkPJmAIQLAg==",
+  "dgSpecHash": "IKr54Uz2v0tsW+pBM5kjAZIdCB1IU0FCz6PXCa79uo1giYguWJgJ62urCNzEG/OuL1reMJgDdrXe3+TcdLq8xg==",
   "success": true,
-  "projectFilePath": "/Users/sander/Developer/Projects/InHolland/Cloud/Practice/EFGenericRepo/Service/Service.csproj",
+  "projectFilePath": "/Users/sander/Developer/Projects/InHolland/Cloud/Mago/MagoApi/Service/Service.csproj",
   "expectedPackageFiles": [
     "/Users/sander/.nuget/packages/automapper/12.0.1/automapper.12.0.1.nupkg.sha512",
     "/Users/sander/.nuget/packages/azure.core/1.25.0/azure.core.1.25.0.nupkg.sha512",
