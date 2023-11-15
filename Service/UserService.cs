@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Bogus;
 using Model.DTOs.Users;
-using Model.Entities;
+using Model.Entities.Users;
 using Service.Interfaces;
 
 namespace Service
@@ -65,7 +65,7 @@ namespace Service
 
             if (userToUpdate == null)
                 return Task.FromResult<bool?>(false);
-
+           
             userToUpdate.Name = createUserDTO.Name ?? userToUpdate.Name;
             userToUpdate.SysAdmin = createUserDTO.SysAdmin;
             userToUpdate.Password = createUserDTO.Password;

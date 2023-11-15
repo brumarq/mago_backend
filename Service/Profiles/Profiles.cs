@@ -2,6 +2,7 @@
 using Model.DTOs;
 using Model.DTOs.Users;
 using Model.Entities;
+using Model.Entities.Users;
 
 namespace Service.Profiles
 {
