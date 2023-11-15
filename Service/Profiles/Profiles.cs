@@ -1,11 +1,11 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using Model.DTOs;
+using Model.DTOs.Users;
 using Model.Entities;
 
 namespace Service.Profiles
 {
-	public class Profiles : Profile
+    public class Profiles : Profile
 	{
 		public Profiles()
 		{
@@ -17,6 +17,13 @@ namespace Service.Profiles
             #region Employees
             CreateMap<Employee, EmployeeDTO>();
             CreateMap<EmployeeDTO, Employee>();
+            #endregion
+
+            #region Users
+            CreateMap<User, CreateUserDTO>();
+            CreateMap<CreateUserDTO, User>();
+            CreateMap<User, UserResponseDTO>();
+            CreateMap<UserResponseDTO, User>();
             #endregion
         }
     }

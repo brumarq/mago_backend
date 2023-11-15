@@ -11,8 +11,4 @@
     <None Remove="DTOs\" />
     <None Remove="Entities\BaseEntity.ccs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Entities\" />
-    <Folder Include="DTOs\" />
-  </ItemGroup>
 </Project>
