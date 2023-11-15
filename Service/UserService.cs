@@ -68,6 +68,7 @@ namespace Service
 
             userToUpdate.Name = createUserDTO.Name ?? userToUpdate.Name;
             userToUpdate.SysAdmin = createUserDTO.SysAdmin;
+            userToUpdate.Password = createUserDTO.Password;
             userToUpdate.UpdatedAt = DateTime.Now;
 
             return Task.FromResult<bool?>(true);
