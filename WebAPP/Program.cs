@@ -22,8 +22,6 @@ builder.Services.AddDbContext<CustomDbContext>(options => options.UseSqlServer(b
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 // Add services for dependency injection
-builder.Services.AddScoped<ICustomerService, CustomerService>();
-builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();

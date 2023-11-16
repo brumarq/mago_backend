@@ -10,16 +10,6 @@ namespace Service.Profiles
 	{
 		public Profiles()
 		{
-            #region Customers
-            CreateMap<Customer, CustomerDTO>();
-            CreateMap<CustomerDTO, Customer>();
-            #endregion
-
-            #region Employees
-            CreateMap<Employee, EmployeeDTO>();
-            CreateMap<EmployeeDTO, Employee>();
-            #endregion
-
             #region Users
             CreateMap<User, CreateUserDTO>();
             CreateMap<CreateUserDTO, User>();

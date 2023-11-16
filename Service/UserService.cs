@@ -22,7 +22,7 @@ namespace Service
             {
                 Id = users.Count + 1,
                 Name = createUserDTO.Name,
-                Password = createUserDTO.Password,
+                // TODO:  Password = createUserDTO.Password, ==> Temporarily disabled this for model creation
                 SysAdmin = createUserDTO.SysAdmin,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
@@ -65,10 +65,10 @@ namespace Service
 
             if (userToUpdate == null)
                 return Task.FromResult<bool?>(false);
-           
+
             userToUpdate.Name = createUserDTO.Name ?? userToUpdate.Name;
             userToUpdate.SysAdmin = createUserDTO.SysAdmin;
-            userToUpdate.Password = createUserDTO.Password;
+            // userToUpdate.Password = createUserDTO.Password;
             userToUpdate.UpdatedAt = DateTime.Now;
 
             return Task.FromResult<bool?>(true);
@@ -80,8 +80,8 @@ namespace Service
             var faker = new Faker<User>()
                 .RuleFor(u => u.Id, f => f.IndexFaker + 1)
                 .RuleFor(u => u.Name, f => f.Person.FullName)
-                .RuleFor(u => u.SysAdmin, f => f.Random.Bool())
-                .RuleFor(u => u.Password, f => f.Internet.Password());
+                .RuleFor(u => u.SysAdmin, f => f.Random.Bool());
+                // .RuleFor(u => u.Password, f => f.Internet.Password());
 
             return faker.Generate(count);
         }
