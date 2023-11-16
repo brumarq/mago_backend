@@ -6,11 +6,8 @@ namespace Model;
 
 public class LogCollection : BaseEntity
 {
-	public DateTime TimeStamp { get; set; }
-
-	[ForeignKey("DeviceId")]
 	public Device? Device { get; set; }
-
-	[ForeignKey("LogCollectionTypeId")]
+	public DateTime Timestamp { get; set; }
+	public ICollection<LogValue>? Values { get; set; } = new List<LogValue>();
 	public LogCollectionType? LogCollectionType { get; set; }
 }

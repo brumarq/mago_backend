@@ -7,14 +7,10 @@ namespace Model;
 
 public class FileSend : BaseEntity
 {
-	public UpdateStatus UpdateStatus { get; set; }
-	public string? File { get; set; }
-	public int CurrPart { get; set; }
-	public int TotParts { get; set; }
-
-	[ForeignKey("DeviceId")]
+	public string? UpdateStatus { get; set; }
 	public Device? Device { get; set; }
-
-	[ForeignKey("UserId")]
 	public User? User { get; set; }
+	public string? File { get; set; }
+	public int? CurrPart { get; set; }
+	public int? TotParts { get; set; }
 }

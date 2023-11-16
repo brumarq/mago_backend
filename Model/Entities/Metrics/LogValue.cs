@@ -5,11 +5,7 @@ namespace Model;
 
 public class LogValue : BaseEntity
 {
-	public double Value { get; set; }
-
-	[ForeignKey("FieldId")]
+	public float? Value { get; set; }
 	public Field? Field { get; set; }
-
-	[ForeignKey("LogCollectionId")]
-	public LogCollection? LogCollection { get; set; }
+	public LogCollection? Collection { get; set; }
 }

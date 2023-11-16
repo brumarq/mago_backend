@@ -6,12 +6,8 @@ namespace Model;
 
 public class Status : BaseEntity
 {
-	public DateTime TimeStamp { get; set; }
-	public string? Message { get; set; }
-
-	[ForeignKey("StatusTypeId")]
+	public DateTime Timestamp { get; set; }
 	public StatusType? StatusType { get; set; }
-
-	[ForeignKey("DeviceId")]
+	public string? Message { get; set; }
 	public Device? Device { get; set; }
 }

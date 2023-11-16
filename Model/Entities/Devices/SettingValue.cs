@@ -8,18 +8,12 @@ using Model.Entities.Users;
 
 namespace Model.Entities.Devices
 {
-    public class SettingValue
+    public class SettingValue : BaseEntity
     {
-        public double Value { get; set; }
-        public UpdateStatus UpdateStatus { get; set; }
-
-        [ForeignKey("DeviceId")]
-        public Device? Device { get; set; }
-
-        [ForeignKey("UserId")]
-        public User? User { get; set; }
-
-        [ForeignKey("SettingId")]
+        public float Value { get; set; }
         public Setting? Setting { get; set; }
+        public string? UpdateStatus { get; set; }
+        public Device? Device { get; set; }
+        public User? User { get; set; }
     }
 }

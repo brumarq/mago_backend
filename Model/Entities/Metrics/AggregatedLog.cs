@@ -2,7 +2,7 @@
 
 namespace Model;
 
-public class AggregatedLogs : BaseEntity
+public class AggregatedLog : BaseEntity
 {
 	public string? Type { get; set; }
 	public DateOnly Date { get; set; }

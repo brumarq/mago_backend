@@ -6,14 +6,11 @@ namespace Model.Entities.Devices
     public class Setting : BaseEntity
     {
         public string? Name { get; set; }
-        public double DefaultValue { get; set; }
-        public Role ViewedBy { get; set; }
-        public Role EditedBy { get; set; }
-
-        [ForeignKey("UnitId")]
+        public float? DefaultValue { get; set; }
         public Unit? Unit { get; set; }
-
-        [ForeignKey("DeviceTypeId")]
         public DeviceType? DeviceType { get; set; }
+        public string? ViewedBy { get; set; }
+        public string? EditedBy { get; set; }
+        public ICollection<SettingValue>? Values { get; set; } = new HashSet<SettingValue>();
     }
 }

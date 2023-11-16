@@ -4,6 +4,7 @@ using DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(CustomDbContext))]
-    partial class CustomDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231116183951_ModelCreationV1")]
+    partial class ModelCreationV1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,7 +115,7 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeviceId")
+                    b.Property<int>("DeviceId")
                         .HasColumnType("int");
 
                     b.Property<int>("LocationId")
@@ -203,21 +206,21 @@ namespace DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("BaseUnitId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("UnitId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BaseUnitId");
+                    b.HasIndex("UnitId");
 
                     b.ToTable("Quantities");
                 });
@@ -274,10 +277,10 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeviceId")
+                    b.Property<int>("DeviceId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SettingId")
+                    b.Property<int>("SettingId")
                         .HasColumnType("int");
 
                     b.Property<string>("UpdateStatus")
@@ -286,7 +289,7 @@ namespace DAL.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.Property<float>("Value")
@@ -353,7 +356,7 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeviceId")
+                    b.Property<int>("DeviceId")
                         .HasColumnType("int");
 
                     b.Property<string>("Role")
@@ -362,7 +365,7 @@ namespace DAL.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -457,7 +460,7 @@ namespace DAL.Migrations
                     b.Property<int?>("CurrPart")
                         .HasColumnType("int");
 
-                    b.Property<int?>("DeviceId")
+                    b.Property<int>("DeviceId")
                         .HasColumnType("int");
 
                     b.Property<string>("File")
@@ -472,7 +475,7 @@ namespace DAL.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -495,10 +498,13 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeviceId")
+                    b.Property<int>("DeviceId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("LogCollectionTypeId")
+                    b.Property<string>("LogCollectionTypeId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("LogCollectionTypeId1")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Timestamp")
@@ -511,7 +517,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("DeviceId");
 
-                    b.HasIndex("LogCollectionTypeId");
+                    b.HasIndex("LogCollectionTypeId1");
 
                     b.ToTable("LogCollections");
                 });
@@ -543,13 +549,13 @@ namespace DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CollectionId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("FieldId")
+                    b.Property<int>("FieldId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LogCollectionId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -560,9 +566,9 @@ namespace DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CollectionId");
-
                     b.HasIndex("FieldId");
+
+                    b.HasIndex("LogCollectionId");
 
                     b.ToTable("LogValues");
                 });
@@ -578,13 +584,16 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeviceId")
+                    b.Property<int>("DeviceId")
                         .HasColumnType("int");
 
                     b.Property<string>("Message")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StatusTypeId")
+                    b.Property<string>("StatusTypeId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("StatusTypeId1")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Timestamp")
@@ -597,7 +606,7 @@ namespace DAL.Migrations
 
                     b.HasIndex("DeviceId");
 
-                    b.HasIndex("StatusTypeId");
+                    b.HasIndex("StatusTypeId1");
 
                     b.ToTable("Statusses");
                 });
@@ -632,23 +641,26 @@ namespace DAL.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DeviceId")
+                    b.Property<int>("DeviceId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("StatusTypeId")
+                    b.Property<string>("StatusTypeId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("StatusTypeId1")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DeviceId");
 
-                    b.HasIndex("StatusTypeId");
+                    b.HasIndex("StatusTypeId1");
 
                     b.HasIndex("UserId");
 
@@ -670,7 +682,9 @@ namespace DAL.Migrations
                 {
                     b.HasOne("Model.Entities.Devices.Device", "Device")
                         .WithMany("DeviceLocations")
-                        .HasForeignKey("DeviceId");
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Model.Entities.Devices.Location", "Location")
                         .WithMany("DeviceLocations")
@@ -687,7 +701,7 @@ namespace DAL.Migrations
                 {
                     b.HasOne("Model.Entities.Devices.Unit", "BaseUnit")
                         .WithMany("BaseOfQuantities")
-                        .HasForeignKey("BaseUnitId");
+                        .HasForeignKey("UnitId");
 
                     b.Navigation("BaseUnit");
                 });
@@ -711,15 +725,21 @@ namespace DAL.Migrations
                 {
                     b.HasOne("Model.Entities.Devices.Device", "Device")
                         .WithMany("SettingValues")
-                        .HasForeignKey("DeviceId");
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Model.Entities.Devices.Setting", "Setting")
                         .WithMany("Values")
-                        .HasForeignKey("SettingId");
+                        .HasForeignKey("SettingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Model.Entities.Users.User", "User")
                         .WithMany("SettingValues")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Device");
 
@@ -741,11 +761,15 @@ namespace DAL.Migrations
                 {
                     b.HasOne("Model.Entities.Devices.Device", "Device")
                         .WithMany("Users")
-                        .HasForeignKey("DeviceId");
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Model.Entities.Users.User", "User")
                         .WithMany("Devices")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Device");
 
@@ -771,11 +795,15 @@ namespace DAL.Migrations
                 {
                     b.HasOne("Model.Entities.Devices.Device", "Device")
                         .WithMany("FileSends")
-                        .HasForeignKey("DeviceId");
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Model.Entities.Users.User", "User")
                         .WithMany("FileSends")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Device");
 
@@ -786,11 +814,13 @@ namespace DAL.Migrations
                 {
                     b.HasOne("Model.Entities.Devices.Device", "Device")
                         .WithMany("LogCollections")
-                        .HasForeignKey("DeviceId");
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Model.LogCollectionType", "LogCollectionType")
                         .WithMany("Collections")
-                        .HasForeignKey("LogCollectionTypeId");
+                        .HasForeignKey("LogCollectionTypeId1");
 
                     b.Navigation("Device");
 
@@ -799,13 +829,17 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("Model.LogValue", b =>
                 {
-                    b.HasOne("Model.LogCollection", "Collection")
-                        .WithMany("Values")
-                        .HasForeignKey("CollectionId");
-
                     b.HasOne("Model.Field", "Field")
                         .WithMany("LogValues")
-                        .HasForeignKey("FieldId");
+                        .HasForeignKey("FieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Model.LogCollection", "Collection")
+                        .WithMany("Values")
+                        .HasForeignKey("LogCollectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Collection");
 
@@ -816,11 +850,13 @@ namespace DAL.Migrations
                 {
                     b.HasOne("Model.Entities.Devices.Device", "Device")
                         .WithMany("Statusses")
-                        .HasForeignKey("DeviceId");
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Model.StatusType", "StatusType")
                         .WithMany("Statusses")
-                        .HasForeignKey("StatusTypeId");
+                        .HasForeignKey("StatusTypeId1");
 
                     b.Navigation("Device");
 
@@ -831,15 +867,19 @@ namespace DAL.Migrations
                 {
                     b.HasOne("Model.Entities.Devices.Device", "Device")
                         .WithMany("UserOnStatusTypes")
-                        .HasForeignKey("DeviceId");
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Model.StatusType", "StatusType")
                         .WithMany("UserOnStatusTypes")
-                        .HasForeignKey("StatusTypeId");
+                        .HasForeignKey("StatusTypeId1");
 
                     b.HasOne("Model.Entities.Users.User", "User")
                         .WithMany("UserOnStatusTypes")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Device");
 
