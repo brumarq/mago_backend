@@ -1,7 +1,10 @@
+using Application.ApplicationServices;
+using Application.ApplicationServices.Interfaces;
 using Infrastructure.Data.Context;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,9 +23,14 @@ builder.Services.AddDbContext<MetricsDbContext>(options => options.UseSqlServer(
 
 // Add repositories for dependency injection
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IFakerService, FakerService>();
+builder.Services.AddScoped<IMetricsService, MetricsService>();
 
-// Add services for dependency injection
-//...
+// Extra stuff for converting int to string representation of enums in Swagger UI
+builder.Services
+    .AddControllersWithViews()
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters
+    .Add(new JsonStringEnumConverter()));
 
 var app = builder.Build();
 
