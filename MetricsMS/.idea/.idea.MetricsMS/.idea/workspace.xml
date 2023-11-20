@@ -7,23 +7,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2f2acf57-a651-4fe0-8151-91a4e661a654" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Domain/Entities/AggregatedLog.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Domain/Entities/BaseEntity.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Domain/Entities/Field.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Domain/Entities/LogCollection.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Domain/Entities/LogCollectionType.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Domain/Entities/LogValue.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Infrastructure/Data/Context/MetricsDbContext.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Infrastructure/Repositories/Interfaces/IRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Infrastructure/Repositories/Repository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../FirmwareMS/.idea/.idea.FirmwareMS/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../FirmwareMS/.idea/.idea.FirmwareMS/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.MetricsMS/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.MetricsMS/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MetricsMS.sln" beforeDir="false" afterPath="$PROJECT_DIR$/MetricsMS.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebApp/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/WebApp/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebApp/WebApp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/WebApp/WebApp.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebApp/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/WebApp/appsettings.json" afterDir="false" />
-    </list>
+    <list default="true" id="2f2acf57-a651-4fe0-8151-91a4e661a654" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -32,6 +16,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/../FirmwareMS/Infrastructure/Migrations/20231120131647_Initial.cs" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3
 }</component>
@@ -91,14 +79,26 @@
       <option name="presentableId" value="Default" />
       <updated>1700478854150</updated>
       <workItem from="1700478855218" duration="3000" />
-      <workItem from="1700486256612" duration="750000" />
+      <workItem from="1700486256612" duration="773000" />
     </task>
+    <task id="LOCAL-00001" summary="Initial MetricsMS">
+      <option name="closed" value="true" />
+      <created>1700487028240</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1700487028240</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="Initial MetricsMS" />
+    <option name="LAST_COMMIT_MESSAGE" value="Initial MetricsMS" />
   </component>
 </project>
