@@ -13,7 +13,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="664807ed-5647-45c0-8b3c-8c72add31d9a" name="Changes" comment="" />
+    <list default="true" id="664807ed-5647-45c0-8b3c-8c72add31d9a" name="Changes" comment="Appsettings?">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.MagoApi/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.MagoApi/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DeviceService/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/DeviceService/Properties/launchSettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FirmwareService/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/FirmwareService/Properties/launchSettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MetricsService/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/MetricsService/Properties/launchSettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NotificationsService/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/NotificationsService/Properties/launchSettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserService/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/Properties/launchSettings.json" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -26,9 +33,9 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 0
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
   <component name="ProjectId" id="2YOdRTPR2QQP2Rg9pK4Psslg4kS" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -39,6 +46,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "74-userapi-create-models",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -55,7 +63,7 @@
     ]
   }
 }]]></component>
-  <component name="RunManager" selected=".NET Launch Settings Profile.WebAPP">
+  <component name="RunManager" selected=".NET Launch Settings Profile.UserService">
     <configuration name="UserService" type="DotNetProject" factoryName=".NET Project">
       <option name="EXE_PATH" value="" />
       <option name="PROGRAM_PARAMETERS" value="" />
@@ -189,6 +197,7 @@
       <option name="presentableId" value="Default" />
       <updated>1700400552020</updated>
       <workItem from="1700400554438" duration="16480000" />
+      <workItem from="1700470685698" duration="863000" />
     </task>
     <task id="LOCAL-00001" summary="Finished initial structure">
       <option name="closed" value="true" />
@@ -206,17 +215,32 @@
       <option name="project" value="LOCAL" />
       <updated>1700417887375</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Appsettings?">
+      <option name="closed" value="true" />
+      <created>1700470711650</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1700470711650</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
+  <component name="UnknownFeatures">
+    <option featureType="dependencySupport" implementationName="dotnet:Microsoft.Identity.Client" />
+    <option featureType="dependencySupport" implementationName="dotnet:Microsoft.EntityFrameworkCore.Abstractions" />
+    <option featureType="dependencySupport" implementationName="dotnet:Microsoft.EntityFrameworkCore.Relational" />
+    <option featureType="dependencySupport" implementationName="dotnet:Microsoft.EntityFrameworkCore" />
+  </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="Finished initial structure" />
     <MESSAGE value="Bla" />
-    <option name="LAST_COMMIT_MESSAGE" value="Bla" />
+    <MESSAGE value="Appsettings?" />
+    <option name="LAST_COMMIT_MESSAGE" value="Appsettings?" />
   </component>
 </project>
