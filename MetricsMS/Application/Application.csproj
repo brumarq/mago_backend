@@ -9,13 +9,17 @@
     <ItemGroup>
       <PackageReference Include="AutoMapper" Version="12.0.1" />
       <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+      <PackageReference Include="Bogus" Version="34.0.2" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="ApplicationServices\" />
       <Folder Include="DTOs\" />
       <Folder Include="Mappers\" />
       <Folder Include="Ports\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Domain\Domain.csproj" />
     </ItemGroup>
 
 </Project>
