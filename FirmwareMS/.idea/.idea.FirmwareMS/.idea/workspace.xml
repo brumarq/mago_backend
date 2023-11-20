@@ -8,16 +8,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="08275398-8cb5-4778-a7fd-09bf2ab6b30f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Domain/Entities/BaseEntity.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Domain/Entities/FileSend.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Infrastructure/Context/FirmwareDbContext.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Infrastructure/Repositories/Interfaces/IRepository.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Infrastructure/Repositories/Repository.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FirmwareMS/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FirmwareMS/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FirmwareMS.sln" beforeDir="false" afterPath="$PROJECT_DIR$/FirmwareMS.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebApp/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/WebApp/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebApp/WebApp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/WebApp/WebApp.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebApp/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/WebApp/appsettings.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,6 +40,7 @@
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "editor.preferences.fonts.default",
     "vue.rearranger.settings.migration": "true"
   },
@@ -86,8 +78,17 @@
       <option name="presentableId" value="Default" />
       <updated>1700478834634</updated>
       <workItem from="1700478835712" duration="2000" />
-      <workItem from="1700485508324" duration="657000" />
+      <workItem from="1700485508324" duration="732000" />
     </task>
+    <task id="LOCAL-00001" summary="Initial FirmwareMS">
+      <option name="closed" value="true" />
+      <created>1700486183312</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1700486183312</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -96,5 +97,7 @@
   <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="Initial FirmwareMS" />
+    <option name="LAST_COMMIT_MESSAGE" value="Initial FirmwareMS" />
   </component>
 </project>
