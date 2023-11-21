@@ -1,4 +1,5 @@
 ﻿using Application.ApplicationServices.Interfaces;
+using Application.DTOs;
 using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
@@ -17,9 +18,9 @@ namespace Application.ApplicationServices
             _fakerService = fakerService;
         }
 
-        public Task<IEnumerable<AggregatedLog>> GetAggregatedLogs(AggregatedLogDateType aggregatedLogDateType)
+        public async Task<IEnumerable<AggregatedLogsResponseDTO>> GetAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType)
         {
-            var aggregatedLogs = _fakerService.GetFakeAggregatedLogs();
+            var aggregatedLogs = await _fakerService.GetFakeAggregatedLogsAsync();
 
             if (aggregatedLogs == null)
                 throw new BadRequestException("Something went wrong while fetching the aggregated logs...");
@@ -39,18 +40,18 @@ namespace Application.ApplicationServices
                     break;
             }
 
-            return Task.FromResult(aggregatedLogs);
+            return _mapper.Map<IEnumerable<AggregatedLogsResponseDTO>>(aggregatedLogs);
         }
 
-        public Task<IEnumerable<LogCollection>> GetDeviceMetrics(int deviceId)
+        public async Task<IEnumerable<DeviceMetricsResponseDTO>> GetDeviceMetricsAsync(int deviceId)
         {
-            var deviceMetrics = _fakerService.GetFakeDeviceMetrics();
+            var deviceMetrics = await _fakerService.GetFakeDeviceMetricsAsync();
 
             ValidateDevice(deviceId, deviceMetrics);
 
-            var metricsByDeviceId = deviceMetrics.Where(dm => dm.DeviceId == deviceId);
+            var metricsForDevice = deviceMetrics.Where(dm => dm.DeviceId == deviceId);
 
-            return Task.FromResult(metricsByDeviceId);
+            return _mapper.Map<IEnumerable<DeviceMetricsResponseDTO>>(metricsForDevice);
         }
 
         private void ValidateDevice(int deviceId, IEnumerable<LogCollection> deviceMetrics)
