@@ -15,7 +15,7 @@ namespace Application.ApplicationServices
     {
         private readonly IMapper _mapper;
         private static List<Status> notifications = GenerateFakeNotifications(20);
-        private static List<UserOnStatusType> userOnStatusTypeList = GenerateFakeUserOnStatusTypes(10);
+        private static List<UserOnStatusType> userOnStatusTypeList = GenerateFakeUserOnStatusTypes(20);
 
         public NotificationService(IMapper mapper)
         {
@@ -100,18 +100,40 @@ namespace Application.ApplicationServices
 
         private static List<UserOnStatusType> GenerateFakeUserOnStatusTypes(int count)
         {
-            Random rnd = new Random();
+            {
+                Random rnd = new Random();
 
-            var statusTypeFaker = new Faker<StatusType>()
-                .RuleFor(st => st.Id, f => rnd.Next(1, 8));
+                var statusTypeFaker = new Faker<StatusType>()
+                    .RuleFor(st => st.Id, f => rnd.Next(1, 8));
 
-            var faker = new Faker<UserOnStatusType>()
-                .RuleFor(u => u.Id, f => f.IndexFaker + 1)
-                .RuleFor(u => u.UserId, f => rnd.Next(1, 10))
-                .RuleFor(u => u.DeviceId, f => rnd.Next(1, 4))
-                .RuleFor(u => u.StatusType, f => statusTypeFaker.Generate());
+                var uniqueCombinations = new HashSet<(int, int, int)>(); // UserId, DeviceID, StatusType
+                var userOnStatusTypes = new List<UserOnStatusType>();
 
-            return faker.Generate(count);
+                for (int i = 0; i < count; i++)
+                {
+                    UserOnStatusType newUserOnStatusType;
+                    bool isUnique;
+
+                    do
+                    {
+                        newUserOnStatusType = new Faker<UserOnStatusType>()
+                            .RuleFor(u => u.Id, f => i + 1)
+                            .RuleFor(u => u.UserId, f => rnd.Next(1, 10))
+                            .RuleFor(u => u.DeviceId, f => rnd.Next(1, 4))
+                            .RuleFor(u => u.StatusType, f => statusTypeFaker.Generate())
+                            .Generate();
+
+                        // Create a tuple for the combination
+                        var combination = (newUserOnStatusType.UserId, newUserOnStatusType.DeviceId, newUserOnStatusType.StatusType.Id);
+                        isUnique = uniqueCombinations.Add(combination);
+
+                    } while (!isUnique);
+
+                    userOnStatusTypes.Add(newUserOnStatusType);
+                }
+
+                return userOnStatusTypes;
+            }
         }
     }
 }
