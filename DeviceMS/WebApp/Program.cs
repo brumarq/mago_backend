@@ -24,6 +24,7 @@ builder.Services.AddDbContext<DevicesDbContext>(options => options.UseSqlServer(
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IFakerService, FakerService>();
 builder.Services.AddScoped<IDeviceService, DeviceService>();
+builder.Services.AddScoped<IDeviceTypeService, DeviceTypeService>();
 
 // Add services for dependency injection
 //...

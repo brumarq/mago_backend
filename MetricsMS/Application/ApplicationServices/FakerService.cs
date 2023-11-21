@@ -6,14 +6,26 @@ namespace Application.ApplicationServices
 {
     public class FakerService : IFakerService
     {
+        private static readonly Lazy<FakerService> LazyInstance = new Lazy<FakerService>(() => new FakerService());
+        public static FakerService Instance => LazyInstance.Value;
+
+        private IEnumerable<LogCollection> _fakeDeviceMetrics;
+        private IEnumerable<AggregatedLog> _fakeAggregatedLogs;
+
+        public FakerService()
+        {
+            _fakeDeviceMetrics = GenerateFakeDeviceMetrics(20);
+            _fakeAggregatedLogs = GenerateFakeAggregatedLogs(20);
+        }
+
         public async Task<IEnumerable<LogCollection>> GetFakeDeviceMetricsAsync()
         {
-            return await Task.FromResult(GenerateFakeDeviceMetrics(20));
+            return await Task.FromResult(Instance._fakeDeviceMetrics);
         }
 
         public async Task<IEnumerable<AggregatedLog>> GetFakeAggregatedLogsAsync()
         {
-            return await Task.FromResult(GenerateFakeAggregatedLogs(20));
+            return await Task.FromResult(Instance._fakeAggregatedLogs);
         }
 
         private IEnumerable<LogCollection> GenerateFakeDeviceMetrics(int count)
