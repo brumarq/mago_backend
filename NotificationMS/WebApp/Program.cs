@@ -1,3 +1,5 @@
+using Application.ApplicationServices.Interfaces;
+using Application.ApplicationServices;
 using Infrastructure.Data.Context;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.Interfaces;
@@ -22,7 +24,7 @@ builder.Services.AddDbContext<NotificationsDbContext>(options => options.UseSqlS
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 // Add services for dependency injection
-//...
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 var app = builder.Build();
 
