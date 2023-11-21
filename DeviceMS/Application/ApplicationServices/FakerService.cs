@@ -23,6 +23,13 @@ namespace Application.ApplicationServices
             return await Task.FromResult(Instance._fakeDevices);
         }
 
+        public async Task CreateFakeDeviceAsync(Device device)
+        {
+            Instance._fakeDevices = Instance._fakeDevices.Concat(new[] { device });
+
+            await Task.CompletedTask;
+        }
+
         public async Task<IEnumerable<DeviceType>> GetFakeDeviceTypesAsync()
         {
             return await Task.FromResult(Instance._fakeDeviceTypes);

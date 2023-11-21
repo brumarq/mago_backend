@@ -1,5 +1,6 @@
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
+using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.Controllers
@@ -15,6 +16,23 @@ namespace WebApp.Controllers
             _deviceService = deviceService;
         }
 
+        [HttpGet("")]
+        public async Task<ActionResult<IEnumerable<DeviceResponseDTO>>> GetAllDevicesAsync()
+        {
+            try
+            {
+                var devices = await _deviceService.GetAllDevicesAsync();
+
+                return Ok(devices);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        
+
         [HttpGet("{deviceId}")]
         public async Task<ActionResult<DeviceResponseDTO>> GetDeviceById(int deviceId)
         {
@@ -28,6 +46,21 @@ namespace WebApp.Controllers
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
-        }    
+        }
+
+        [HttpPost("")]
+        public async Task<ActionResult<CreateDeviceDTO>> CreateDeviceAsync(CreateDeviceDTO createDeviceDTO)
+        {
+            try
+            {
+                var device = await _deviceService.CreateDeviceAsync(createDeviceDTO);
+
+                return Ok(device);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }

@@ -1,6 +1,4 @@
-﻿using Application.DTOs;
-
-namespace Application.ApplicationServices
+﻿namespace Application.DTOs
 {
     public class UpdateDeviceTypeDTO : CreateDeviceTypeDTO
     {

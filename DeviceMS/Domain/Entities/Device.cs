@@ -9,4 +9,14 @@ public class Device : BaseEntity
     public string? AuthId { get; set; }
     public string? PwHash { get; set; }
     public string? Salt { get; set; }
+
+    public string GenerateSalt()
+    {
+        return BCrypt.Net.BCrypt.GenerateSalt();
+    }
+
+    public string GenerateHash(string password, string salt)
+    {
+        return BCrypt.Net.BCrypt.HashPassword(password, salt);
+    }
 }

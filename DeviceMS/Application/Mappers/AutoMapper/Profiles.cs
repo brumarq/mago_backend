@@ -1,4 +1,3 @@
-using Application.ApplicationServices;
 using Application.DTOs;
 using AutoMapper;
 using Domain.Entities;
@@ -12,6 +11,9 @@ public class Profiles : Profile
         #region Devices
         CreateMap<Device, DeviceResponseDTO>();
         CreateMap<DeviceResponseDTO, Device>();
+
+        CreateMap<Device, CreateDeviceDTO>();
+        CreateMap<CreateDeviceDTO, Device>();
         #endregion
 
         #region DeviceTypes
