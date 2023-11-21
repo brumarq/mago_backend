@@ -1,3 +1,4 @@
+using Application.ApplicationServices;
 using Infrastructure.Context;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.Interfaces;
@@ -22,6 +23,7 @@ builder.Services.AddDbContext<FirmwareDbContext>(options => options.UseSqlServer
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 // Add services for dependency injection
+builder.Services.AddScoped<IFirmwareService, FirmwareService>();
 //...
 
 var app = builder.Build();
