@@ -40,7 +40,6 @@ namespace Application.ApplicationServices
             var devices = (await _fakerService.GetFakeDevicesAsync()).ToList();
 
             Device newDevice = new Device();
-            var salt = newDevice.GenerateSalt();
 
             newDevice.Id = devices.Count + 1;
             newDevice.Name = createDeviceDTO.Name;
@@ -48,8 +47,8 @@ namespace Application.ApplicationServices
             newDevice.DeviceType = await GetDeviceTypeById(createDeviceDTO.DeviceTypeId);
             newDevice.SendSettingsAtConn = createDeviceDTO.SendSettingsAtConn;
             newDevice.SendSettingsNow = createDeviceDTO.SendSettingsNow;
-            newDevice.Salt = salt;
-            newDevice.PwHash = newDevice.GenerateHash(createDeviceDTO.Password, salt);
+            newDevice.Salt = newDevice.GenerateSalt();
+            newDevice.PwHash = newDevice.GenerateHash(createDeviceDTO.Password);
             newDevice.AuthId = createDeviceDTO.AuthId;
 
             await _fakerService.CreateFakeDeviceAsync(newDevice);

@@ -15,8 +15,8 @@ public class Device : BaseEntity
         return BCrypt.Net.BCrypt.GenerateSalt();
     }
 
-    public string GenerateHash(string password, string salt)
+    public string GenerateHash(string password)
     {
-        return BCrypt.Net.BCrypt.HashPassword(password, salt);
+        return BCrypt.Net.BCrypt.HashPassword(password, Salt);
     }
 }
