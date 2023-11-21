@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
-    public class CreateFileSendDTO : BaseDTO
+    public class CreateFileSendDTO
     {
         public int DeviceId { get; set; }
         public string? File { get; set; }
