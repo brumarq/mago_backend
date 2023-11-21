@@ -1,3 +1,5 @@
+using Application.ApplicationServices;
+using Application.ApplicationServices.Interfaces;
 using Infrastructure.Data.Context;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.Interfaces;
@@ -20,6 +22,9 @@ builder.Services.AddDbContext<DevicesDbContext>(options => options.UseSqlServer(
 
 // Add repositories for dependency injection
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IFakerService, FakerService>();
+builder.Services.AddScoped<IDeviceService, DeviceService>();
+builder.Services.AddScoped<IDeviceTypeService, DeviceTypeService>();
 
 // Add services for dependency injection
 //...
