@@ -6,14 +6,14 @@ namespace Application.ApplicationServices
 {
     public class FakerService : IFakerService
     {
-        public IEnumerable<LogCollection> GetFakeDeviceMetrics()
+        public async Task<IEnumerable<LogCollection>> GetFakeDeviceMetricsAsync()
         {
-            return GenerateFakeDeviceMetrics(20);
+            return await Task.FromResult(GenerateFakeDeviceMetrics(20));
         }
 
-        public IEnumerable<AggregatedLog> GetFakeAggregatedLogs()
+        public async Task<IEnumerable<AggregatedLog>> GetFakeAggregatedLogsAsync()
         {
-            return GenerateFakeAggregatedLogs(20);
+            return await Task.FromResult(GenerateFakeAggregatedLogs(20));
         }
 
         private IEnumerable<LogCollection> GenerateFakeDeviceMetrics(int count)
