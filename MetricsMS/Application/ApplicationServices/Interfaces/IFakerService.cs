@@ -4,7 +4,7 @@ namespace Application.ApplicationServices.Interfaces
 {
     public interface IFakerService
     {
-        IEnumerable<LogCollection> GetFakeDeviceMetrics();
-        IEnumerable<AggregatedLog> GetFakeAggregatedLogs();
+        Task<IEnumerable<LogCollection>> GetFakeDeviceMetricsAsync();
+        Task<IEnumerable<AggregatedLog>> GetFakeAggregatedLogsAsync();
     }
 }

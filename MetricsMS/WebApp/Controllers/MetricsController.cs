@@ -21,7 +21,7 @@ namespace WebApp.Controllers
         {
             try
             {
-                var deviceMetrics = await _metricsService.GetDeviceMetrics(deviceId);
+                var deviceMetrics = await _metricsService.GetDeviceMetricsAsync(deviceId);
 
                 return Ok(deviceMetrics);
             }
@@ -36,7 +36,7 @@ namespace WebApp.Controllers
         {
             try
             {
-                var aggregatedLogs = await _metricsService.GetAggregatedLogs(aggregatedLogDateType);
+                var aggregatedLogs = await _metricsService.GetAggregatedLogsAsync(aggregatedLogDateType);
 
                 return Ok(aggregatedLogs);
             }

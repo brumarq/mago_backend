@@ -1,11 +1,12 @@
-﻿using Domain.Entities;
+﻿using Application.DTOs;
+using Domain.Entities;
 using Domain.Enums;
 
 namespace Application.ApplicationServices.Interfaces
 {
     public interface IMetricsService
     {
-        Task<IEnumerable<LogCollection>> GetDeviceMetrics(int deviceId);
-        Task<IEnumerable<AggregatedLog>> GetAggregatedLogs(AggregatedLogDateType dateFrequency);
+        Task<IEnumerable<DeviceMetricsResponseDTO>> GetDeviceMetricsAsync(int deviceId);
+        Task<IEnumerable<AggregatedLogsResponseDTO>> GetAggregatedLogsAsync(AggregatedLogDateType dateFrequency);
     }
 }
