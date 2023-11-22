@@ -26,5 +26,10 @@ public class Profiles : Profile
         CreateMap<DeviceType, UpdateDeviceTypeDTO>();
         CreateMap<UpdateDeviceTypeDTO, DeviceType>();
         #endregion
+
+        #region Device Settings
+        CreateMap<SettingValue, DeviceSettingsResponseDTO>();
+        CreateMap<DeviceSettingsResponseDTO, SettingValue>();
+        #endregion
     }
 }
