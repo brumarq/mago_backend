@@ -55,7 +55,7 @@ namespace Application.ApplicationServices
             await Task.CompletedTask;
         }
 
-        public async Task<IEnumerable<SettingValue>> GetFakeSettingValues()
+        public async Task<IEnumerable<SettingValue>> GetFakeSettingValuesAsync()
         {
             return await Task.FromResult(Instance._fakeSettingValues);
         }

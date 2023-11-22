@@ -17,7 +17,7 @@ namespace Application.ApplicationServices.Interfaces
         #endregion
 
         #region DeviceSettings
-        Task<IEnumerable<SettingValue>> GetFakeSettingValues();
+        Task<IEnumerable<SettingValue>> GetFakeSettingValuesAsync();
         #endregion
     }
 }

@@ -15,9 +15,9 @@ namespace Application.ApplicationServices
             _mapper = mapper;
             _fakerService = fakerService;
         }
-        public async Task<IEnumerable<DeviceSettingsResponseDTO>> GetSettingsForDevice(int deviceId)
+        public async Task<IEnumerable<DeviceSettingsResponseDTO>> GetSettingsForDeviceAsync(int deviceId)
         {
-            var deviceSettings = await _fakerService.GetFakeSettingValues();
+            var deviceSettings = await _fakerService.GetFakeSettingValuesAsync();
 
             if (deviceId <= 0)
                 throw new BadRequestException("Device id cannot be negative or 0");

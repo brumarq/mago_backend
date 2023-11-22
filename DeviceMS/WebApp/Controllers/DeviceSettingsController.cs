@@ -16,11 +16,11 @@ namespace WebApp.Controllers
         }
 
         [HttpGet("{deviceId}")]
-        public async Task<ActionResult<DeviceSettingsResponseDTO>> GetDeviceSettings(int deviceId)
+        public async Task<ActionResult<DeviceSettingsResponseDTO>> GetDeviceSettingsAsync(int deviceId)
         {
             try
             {
-                var deviceSettingsForDevice = await _deviceSettingsService.GetSettingsForDevice(deviceId);
+                var deviceSettingsForDevice = await _deviceSettingsService.GetSettingsForDeviceAsync(deviceId);
 
                 return Ok(deviceSettingsForDevice);
             }
