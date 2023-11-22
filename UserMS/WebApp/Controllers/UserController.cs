@@ -56,16 +56,21 @@ public class UserController : ControllerBase
     {
         try
         {
-            bool? result = await _userService.UpdateUserAsync(id, createUserDTO);
+            var updatedUser = await _userService.UpdateUserAsync(id, createUserDTO);
 
-            if (result == null) return NotFound();
-            return (bool)result ? NoContent() : StatusCode(500, "Internal server error: updating record failed.");
+            if (updatedUser == null)
+            {
+                return NotFound("User not found or update failed.");
+            }
+
+            return Ok(updatedUser);
         }
         catch (Exception ex)
         {
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
+
 
     // POST: /users
     [HttpPost]
@@ -99,7 +104,7 @@ public class UserController : ControllerBase
                 return NotFound($"Customer with id {id} not found.");
             }
 
-            return NoContent();
+            return Ok();
         }
         catch (Exception ex)
         {
