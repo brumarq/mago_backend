@@ -1,6 +1,9 @@
+using System.Text;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApp.Controllers;
 
@@ -9,10 +12,12 @@ namespace WebApp.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IConfiguration _configuration;
 
-    public UserController(IUserService userService)
+    public UserController(IUserService userService, IConfiguration configuration)
     {
         _userService = userService;
+        _configuration = configuration;
     }
 
     // GET: /customers/5
@@ -37,6 +42,7 @@ public class UserController : ControllerBase
 
     // GET: /customers
     [HttpGet]
+    [Authorize("get:users")]
     public async Task<ActionResult<IEnumerable<UserResponseDTO>>> GetAllUsers()
     {
         try
