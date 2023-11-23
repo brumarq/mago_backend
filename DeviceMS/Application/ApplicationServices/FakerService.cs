@@ -1,6 +1,7 @@
 ﻿using Application.ApplicationServices.Interfaces;
 using Bogus;
 using Domain.Entities;
+using System.Data;
 
 namespace Application.ApplicationServices
 {
@@ -104,7 +105,7 @@ namespace Application.ApplicationServices
                 .RuleFor(s => s.Id, f => f.IndexFaker + 1)
                 .RuleFor(s => s.Value, f => f.Random.Float())
                 .RuleFor(s => s.Setting, f => GenerateFakeSetting())
-                .RuleFor(s => s.UpdateStatus, f => f.Random.Words())
+                .RuleFor(s => s.UpdateStatus, f => f.PickRandom<UpdateStatus>().ToString())
                 .RuleFor(s => s.Device, f => f.PickRandom(_fakeDevices))
                 .RuleFor(s => s.UserId, f => f.Random.Int());
 
