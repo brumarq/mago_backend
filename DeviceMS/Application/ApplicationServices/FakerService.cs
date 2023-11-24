@@ -60,6 +60,13 @@ namespace Application.ApplicationServices
         {
             return await Task.FromResult(Instance._fakeSettingValues);
         }
+        
+        public async Task<SettingValue> CreateFakeSettingValueAsync(SettingValue settingValue)
+        {
+            Instance._fakeSettingValues = Instance._fakeSettingValues.Concat(new[] { settingValue });
+
+            return await Task.FromResult(settingValue);
+        }
 
         #region Generation of fake data for Devices
         private IEnumerable<Device> GenerateFakeDevices(int count)
@@ -110,6 +117,19 @@ namespace Application.ApplicationServices
                 .RuleFor(s => s.UserId, f => f.Random.Int());
 
             return faker.Generate(count);
+        }
+
+        private SettingValue GenerateFakeSingleSettingValue()
+        {
+            var faker = new Faker<SettingValue>()
+                .RuleFor(s => s.Id, f => f.IndexFaker + 1)
+                .RuleFor(s => s.Value, f => f.Random.Float())
+                .RuleFor(s => s.Setting, f => GenerateFakeSetting())
+                .RuleFor(s => s.UpdateStatus, f => f.PickRandom<UpdateStatus>().ToString())
+                .RuleFor(s => s.Device, f => f.PickRandom(_fakeDevices))
+                .RuleFor(s => s.UserId, f => f.Random.Int());
+
+            return faker.Generate();
         }
 
         private Setting GenerateFakeSetting()

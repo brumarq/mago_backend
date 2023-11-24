@@ -18,6 +18,8 @@ namespace Application.ApplicationServices.Interfaces
 
         #region DeviceSettings
         Task<IEnumerable<SettingValue>> GetFakeSettingValuesAsync();
+        Task<SettingValue> CreateFakeSettingValueAsync(SettingValue settingValue);
+
         #endregion
     }
 }
