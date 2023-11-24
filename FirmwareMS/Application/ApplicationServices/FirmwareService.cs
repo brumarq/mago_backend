@@ -1,69 +1,69 @@
 ﻿using Application.DTOs;
+using Application.Exceptions;
 using AutoMapper;
-using Bogus;
 using Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Domain.Enums;
+using Infrastructure.Repositories.Interfaces;
 
 namespace Application.ApplicationServices
 {
     public class FirmwareService : IFirmwareService
     {
         private readonly IMapper _mapper;
-        private static List<FileSend> fileSends = GenerateFakeFileSends(10);
-        public FirmwareService(IMapper mapper)
+        private readonly IRepository<FileSend> _firmwareRepository;
+        public FirmwareService(IMapper mapper, IRepository<FileSend> firmwareRepository)
         {
             _mapper = mapper;
+            _firmwareRepository = firmwareRepository;
         }
 
-        public Task<CreateFileSendDTO> CreateFileSendAsync(CreateFileSendDTO createFileSendDTO)
+        public async Task<CreateFileSendDTO> CreateFileSendAsync(CreateFileSendDTO createFileSendDTO)
         {
+            ValidateFileSendDTO(createFileSendDTO);
+
             Random rnd = new Random();
-            int parts = rnd.Next(1, 500);
+            int current = rnd.Next(1, 500);
+            int total = current + rnd.Next(1, 500);
 
             FileSend newFileSend = new FileSend
             {
-                Id = fileSends.Count + 1,
-                DeviceId = createFileSendDTO.DeviceId,
-                UserId = 1,
-                UpdateStatus = "SENT",
+                DeviceId = createFileSendDTO.DeviceId, // needs some sort of validation
+                UserId = createFileSendDTO.UserId, // needs some sort of validation
+                UpdateStatus = UpdateStatus.New.ToString(),
                 File = createFileSendDTO.File,
-                CurrPart = parts,
-                TotParts = parts
+                CurrPart = current,
+                TotParts = total
             };
 
-            fileSends.Add(newFileSend);
+            await _firmwareRepository.CreateAsync(newFileSend);
 
-            return Task.FromResult(_mapper.Map<CreateFileSendDTO>(newFileSend));
+            return _mapper.Map<CreateFileSendDTO>(newFileSend);
         }
 
-        public Task<IEnumerable<FileSendResponseDTO>> GetFileSendHistoryByDeviceId(int deviceId)
+        public async Task<IEnumerable<FileSendResponseDTO>> GetFileSendHistoryByDeviceIdAsync(int deviceId)
         {
-            IEnumerable<FileSend> fileSendsByDevice = fileSends.Where(f => f.DeviceId == deviceId);
+            var fileSends = await _firmwareRepository.GetAllAsync();
 
-            var fileSendDTOs = _mapper.Map<IEnumerable<FileSendResponseDTO>>(fileSendsByDevice);
+            var fileSendByDevice = fileSends.Where(f => f.DeviceId == deviceId);
 
-            return Task.FromResult(fileSendDTOs);
+            return _mapper.Map<IEnumerable<FileSendResponseDTO>>(fileSendByDevice);
         }
 
-
-        private static List<FileSend> GenerateFakeFileSends(int count)
+        private void ValidateFileSendDTO(CreateFileSendDTO fileSendDTO)
         {
-            Random rnd = new Random();
+            if (fileSendDTO == null)
+                throw new BadRequestException("File DTO cannot be null");
 
-            var faker = new Faker<FileSend>()
-                .RuleFor(u => u.Id, f => f.IndexFaker + 1)
-                .RuleFor(u => u.UpdateStatus, f => "SENT")
-                .RuleFor(u => u.DeviceId, f => rnd.Next(1, 4))
-                .RuleFor(u => u.UserId, f => rnd.Next(1, 3))
-                .RuleFor(u => u.File, f => f.Lorem.Word() + ".bin")
-                .RuleFor(u => u.CurrPart, f => rnd.Next(1, 500))
-                .RuleFor(u => u.TotParts, f => rnd.Next(1, 500));
-                
-            return faker.Generate(count);
+            if (string.IsNullOrEmpty(fileSendDTO.File))
+                throw new BadRequestException("File cannot be null or empty");
+
+            if (fileSendDTO.UserId <= 0)
+                throw new BadRequestException("User id cannot be negative or 0");
+
+            if (fileSendDTO.DeviceId <= 0)
+                throw new BadRequestException("Device id cannot be negative or 0");
+
+            //TODO: check for file validation (maybe diff extensions)
         }
     }
 }
