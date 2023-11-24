@@ -1,5 +1,4 @@
 ﻿using Application.DTOs;
-using Domain.Entities;
 using Domain.Enums;
 
 namespace Application.ApplicationServices.Interfaces
