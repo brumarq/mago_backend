@@ -4,23 +4,27 @@ using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
+using Infrastructure.Repositories.Interfaces;
 
 namespace Application.ApplicationServices
 {
     public class MetricsService : IMetricsService
     {
         private readonly IMapper _mapper;
-        private readonly IFakerService _fakerService;
+        private readonly IRepository<AggregatedLog> _aggregatedLogRepository;
+        private readonly IRepository<LogCollection> _deviceMetricsRepository;
 
-        public MetricsService(IMapper mapper, IFakerService fakerService)
+
+        public MetricsService(IMapper mapper, IRepository<AggregatedLog> aggregatedLogRepository, IRepository<LogCollection> deviceMetricsRepository)
         {
             _mapper = mapper;
-            _fakerService = fakerService;
-        }
+            _aggregatedLogRepository = aggregatedLogRepository;
+            _deviceMetricsRepository = deviceMetricsRepository;
+        }       
 
         public async Task<IEnumerable<AggregatedLogsResponseDTO>> GetAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType)
         {
-            var aggregatedLogs = await _fakerService.GetFakeAggregatedLogsAsync();
+            var aggregatedLogs = await _aggregatedLogRepository.GetAllAsync();
 
             if (aggregatedLogs == null)
                 throw new BadRequestException("Something went wrong while fetching the aggregated logs...");
@@ -45,7 +49,7 @@ namespace Application.ApplicationServices
 
         public async Task<IEnumerable<DeviceMetricsResponseDTO>> GetDeviceMetricsAsync(int deviceId)
         {
-            var deviceMetrics = await _fakerService.GetFakeDeviceMetricsAsync();
+            var deviceMetrics = await _deviceMetricsRepository.GetAllAsync();
 
             ValidateDevice(deviceId, deviceMetrics);
 
@@ -59,9 +63,7 @@ namespace Application.ApplicationServices
             if (deviceId < 0)
                 throw new BadRequestException("Device id cannot be 0 or negative");
 
-            var containsId = deviceMetrics.Any(dm => dm.DeviceId == deviceId);
-
-            if (!containsId)
+            if (!deviceMetrics.Any(dm => dm.DeviceId == deviceId))
                 throw new NotFoundException($"Device with id {deviceId} is not a valid device!");
         }    
     }
