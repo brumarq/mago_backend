@@ -2,8 +2,6 @@
 using Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace WebApp.Controllers
 {
     [Route("notification")]
@@ -19,7 +17,7 @@ namespace WebApp.Controllers
 
         // GET: /notifications
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<NotificationResponseDTO>>> GetAllNotifications()
+        public async Task<ActionResult<IEnumerable<NotificationResponseDTO>>> GetAllNotificationsAsync()
         {
             try
             {
@@ -34,7 +32,7 @@ namespace WebApp.Controllers
 
         // GET /notifications/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationById(int id)
+        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationByIdAsync(int id)
         {
             try
             {
@@ -53,12 +51,12 @@ namespace WebApp.Controllers
         }
 
         // GET /notifications/users/5
-        [HttpGet("notifications/users/{id}")]
-        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationForUserOnStatusType(int id)
+        [HttpGet("notifications/users/{userId}")]
+        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationForUserOnStatusTypeAsync(int userId)
         {
             try
             {
-                var notificationDTO = await _notificationService.GetNotificationsForUserOnStatusTypeByUserId(id);
+                var notificationDTO = await _notificationService.GetNotificationsForUserOnStatusTypeByUserIdAsync(userId);
                 if (notificationDTO == null)
                 {
                     return NotFound();
@@ -73,12 +71,12 @@ namespace WebApp.Controllers
         }
 
         // GET /notifications/device/5
-        [HttpGet("/notifications/device/{id}")]
-        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDevice(int id)
+        [HttpGet("/notifications/device/{deviceId}")]
+        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId)
         {
             try
             {
-                var notificationDTO = await _notificationService.GetNotificationsByDeviceId(id);
+                var notificationDTO = await _notificationService.GetNotificationsByDeviceIdAsync(deviceId);
                 if (notificationDTO == null)
                 {
                     return NotFound();
@@ -94,7 +92,7 @@ namespace WebApp.Controllers
 
         // POST /<notifications>
         [HttpPost]
-        public async Task<ActionResult<NotificationResponseDTO>> CreateNotification([FromBody] CreateNotificationDTO createNotificationDTO)
+        public async Task<ActionResult<NotificationResponseDTO>> CreateNotificationAsync([FromBody] CreateNotificationDTO createNotificationDTO)
         {
             try
             {

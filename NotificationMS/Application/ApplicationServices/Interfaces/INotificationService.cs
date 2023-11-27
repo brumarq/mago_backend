@@ -12,8 +12,8 @@ namespace Application.ApplicationServices.Interfaces
         Task<CreateNotificationDTO> CreateNotificationAsync(CreateNotificationDTO createNotificationDTO);
         Task<IEnumerable<NotificationResponseDTO>> GetAllNotificationsAsync();
         Task<NotificationResponseDTO> GetNotificationByIdAsync(int id);
-        Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceId(int deviceId);
-        Task<IEnumerable<NotificationResponseDTO>> GetNotificationsForUserOnStatusTypeByUserId(int userId);
+        Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId);
+        Task<IEnumerable<NotificationResponseDTO>> GetNotificationsForUserOnStatusTypeByUserIdAsync(int userId);
 
     }
 }
