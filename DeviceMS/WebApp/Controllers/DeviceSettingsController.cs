@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.Controllers
 {
-    [Route("device-settings")]
+    [Route("deviceMS/[controller]")]
     [ApiController]
     public class DeviceSettingsController : ControllerBase
     {

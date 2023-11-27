@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Data\Configuration\" />
       <Folder Include="ExternalServices\" />
     </ItemGroup>
 

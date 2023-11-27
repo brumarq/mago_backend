@@ -1,3 +1,4 @@
+using System.Reflection;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +30,8 @@ public class DevicesDbContext : DbContext
                 .IsRequired(false);
         });
 
+
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         base.OnModelCreating(modelBuilder);
     }
 

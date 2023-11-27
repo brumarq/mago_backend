@@ -1,8 +1,8 @@
 ﻿using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
+using Application.DTOs.DeviceType;
 using Application.Exceptions;
 using AutoMapper;
-using Bogus;
 using Domain.Entities;
 using Infrastructure.Repositories.Interfaces;
 
@@ -25,7 +25,7 @@ namespace Application.ApplicationServices
             var newDeviceType = await _repository.CreateAsync(_mapper.Map<DeviceType>(newDeviceTypeDto));
             return _mapper.Map<DeviceTypeResponseDTO>(newDeviceType);
         }
-        
+
         public async Task<IEnumerable<DeviceTypeResponseDTO>> GetDeviceTypesAsync()
         {
             var deviceTypes = await _repository.GetAllAsync();
@@ -37,12 +37,20 @@ namespace Application.ApplicationServices
             var deviceType = await _repository.GetByConditionAsync(dt => dt.Id == id);
             return _mapper.Map<DeviceTypeResponseDTO>(deviceType);
         }
-        
+
         public async Task<bool?> UpdateDeviceTypeAsync(int id, UpdateDeviceTypeDTO updatedDeviceTypeDto)
         {
             ValidateDeviceTypeDto(updatedDeviceTypeDto);
-            return await _repository.UpdateAsync(_mapper.Map<DeviceType>(updatedDeviceTypeDto, opt => opt.AfterMap((src, dest) => dest.Id = id)));
+            return await _repository.UpdateAsync(_mapper.Map<DeviceType>(updatedDeviceTypeDto,
+                opt => opt.AfterMap((src, dest) => dest.Id = id)));
         }
+
+        public async Task<IEnumerable<LabelValueOptionDTO>> GetDeviceTypeDropdown()
+        {
+            var deviceTypes = await _repository.GetAllAsync();
+            return _mapper.Map<IEnumerable<LabelValueOptionDTO>>(deviceTypes);
+        }
+
 
         private void ValidateDeviceTypeDto(DeviceTypeRequestDTO deviceType)
         {

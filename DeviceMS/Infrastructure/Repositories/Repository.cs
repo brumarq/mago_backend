@@ -26,12 +26,12 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
 
     public async Task<IEnumerable<T>> GetAllAsync()
     {
-        return await _entities.IgnoreAutoIncludes().ToListAsync();
+        return await _entities.ToListAsync();
     }
 
     public async Task<T> GetByConditionAsync(Expression<Func<T, bool>> predicate)
     {
-        return await _context.Set<T>().FirstOrDefaultAsync(predicate);
+        return await _entities.FirstOrDefaultAsync(predicate);
     }
 
     public async Task<bool?> UpdateAsync(T entity)

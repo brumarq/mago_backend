@@ -1,11 +1,12 @@
-﻿using Application.DTOs;
+﻿using Application.DTOs.Device;
 
 namespace Application.ApplicationServices.Interfaces
 {
     public interface IDeviceService
     {
-        Task<IEnumerable<DeviceResponseDTO>> GetAllDevicesAsync();
+        Task<DeviceResponseDTO> CreateDeviceAsync(CreateDeviceDTO newDeviceDto);
+        Task<IEnumerable<DeviceResponseDTO>> GetDevicesAsync();
         Task<DeviceResponseDTO> GetDeviceByIdAsync(int deviceId);
-        Task<CreateDeviceDTO> CreateDeviceAsync(CreateDeviceDTO createDeviceDTO);
+        Task<bool?> UpdateDeviceAsync(int id, UpdateDeviceDTO updateDeviceDto);
     }
 }
