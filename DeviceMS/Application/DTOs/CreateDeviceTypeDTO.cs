@@ -1,8 +1,6 @@
 ﻿namespace Application.DTOs
 {
-    public class CreateDeviceTypeDTO
+    public class CreateDeviceTypeDTO : DeviceTypeRequestDTO
     {
-        public string? Name { get; set; }
     }
 }
-

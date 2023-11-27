@@ -4,64 +4,47 @@ using Application.Exceptions;
 using AutoMapper;
 using Bogus;
 using Domain.Entities;
+using Infrastructure.Repositories.Interfaces;
 
 namespace Application.ApplicationServices
 {
     public class DeviceTypeService : IDeviceTypeService
     {
         private readonly IMapper _mapper;
-        private readonly IFakerService _fakerService;
+        private readonly IRepository<DeviceType> _repository;
 
-        public DeviceTypeService(IMapper mapper, IFakerService fakerService)
+        public DeviceTypeService(IMapper mapper, IRepository<DeviceType> repository)
         {
             _mapper = mapper;
-            _fakerService = fakerService;
+            _repository = repository;
         }
 
+        public async Task<DeviceTypeResponseDTO> CreateDeviceTypeAsync(CreateDeviceTypeDTO newDeviceTypeDto)
+        {
+            ValidateDeviceTypeDto(newDeviceTypeDto);
+            var newDeviceType = await _repository.CreateAsync(_mapper.Map<DeviceType>(newDeviceTypeDto));
+            return _mapper.Map<DeviceTypeResponseDTO>(newDeviceType);
+        }
+        
         public async Task<IEnumerable<DeviceTypeResponseDTO>> GetDeviceTypesAsync()
         {
-            var deviceTypes = await _fakerService.GetFakeDeviceTypesAsync();
-
+            var deviceTypes = await _repository.GetAllAsync();
             return _mapper.Map<IEnumerable<DeviceTypeResponseDTO>>(deviceTypes);
         }
 
-        public async Task<CreateDeviceTypeDTO> CreateDeviceTypeAsync(CreateDeviceTypeDTO deviceType)
+        public async Task<DeviceTypeResponseDTO> GetDeviceTypeByIdAsync(int id)
         {
-            ValidateDeviceTypeDTO(deviceType);
-
-            var deviceTypes = (await _fakerService.GetFakeDeviceTypesAsync()).ToList();
-
-            DeviceType newDeviceType = new DeviceType
-            {
-                Id = deviceTypes.Count + 1,
-                Name = deviceType.Name,
-            };
-
-            await _fakerService.CreateFakeDeviceTypeAsync(newDeviceType);
-
-            return _mapper.Map<CreateDeviceTypeDTO>(deviceType);
+            var deviceType = await _repository.GetByConditionAsync(dt => dt.Id == id);
+            return _mapper.Map<DeviceTypeResponseDTO>(deviceType);
+        }
+        
+        public async Task<bool?> UpdateDeviceTypeAsync(int id, UpdateDeviceTypeDTO updatedDeviceTypeDto)
+        {
+            ValidateDeviceTypeDto(updatedDeviceTypeDto);
+            return await _repository.UpdateAsync(_mapper.Map<DeviceType>(updatedDeviceTypeDto, opt => opt.AfterMap((src, dest) => dest.Id = id)));
         }
 
-        public async Task<UpdateDeviceTypeDTO> UpdateDeviceTypeAsync(int id, UpdateDeviceTypeDTO deviceType)
-        {
-            ValidateDeviceTypeDTO(deviceType);
-
-            var deviceTypes = (await _fakerService.GetFakeDeviceTypesAsync()).ToList();
-
-            var singleDeviceType = deviceTypes.FirstOrDefault(dt => dt.Id == id);
-
-            if (singleDeviceType == null)
-                throw new BadRequestException($"Device type with id {id} does not exist");
-
-            singleDeviceType.UpdatedAt = DateTime.Now;
-            singleDeviceType.Name = deviceType.Name;
-
-            await _fakerService.UpdateFakeDeviceTypeAsync(id, singleDeviceType);
-
-            return _mapper.Map<UpdateDeviceTypeDTO>(deviceType);
-        }
-
-        private void ValidateDeviceTypeDTO(CreateDeviceTypeDTO deviceType)
+        private void ValidateDeviceTypeDto(DeviceTypeRequestDTO deviceType)
         {
             if (deviceType == null)
                 throw new BadRequestException("The object cannot be null");

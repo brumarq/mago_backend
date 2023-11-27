@@ -36,10 +36,10 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
 
     public async Task<bool?> UpdateAsync(T entity)
     {
-        T? existingEntity = await _entities.FindAsync(entity.Id);
+        var existingEntity = await _entities.FindAsync(entity.Id);
 
-        if (entity == null)
-            return false;
+        if (existingEntity == null)
+            return null;
 
         _entities.Entry(existingEntity).CurrentValues.SetValues(entity);
         return await _context.SaveChangesAsync() > 0;
