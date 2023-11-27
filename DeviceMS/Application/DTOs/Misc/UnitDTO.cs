@@ -1,10 +1,11 @@
-namespace Domain.Entities;
+namespace Application.DTOs.Misc;
 
-public class Unit : BaseEntity
+public class UnitDTO : BaseDTO
 {
     public string? Name { get; set; }
     public string? Symbol { get; set; }
     public float? Factor { get; set; }
     public float? Offset { get; set; }
-    public ICollection<Quantity>? Quantity { get; set; } = new List<Quantity>();
+    
+    public QuantityDTO? Quantity { get; set; }
 }

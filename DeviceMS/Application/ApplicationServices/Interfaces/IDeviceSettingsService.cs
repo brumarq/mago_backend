@@ -1,10 +1,13 @@
 ﻿using Application.DTOs.Setting;
+using Application.DTOs.SettingValue;
 
 namespace Application.ApplicationServices.Interfaces
 {
     public interface IDeviceSettingsService
     {
+        Task<SettingValueResponseDTO> AddSettingToDevice(CreateSettingValueDTO newSettingValue);
         Task<IEnumerable<SettingValueResponseDTO>> GetSettingsForDeviceAsync(int deviceId);
-        Task<SettingValueResponseDTO> AddSettingsToDevice(CreateSettingValueDTO newSettingValue);
+        Task<bool?> UpdateSettingAsync(int id, UpdateSettingValueDTO updateSettingValueDto); 
+        Task<bool> DeleteSettingFromDeviceAsync(int id);
     }
 }

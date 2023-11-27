@@ -4,6 +4,7 @@ using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DevicesDbContext))]
-    partial class DevicesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231127184330_TempFixUnitQuantity")]
+    partial class TempFixUnitQuantity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -232,7 +235,7 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DeviceId")
+                    b.Property<int?>("DeviceId")
                         .HasColumnType("int");
 
                     b.Property<int?>("SettingId")
@@ -325,15 +328,15 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("QuantityUnit", b =>
                 {
-                    b.Property<int>("QuantityId")
+                    b.Property<int>("BaseOfQuantitiesId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UnitId")
+                    b.Property<int>("UnitsId")
                         .HasColumnType("int");
 
-                    b.HasKey("QuantityId", "UnitId");
+                    b.HasKey("BaseOfQuantitiesId", "UnitsId");
 
-                    b.HasIndex("UnitId");
+                    b.HasIndex("UnitsId");
 
                     b.ToTable("QuantityUnit");
                 });
@@ -383,9 +386,7 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.Device", "Device")
                         .WithMany()
-                        .HasForeignKey("DeviceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DeviceId");
 
                     b.HasOne("Domain.Entities.Setting", "Setting")
                         .WithMany()
@@ -409,13 +410,13 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.Quantity", null)
                         .WithMany()
-                        .HasForeignKey("QuantityId")
+                        .HasForeignKey("BaseOfQuantitiesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Unit", null)
                         .WithMany()
-                        .HasForeignKey("UnitId")
+                        .HasForeignKey("UnitsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
