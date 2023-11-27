@@ -1,10 +1,11 @@
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
+using Application.DTOs.DeviceType;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.Controllers
 {
-    [Route("device-types")]
+    [Route("deviceMS/[controller]")]
     [ApiController]
     public class DeviceTypeController : ControllerBase
     {
@@ -25,7 +26,7 @@ namespace WebApp.Controllers
                 return (newDeviceType == null)
                     ? StatusCode(500, "The DeviceType could not be created.")
                     : Ok(newDeviceType);
-                // : CreatedAtAction(nameof(GetDeviceTypeByIdAsync), new { id = newDeviceType.Id }, newDeviceType);
+                //TODO: replace OK with CreatedAtAction(nameof(GetDeviceTypeByIdAsync), new { id = newDeviceType.Id }, newDeviceType);
             }
             catch (Exception e)
             {
@@ -41,9 +42,9 @@ namespace WebApp.Controllers
                 var deviceTypes = await _deviceTypeService.GetDeviceTypesAsync();
                 return Ok(deviceTypes);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
 
@@ -79,9 +80,9 @@ namespace WebApp.Controllers
 
                 return (bool)isUpdatedResult ? NoContent() : Ok("No changes were made.");
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
     }

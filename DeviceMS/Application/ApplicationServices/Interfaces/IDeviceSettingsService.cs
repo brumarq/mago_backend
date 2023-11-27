@@ -1,5 +1,4 @@
-﻿using Application.DTOs;
-using Application.DTOs.Setting;
+﻿using Application.DTOs.Setting;
 
 namespace Application.ApplicationServices.Interfaces
 {

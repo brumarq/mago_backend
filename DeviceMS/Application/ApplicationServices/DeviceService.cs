@@ -1,80 +1,76 @@
 ﻿using Application.ApplicationServices.Interfaces;
-using Application.DTOs;
+using Application.DTOs.Device;
 using Application.Exceptions;
 using AutoMapper;
 using Bogus.DataSets;
 using Domain.Entities;
+using Infrastructure.Repositories.Interfaces;
 
 namespace Application.ApplicationServices
 {
     public class DeviceService : IDeviceService
     {
         private readonly IMapper _mapper;
-        private readonly IFakerService _fakerService;
-        public DeviceService(IMapper mapper, IFakerService fakerService)
+        private readonly IDeviceTypeService _deviceTypeService;
+        private readonly IRepository<Device> _repository;
+
+        public DeviceService(IMapper mapper, IRepository<Device> repository, IDeviceTypeService deviceTypeService)
         {
             _mapper = mapper;
-            _fakerService = fakerService;
+            _repository = repository;
+            _deviceTypeService = deviceTypeService;
         }
 
-        public async Task<IEnumerable<DeviceResponseDTO>> GetAllDevicesAsync()
+        public async Task<DeviceResponseDTO> CreateDeviceAsync(CreateDeviceDTO newDeviceDto)
         {
-            var devices = await _fakerService.GetFakeDevicesAsync();
+            ValidateDevice(newDeviceDto);
 
+            var selectedDeviceType = _mapper.Map<DeviceType>(await _deviceTypeService.GetDeviceTypeByIdAsync(newDeviceDto.DeviceTypeId));
+            if (selectedDeviceType == null)
+                throw new NotFoundException("The selected device type does not exist.");
+
+            var newDevice = await _repository.CreateAsync(_mapper.Map<Device>(newDeviceDto));
+            return _mapper.Map<DeviceResponseDTO>(newDevice);
+        }
+
+        public async Task<IEnumerable<DeviceResponseDTO>> GetDevicesAsync()
+        {
+            var devices = await _repository.GetAllAsync();
             return _mapper.Map<IEnumerable<DeviceResponseDTO>>(devices);
         }
 
-        public async Task<DeviceResponseDTO> GetDeviceByIdAsync(int deviceId)
+        public async Task<DeviceResponseDTO> GetDeviceByIdAsync(int id)
         {
-            var devices = await _fakerService.GetFakeDevicesAsync();
-
-            ValidateDevice(deviceId);
-
-            var device = devices.FirstOrDefault(d => d.Id == deviceId);
-
+            var device = await _repository.GetByConditionAsync(d => d.Id == id);
             return _mapper.Map<DeviceResponseDTO>(device);
         }
 
-        public async Task<CreateDeviceDTO> CreateDeviceAsync(CreateDeviceDTO createDeviceDTO)
+        public async Task<bool?> UpdateDeviceAsync(int id, UpdateDeviceDTO updateDeviceDto)
         {
-            var devices = (await _fakerService.GetFakeDevicesAsync()).ToList();
-
-            Device newDevice = new Device();
-
-            newDevice.Id = devices.Count + 1;
-            newDevice.Name = createDeviceDTO.Name;
-
-            newDevice.DeviceType = await GetDeviceTypeById(createDeviceDTO.DeviceTypeId);
-            newDevice.SendSettingsAtConn = createDeviceDTO.SendSettingsAtConn;
-            newDevice.SendSettingsNow = createDeviceDTO.SendSettingsNow;
-            newDevice.Salt = newDevice.GenerateSalt();
-            newDevice.PwHash = newDevice.GenerateHash(createDeviceDTO.Password);
-            newDevice.AuthId = createDeviceDTO.AuthId;
-
-            await _fakerService.CreateFakeDeviceAsync(newDevice);
-
-            return _mapper.Map<CreateDeviceDTO>(createDeviceDTO);
+            ValidateDevice(updateDeviceDto);
+            return await _repository.UpdateAsync(_mapper.Map<Device>(updateDeviceDto,
+                opt => opt.AfterMap((src, dest) => dest.Id = id)));
         }
 
-        private async void ValidateDevice(int deviceId)
+        private void ValidateDevice(DeviceRequestDTO device)
         {
-            if (deviceId <= 0)
-                throw new BadRequestException("The device id cannot be 0 or negative.");
+            switch (device)
+            {
+                case null:
+                    throw new BadRequestException("The object cannot be null.");
 
-            var devices = await _fakerService.GetFakeDevicesAsync();
+                case { Name: null } or { Name: "" }:
+                    throw new BadRequestException("The 'Name' property is required to be filled out");
 
-            if (!devices.Any(d => d.Id == deviceId))
-                throw new NotFoundException($"The device with id {deviceId} does not exist.");
-        }
+                case { DeviceTypeId: <= 0 }:
+                    throw new BadRequestException("The 'DeviceTypeId' property cannot be negative or 0.");
 
-        private async Task<DeviceType> GetDeviceTypeById(int deviceTypeId)
-        {
-            var deviceType = (await _fakerService.GetFakeDeviceTypesAsync()).FirstOrDefault(dt => dt.Id == deviceTypeId);
+                case { AuthId: null } or { AuthId: "" }:
+                    throw new BadRequestException("The 'AuthId' property is required to be filled out");
 
-            if (deviceType == null)
-                throw new BadRequestException($"Device type with id {deviceTypeId} does not exist");
-
-            return deviceType;
+                case { Password: null } or { Password: "" }:
+                    throw new BadRequestException("The 'Password' property is required to be filled out");
+            }
         }
     }
 }

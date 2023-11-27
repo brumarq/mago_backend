@@ -1,8 +1,11 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Domain.Entities;
 
 public class Device : BaseEntity
 {
     public string? Name { get; set; }
+    public int DeviceTypeId { get; set; }
     public DeviceType? DeviceType { get; set; }
     public bool SendSettingsAtConn { get; set; }
     public bool SendSettingsNow { get; set; }

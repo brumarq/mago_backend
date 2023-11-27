@@ -1,4 +1,6 @@
 using Application.DTOs;
+using Application.DTOs.Device;
+using Application.DTOs.DeviceType;
 using Application.DTOs.Setting;
 using AutoMapper;
 using Domain.Entities;
@@ -16,6 +18,9 @@ public class Profiles : Profile
 
         CreateMap<Device, CreateDeviceDTO>();
         CreateMap<CreateDeviceDTO, Device>();
+        
+        CreateMap<Device, UpdateDeviceDTO>();
+        CreateMap<UpdateDeviceDTO, Device>();
 
         #endregion
 
@@ -36,7 +41,7 @@ public class Profiles : Profile
 
         CreateMap<SettingValue, SettingValueResponseDTO>()
             .ForMember(dest => dest.DeviceId, opt => opt.MapFrom(src => src.Device.Id));
-            
+
         CreateMap<SettingValueResponseDTO, SettingValue>();
 
         CreateMap<CreateSettingValueDTO, SettingValue>()
@@ -44,6 +49,14 @@ public class Profiles : Profile
 
         CreateMap<Setting, SettingDTO>();
         CreateMap<SettingDTO, Setting>();
+
+        #endregion
+
+        #region Dropdown
+
+        CreateMap<DeviceType, LabelValueOptionDTO>()
+            .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Label, opt => opt.MapFrom(src => src.Name));
 
         #endregion
     }
