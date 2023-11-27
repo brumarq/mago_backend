@@ -29,6 +29,11 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
         return await _entities.ToListAsync();
     }
 
+    public async Task<IEnumerable<T>> GetCollectionByConditionAsync(Expression<Func<T, bool>> predicate)
+    {
+        return await _entities.Where(predicate).ToListAsync();
+    }
+
     public async Task<T> GetByConditionAsync(Expression<Func<T, bool>> predicate)
     {
         return await _entities.FirstOrDefaultAsync(predicate);

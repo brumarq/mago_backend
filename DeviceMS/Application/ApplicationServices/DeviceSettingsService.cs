@@ -1,51 +1,55 @@
 ﻿using Application.ApplicationServices.Interfaces;
-using Application.DTOs;
 using Application.DTOs.Setting;
+using Application.DTOs.SettingValue;
 using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
+using Infrastructure.Repositories.Interfaces;
 
 namespace Application.ApplicationServices
 {
     public class DeviceSettingsService : IDeviceSettingsService
     {
         private readonly IMapper _mapper;
-        private readonly IFakerService _fakerService;
+        private readonly IRepository<SettingValue> _repository;
 
-        public DeviceSettingsService(IMapper mapper, IFakerService fakerService)
+        public DeviceSettingsService(IMapper mapper, IRepository<SettingValue> repository)
         {
             _mapper = mapper;
-            _fakerService = fakerService;
+            _repository = repository;
         }
 
         public async Task<IEnumerable<SettingValueResponseDTO>> GetSettingsForDeviceAsync(int deviceId)
         {
-            var deviceSettings = await _fakerService.GetFakeSettingValuesAsync();
+            var deviceSettings = await _repository.GetCollectionByConditionAsync(sv => sv.Device.Id == deviceId);
 
-            if (deviceId <= 0)
-                throw new BadRequestException("Device id cannot be negative or 0");
+            if (!deviceSettings.Any())
+                throw new NotFoundException($"No settings found for Device with ID: {deviceId}");
 
-            var hasSettingsForDeviceId = deviceSettings.Any(ds => ds.Device.Id == deviceId);
-
-            if (!hasSettingsForDeviceId)
-                throw new BadRequestException($"No settings for the following device id: {deviceId}");
-
-            var deviceSettingsForDevice = deviceSettings.Where(ds => ds.Device.Id == deviceId);
-
-            return _mapper.Map<IEnumerable<SettingValueResponseDTO>>(deviceSettingsForDevice);
+            return _mapper.Map<IEnumerable<SettingValueResponseDTO>>(deviceSettings);
         }
 
-        public async Task<SettingValueResponseDTO> AddSettingsToDevice(CreateSettingValueDTO newSettingValue)
+        public async Task<SettingValueResponseDTO> AddSettingToDevice(CreateSettingValueDTO newSettingValueDto)
         {
-            ValidateSettingValueDTO(newSettingValue);
+            ValidateSettingValue(newSettingValueDto);
 
-            var mappedSettingValue = _mapper.Map<SettingValue>(newSettingValue);
-            
-            var createdSettingValue = await _fakerService.CreateFakeSettingValueAsync(mappedSettingValue);
-            return _mapper.Map<SettingValueResponseDTO>(createdSettingValue);
+            var newSettingValue = await _repository.CreateAsync(_mapper.Map<SettingValue>(newSettingValueDto));
+            return _mapper.Map<SettingValueResponseDTO>(newSettingValue);
         }
 
-        private void ValidateSettingValueDTO(CreateSettingValueDTO newSettingValue)
+        public async Task<bool?> UpdateSettingAsync(int id, UpdateSettingValueDTO updateSettingValueDto)
+        {
+            ValidateSettingValue(updateSettingValueDto);
+            return await _repository.UpdateAsync(_mapper.Map<SettingValue>(updateSettingValueDto,
+                opt => opt.AfterMap((src, dest) => dest.Id = id)));
+        }
+
+        public async Task<bool> DeleteSettingFromDeviceAsync(int id)
+        {
+            return await _repository.DeleteAsync(id);
+        }
+
+        private void ValidateSettingValue(SettingValueRequestDTO newSettingValue)
         {
             switch (newSettingValue)
             {

@@ -153,8 +153,8 @@ namespace Application.ApplicationServices
                 .RuleFor(u => u.Name, f => f.Lorem.Word())
                 .RuleFor(u => u.Symbol, f => f.Random.String(3))
                 .RuleFor(u => u.Factor, f => f.Random.Float())
-                .RuleFor(u => u.Offset, f => f.Random.Float())
-                .RuleFor(u => u.Quantity, f => GenerateFakeQuantity());
+                .RuleFor(u => u.Offset, f => f.Random.Float());
+                // .RuleFor(u => u.Quantity, f => GenerateFakeQuantity());
 
             return faker.Generate();
         }

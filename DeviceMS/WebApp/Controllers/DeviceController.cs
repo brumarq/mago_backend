@@ -25,13 +25,13 @@ namespace WebApp.Controllers
                 var newDevice = await _deviceService.CreateDeviceAsync(createDeviceDto);
 
                 return (newDevice == null)
-                    ? StatusCode(500, "The Device could not be created")
+                    ? StatusCode(500, "The Device could not be created.")
                     : Ok(newDevice);
                 //TODO: replace OK with CreatedAtAction(nameof(GetDeviceByIdAsync), new { id = newDevice.Id }, newDevice);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
 
@@ -43,9 +43,9 @@ namespace WebApp.Controllers
                 var devices = await _deviceService.GetDevicesAsync();
                 return Ok(devices);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
 
@@ -60,9 +60,9 @@ namespace WebApp.Controllers
                 var device = await _deviceService.GetDeviceByIdAsync(id);
                 return (device == null) ? NotFound() : Ok(device);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
 

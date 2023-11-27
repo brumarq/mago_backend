@@ -1,7 +1,9 @@
 using Application.DTOs;
 using Application.DTOs.Device;
 using Application.DTOs.DeviceType;
+using Application.DTOs.Misc;
 using Application.DTOs.Setting;
+using Application.DTOs.SettingValue;
 using AutoMapper;
 using Domain.Entities;
 
@@ -18,7 +20,7 @@ public class Profiles : Profile
 
         CreateMap<Device, CreateDeviceDTO>();
         CreateMap<CreateDeviceDTO, Device>();
-        
+
         CreateMap<Device, UpdateDeviceDTO>();
         CreateMap<UpdateDeviceDTO, Device>();
 
@@ -39,20 +41,21 @@ public class Profiles : Profile
 
         #region Device Settings
 
-        CreateMap<SettingValue, SettingValueResponseDTO>()
-            .ForMember(dest => dest.DeviceId, opt => opt.MapFrom(src => src.Device.Id));
-
-        CreateMap<SettingValueResponseDTO, SettingValue>();
-
-        CreateMap<CreateSettingValueDTO, SettingValue>()
-            .ForPath(dest => dest.Device.Id, opt => opt.MapFrom(src => src.DeviceId));
-
-        CreateMap<Setting, SettingDTO>();
-        CreateMap<SettingDTO, Setting>();
+        CreateMap<SettingValue, SettingValueResponseDTO>();
+        CreateMap<SettingValueRequestDTO, SettingValue>();
+        
+        CreateMap<Setting, SettingResponseDTO>();
+        CreateMap<SettingRequestDTO, Setting>();
 
         #endregion
 
-        #region Dropdown
+        #region Misc
+
+        CreateMap<Unit, UnitDTO>();
+        CreateMap<UnitDTO, Unit>();
+
+        CreateMap<Quantity, QuantityDTO>();
+        CreateMap<QuantityDTO, Quantity>();
 
         CreateMap<DeviceType, LabelValueOptionDTO>()
             .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))

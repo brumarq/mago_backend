@@ -4,17 +4,17 @@ namespace Application.Exceptions
 {
     public abstract class CustomException : Exception
     {
-        private readonly HttpStatusCode StatusCode;
+        private readonly HttpStatusCode _statusCode;
 
         protected CustomException(HttpStatusCode statusCode)
         {
-            StatusCode = statusCode;
+            _statusCode = statusCode;
         }
 
         public CustomException(string message, HttpStatusCode statusCode)
             : base(message)
         {
-            StatusCode = statusCode;
+            _statusCode = statusCode;
         }
 
     }
