@@ -1,6 +1,6 @@
 ﻿namespace Application.DTOs
 {
-    public class UpdateDeviceTypeDTO : CreateDeviceTypeDTO
+    public class UpdateDeviceTypeDTO : DeviceTypeRequestDTO
     {
     }
 }

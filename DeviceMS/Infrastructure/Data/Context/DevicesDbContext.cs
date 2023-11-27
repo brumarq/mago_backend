@@ -35,7 +35,7 @@ public class DevicesDbContext : DbContext
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var entries = ChangeTracker.Entries().Where(
-            e => e.Entity is BaseEntity && (e.State == EntityState.Added || e.State == EntityState.Modified));
+            e => e.Entity is BaseEntity && e.State is EntityState.Added or EntityState.Modified);
 
         foreach (var entry in entries)
         {
