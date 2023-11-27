@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Application.DTOs;
-using Domain.Entities;
+﻿using Application.DTOs;
+using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -19,7 +18,7 @@ namespace WebApp.Controllers
 
         // POST /firmware
         [HttpPost]
-        public async Task<ActionResult<CreateFileSendDTO>> CreateFirmWareFileSend([FromBody] CreateFileSendDTO createFileSendDTO)
+        public async Task<ActionResult<CreateFileSendDTO>> CreateFirmWareFileSendAsync([FromBody] CreateFileSendDTO createFileSendDTO)
         {
             try
             {
@@ -37,13 +36,13 @@ namespace WebApp.Controllers
             }
         }
 
-        // GET: /firmware/device/{id}
-        [HttpGet("firmware/devices/{id}")]
-        public async Task<ActionResult<IEnumerable<FileSendResponseDTO>>> GetFirmwareHistoryForDevice(int id)
+        // GET: /firmware/device/{deviceId}
+        [HttpGet("firmware/devices/{deviceId}")]
+        public async Task<ActionResult<IEnumerable<FileSendResponseDTO>>> GetFirmwareHistoryForDeviceAsync(int deviceId)
         {
             try
             {
-                var notificationDTO = await _firmwareService.GetFileSendHistoryByDeviceId(id);
+                var notificationDTO = await _firmwareService.GetFileSendHistoryByDeviceIdAsync(deviceId);
                 if (notificationDTO == null)
                 {
                     return NotFound();
