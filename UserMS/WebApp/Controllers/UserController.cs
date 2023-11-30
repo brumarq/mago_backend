@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
@@ -13,11 +14,13 @@ public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
     private readonly IConfiguration _configuration;
+    private readonly IAuth0Service _auth0Service;
 
-    public UserController(IUserService userService, IConfiguration configuration)
+    public UserController(IUserService userService, IConfiguration configuration, IAuth0Service auth0Service)
     {
         _userService = userService;
         _configuration = configuration;
+        _auth0Service = auth0Service;
     }
 
     // GET: /customers/5
@@ -26,13 +29,24 @@ public class UserController : ControllerBase
     {
         try
         {
-            var userDTO = await _userService.GetUserByIdAsync(id);
-            if (userDTO == null)
-            {
-                return NotFound();
-            }
+            // Extract the user's ID and roles/permissions from the JWT token
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var hasAdminPermission = User.HasClaim(c => c.Type == "permissions" && c.Value == "manage:users\t");
+            var hasClientPermission = User.HasClaim(c => c.Type == "permissions" && c.Value == "manage:own-users\t");
 
-            return Ok(userDTO);
+            // Check if the user has the right permissions
+            if (hasAdminPermission || (hasClientPermission && userIdClaim == id.ToString()))
+            {
+                var userDTO = await _userService.GetUserByIdAsync(id);
+                if (userDTO == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(userDTO);
+            } 
+            
+            return Forbid(); // or return Unauthorized();
         }
         catch (Exception ex)
         {
@@ -80,11 +94,20 @@ public class UserController : ControllerBase
 
     // POST: /users
     [HttpPost]
-    public async Task<ActionResult<UserResponseDTO>> CreateUser([FromBody] CreateUserDTO createUserDTO)
+    public async Task<ActionResult<Auth0UserResponse>> CreateUser([FromBody] CreateUserDTO createUserDTO)
     {
         try
         {
-            var result = await _userService.CreateUserAsync(createUserDTO);
+            var hasAdminPermission = User.HasClaim(c => c.Type == "permissions" && c.Value == "manage:users\t");
+
+            if (!hasAdminPermission)
+            {
+                return Unauthorized();
+            }
+
+            
+            var result = await _auth0Service.CreateAuth0UserAsync(createUserDTO);
+            
             if (result == null)
             {
                 return StatusCode(500, "The customer could not be created.");
