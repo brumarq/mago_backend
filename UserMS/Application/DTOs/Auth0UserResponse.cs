@@ -2,7 +2,7 @@
 
 namespace Application.DTOs;
 
-public abstract class Auth0UserResponse
+public class Auth0UserResponse
 {
     
     [JsonPropertyName("user_id")]
