@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
+using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +22,7 @@ public class Auth0Service: IAuth0Service
         _configuration = configuration;
     }
     
-    public async Task<CreateAuth0UserResponseDto> CreateAuth0UserAsync(CreateUserDTO createUserDto)
+    public async Task<Auth0UserResponseDto> CreateAuth0UserAsync(CreateUserDTO createUserDto)
     {
         
         ValidateEmail(createUserDto.Email);
@@ -72,7 +73,7 @@ public class Auth0Service: IAuth0Service
         await AddRole(roleName, auth0User.UserId);
 
         
-        return new CreateAuth0UserResponseDto
+        return new Auth0UserResponseDto
         {
             User = auth0User,
             Role = roleName
@@ -115,7 +116,84 @@ public class Auth0Service: IAuth0Service
         }
     }
     
+    private async Task<string> GetRole(string userId)
+    {
+        // Use _auth0ManagementService to get the access token
+        var token = await _auth0ManagementService.GetToken();
+
+        // Prepare the request to get roles of a user
+        var client = _httpClientFactory.CreateClient();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users/{userId}/roles")
+        {
+            Headers =
+            {
+                { "Authorization", $"Bearer {token.Token}" }
+            }
+        };
+
+        var response = await client.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            _logger.LogError("Error retrieving roles for user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
+            throw new Exception($"Error retrieving roles for user in Auth0: {errorContent}");
+        }
+
+        // Read the response content and deserialize it
+        var roles = await response.Content.ReadFromJsonAsync<List<Role>>();
+
+        // Check if the roles list is not empty, then return the name of the first role
+        if (roles != null && roles.Any())
+        {
+            return roles.First().Name;
+        }
+
+        // If the roles list is empty, return an empty string or null
+        return "";
+    }
     
+    public async Task<Auth0UserResponseDto> GetUser(string userId)
+    {
+        // Use _auth0ManagementService to get the access token
+        var token = await _auth0ManagementService.GetToken();
+
+        // Prepare the request to assign a role to a user
+        var client = _httpClientFactory.CreateClient();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users/{userId}")
+        {
+            Headers =
+            {
+                { "Authorization", $"Bearer {token.Token}" }
+            }
+        };
+
+        var response = await client.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            _logger.LogError("Error assigning role to user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
+            throw new Exception($"Error assigning role to user in Auth0: {errorContent}");
+        }
+
+        var auth0User = await response.Content.ReadFromJsonAsync<Auth0UserResponse>();
+        var role = await GetRole(userId);
+        
+        if (auth0User == null)
+        {
+            throw new Exception();
+        }
+
+        return new Auth0UserResponseDto
+        {
+            User = auth0User,
+            Role = role
+        };
+    }
+    
+    
+    // Validation Methods
     private void ValidatePasswordStrength(string? password)
     {
         if (string.IsNullOrWhiteSpace(password))

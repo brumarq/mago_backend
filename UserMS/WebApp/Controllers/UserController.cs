@@ -25,26 +25,26 @@ public class UserController : ControllerBase
 
     // GET: /customers/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<UserResponseDTO>> GetUserById(int id)
+    public async Task<ActionResult<Auth0UserResponse>> GetUserById(string id)
     {
         try
         {
             // Extract the user's ID and roles/permissions from the JWT token
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            /*var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var hasAdminPermission = User.HasClaim(c => c.Type == "permissions" && c.Value == "manage:users\t");
             var hasClientPermission = User.HasClaim(c => c.Type == "permissions" && c.Value == "manage:own-users\t");
 
             // Check if the user has the right permissions
             if (hasAdminPermission || (hasClientPermission && userIdClaim == id.ToString()))
-            {
-                var userDTO = await _userService.GetUserByIdAsync(id);
+            {*/
+                var userDTO = await _auth0Service.GetUser(id);
                 if (userDTO == null)
                 {
                     return NotFound();
                 }
 
                 return Ok(userDTO);
-            } 
+            /*}*/ 
             
             return Forbid(); // or return Unauthorized();
         }
