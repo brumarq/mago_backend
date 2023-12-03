@@ -123,7 +123,7 @@ public class UserService : IUserService
 
     public async Task<UserResponseDTO> UpdateUserAsync(int id, CreateUserDTO createUserDTO)
     {
-        if (createUserDTO == null || string.IsNullOrEmpty(createUserDTO.Name))
+        if (createUserDTO == null || string.IsNullOrEmpty(createUserDTO.FamilyName))
         {
             _logger.LogWarning("UpdateUserAsync called with invalid data for user ID {UserId}", id);
             throw new ArgumentException("Invalid user data.");
@@ -139,7 +139,7 @@ public class UserService : IUserService
                 return null;
             }
 
-            userToUpdate.Name = createUserDTO.Name ?? userToUpdate.Name;
+            userToUpdate.Name = createUserDTO.FamilyName ?? userToUpdate.Name;
             userToUpdate.SysAdmin = createUserDTO.SysAdmin;
             userToUpdate.UpdatedAt = DateTime.Now;
 

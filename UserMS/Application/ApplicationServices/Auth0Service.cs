@@ -7,28 +7,29 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.ApplicationServices;
 
-public class Auth0Service: IAuth0Service
+public class Auth0Service : IAuth0Service
 {
     private readonly ILogger<UserService> _logger;
     private readonly IAuth0ManagementService _auth0ManagementService;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
 
-    public Auth0Service(ILogger<UserService> logger, IAuth0ManagementService auth0ManagementService, IHttpClientFactory httpClientFactory, IConfiguration configuration)
+    public Auth0Service(ILogger<UserService> logger, IAuth0ManagementService auth0ManagementService,
+        IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
         _logger = logger;
         _auth0ManagementService = auth0ManagementService;
         _httpClientFactory = httpClientFactory;
         _configuration = configuration;
     }
-    
+
     public async Task<Auth0UserResponseDto> CreateAuth0UserAsync(CreateUserDTO createUserDto)
     {
-        
+
         ValidateEmail(createUserDto.Email);
         ValidatePasswordStrength(createUserDto.Password);
-        
-        if (string.IsNullOrWhiteSpace(createUserDto.Name))
+
+        if (string.IsNullOrWhiteSpace(createUserDto.FamilyName) || string.IsNullOrWhiteSpace(createUserDto.GivenName))
         {
             throw new ArgumentException("Name cannot be empty or whitespace.");
         }
@@ -43,7 +44,9 @@ public class Auth0Service: IAuth0Service
             Content = JsonContent.Create(new
             {
                 email = createUserDto.Email,
-                name = createUserDto.Name,
+                family_name = createUserDto.FamilyName,
+                given_name = createUserDto.GivenName,
+                name = createUserDto.GivenName + " " + createUserDto.FamilyName,
                 password = createUserDto.Password,
                 connection = "Username-Password-Authentication"
             }),
