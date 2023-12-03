@@ -56,13 +56,12 @@ public class UserController : ControllerBase
 
     // GET: /customers
     [HttpGet]
-    [Authorize("get:users")]
     public async Task<ActionResult<IEnumerable<UserResponseDTO>>> GetAllUsers()
     {
         try
         {
-            var customers = await _userService.GetAllUsersAsync();
-            return Ok(customers);
+            var users = await _auth0Service.GetAllUsersWithRolesAsync();
+            return Ok(users);
         }
         catch (Exception ex)
         {

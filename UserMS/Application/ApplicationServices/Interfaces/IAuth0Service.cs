@@ -7,5 +7,5 @@ public interface IAuth0Service
     Task<Auth0UserResponseDto> CreateAuth0UserAsync(CreateUserDTO createUserDTO);
     Task<Auth0UserResponseDto> GetUser(string userId);
 
-    
+    Task<List<Auth0UserResponseDto>> GetAllUsersWithRolesAsync();
 }

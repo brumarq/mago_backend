@@ -192,6 +192,63 @@ public class Auth0Service: IAuth0Service
         };
     }
     
+    public async Task<List<Auth0UserResponseDto>> GetAllUsersWithRolesAsync()
+    {
+        var adminUsers = await GetUsersByRoleAsync("admin");
+        var clientUsers = await GetUsersByRoleAsync("client");
+
+        // Combine the lists
+        var allUsersWithRoles = new List<Auth0UserResponseDto>();
+        allUsersWithRoles.AddRange(adminUsers);
+        allUsersWithRoles.AddRange(clientUsers);
+
+        return allUsersWithRoles;
+    }
+    
+    public async Task<List<Auth0UserResponseDto>> GetUsersByRoleAsync(string roleName)
+    {
+        var roleId = _configuration[$"Auth0-Roles:{roleName}"];
+        if (string.IsNullOrEmpty(roleId))
+        {
+            _logger.LogError($"Role ID for {roleName} not found in configuration.");
+            return new List<Auth0UserResponseDto>();
+        }
+
+        var users = await GetUsersForRoleId(roleId);
+        return users.Select(user => new Auth0UserResponseDto
+        {
+            User = user,
+            Role = roleName
+        }).ToList();
+    }
+
+    private async Task<List<Auth0UserResponse>> GetUsersForRoleId(string roleId)
+    {
+        var token = await _auth0ManagementService.GetToken();
+
+        var client = _httpClientFactory.CreateClient();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/roles/{roleId}/users")
+        {
+            Headers =
+            {
+                { "Authorization", $"Bearer {token.Token}" }
+            }
+        };
+
+        var response = await client.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            _logger.LogError("Error retrieving users for role {RoleId} in Auth0. Status Code: {StatusCode}, Details: {Details}", roleId, response.StatusCode, errorContent);
+            throw new Exception($"Error retrieving users for role {roleId} in Auth0: {errorContent}");
+        }
+
+        var users = await response.Content.ReadFromJsonAsync<List<Auth0UserResponse>>();
+        return users ?? new List<Auth0UserResponse>();
+    }
+
+    
     
     // Validation Methods
     private void ValidatePasswordStrength(string? password)
