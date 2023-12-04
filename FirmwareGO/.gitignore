@@ -1,0 +1,66 @@
+# Binaries and objects #
+#######################
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.o
+*.a
+*.obj
+*.swp
+*.log
+*.tmp
+*.tmp.*
+
+# Dependency directories #
+##########################
+/vendor/
+/Godeps/
+
+# IDE and text editor files #
+#############################
+.vscode/
+.idea/
+*.swp
+*~
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+
+# Configuration files #
+#######################
+config.yaml
+config.json
+*.env
+*.ini
+
+# Coverage files #
+##################
+cover.out
+*.cover
+*.coverage
+
+# Directory for tooling #
+#########################
+bin/
+
+# Generated files by Swag for API documentation #
+#################################################
+/docs
+
+# Operating System Files #
+##########################
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Generated files by Go #
+#########################
+/pkg/
+/bin/
