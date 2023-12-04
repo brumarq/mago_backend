@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text;
+using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
@@ -37,16 +38,18 @@ public class UserController : ControllerBase
             // Check if the user has the right permissions
             if (hasAdminPermission || (hasClientPermission && userIdClaim == id.ToString()))
             {*/
-                var userDTO = await _auth0Service.GetUser(id);
-                if (userDTO == null)
-                {
-                    return NotFound();
-                }
+            var userDTO = await _auth0Service.GetUser(id);
+            if (userDTO == null)
+            {
+                return NotFound();
+            }
+            /*}*/
 
-                return Ok(userDTO);
-            /*}*/ 
-            
-            return Forbid(); // or return Unauthorized();
+        return Ok(userDTO);
+        }
+        catch (Auth0Service.UserNotFoundException ex)
+        {
+            return NotFound(ex.Message);
         }
         catch (Exception ex)
         {
@@ -54,13 +57,15 @@ public class UserController : ControllerBase
         }
     }
 
+
     // GET: /customers
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<UserResponseDTO>>> GetAllUsers()
     {
         try
         {
-            var users = await _auth0Service.GetAllUsersWithRolesAsync();
+            var users = await _auth0Service.GetAllUsers();
             return Ok(users);
         }
         catch (Exception ex)
@@ -71,44 +76,45 @@ public class UserController : ControllerBase
 
     // PUT: /users
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateUser(int id, [FromBody] CreateUserDTO createUserDTO)
+    public async Task<ActionResult> UpdateUser(string id, [FromBody] UpdateUserDTO updateUserDto)
     {
         try
         {
-            var updatedUser = await _userService.UpdateUserAsync(id, createUserDTO);
-
-            if (updatedUser == null)
-            {
-                return NotFound("User not found or update failed.");
-            }
-
+            var updatedUser = await _auth0Service.UpdateUserAsync(id, updateUserDto);
             return Ok(updatedUser);
         }
+        catch (Auth0Service.UserUpdateException ex)
+        {
+            return BadRequest(ex.Message); // Or another appropriate status code
+        }
+        catch (Auth0Service.UserNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
         catch (Exception ex)
         {
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
-    }
-    
+    }    
     // DELETE: /users/{id}
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUser(int id)
+    public async Task<IActionResult> DeleteUser(string id)
     {
         try
         {
-            var result = await _userService.DeleteUserAsync(id);
-            if (!result)
-            {
-                return NotFound($"Customer with id {id} not found.");
-            }
-
+            await _auth0Service.DeleteUserAsync(id);
             return Ok();
+        }
+        catch (Auth0Service.UserNotFoundException ex)
+        {
+            return NotFound(ex.Message);
         }
         catch (Exception ex)
         {
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
+
     
     
     [HttpPost]
@@ -116,27 +122,18 @@ public class UserController : ControllerBase
     {
         try
         {
-            var hasAdminPermission = User.HasClaim(c => c.Type == "permissions" && c.Value == "manage:users\t");
-
-            if (!hasAdminPermission)
-            {
-                return Unauthorized();
-            }
-
-            
             var result = await _auth0Service.CreateAuth0UserAsync(createUserDTO);
-            
-            if (result.User == null || result.Role == null)
-            {
-                return StatusCode(500, "The customer could not be created.");
-            }
-
             return Ok(result);
+        }
+        catch (Auth0Service.UserCreationException ex)
+        {
+            return BadRequest(ex.Message); // Or another appropriate status code
         }
         catch (Exception ex)
         {
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
+
 
 }
