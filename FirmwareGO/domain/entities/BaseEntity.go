@@ -7,7 +7,7 @@ import (
 
 type BaseEntity struct {
 	ID        int `gorm:"primaryKey"`
-	CreateAt  time.Time
+	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
@@ -16,7 +16,7 @@ func (be *BaseEntity) IsEntity() {}
 // BeforeCreate - GORM hook
 func (be *BaseEntity) BeforeCreate(tx *gorm.DB) (err error) {
 	now := time.Now().UTC()
-	be.CreateAt = now
+	be.CreatedAt = now
 	be.UpdatedAt = now
 	return
 }
