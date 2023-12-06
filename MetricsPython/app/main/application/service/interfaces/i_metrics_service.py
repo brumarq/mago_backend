@@ -1,7 +1,7 @@
 from typing import List
 from abc import ABC, abstractmethod
 from app.main.domain.entities.aggregated_log import AggregatedLog
-from app.main.domain.entities.log_collection import LogCollection
+from app.main.domain.entities.log_value import LogValue
 
 class IMetricsService(ABC):
     @abstractmethod
@@ -9,5 +9,5 @@ class IMetricsService(ABC):
         pass
     
     @abstractmethod
-    def get_device_metrics_by_device(device_id) -> List[LogCollection]:
+    def get_device_metrics_by_device(device_id) -> List[LogValue]:
         pass
