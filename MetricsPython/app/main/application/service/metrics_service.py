@@ -20,17 +20,17 @@ class MetricsService(IMetricsService):
         if not any(aggregated_log_date_type == item.value for item in AggregatedLogDateType):
             abort(400, "Invalid date type entered (must be 'Weekly', 'Monthly' or 'Yearly').")
 
+        time_delta_dict = {
+            AggregatedLogDateType.WEEKLY: timedelta(days=7),
+            AggregatedLogDateType.MONTHLY: timedelta(weeks=4),
+            AggregatedLogDateType.YEARLY: timedelta(weeks=52),
+        }
+
+        time_delta = time_delta_dict.get(AggregatedLogDateType(aggregated_log_date_type))
+        
         aggregated_logs = self.aggregated_log_repository.get_all()
 
         current_date = date.today()
-
-        time_delta_dict = {
-            "Weekly": timedelta(days=7),
-            "Monthly": timedelta(weeks=4),
-            "Yearly": timedelta(weeks=52),
-        }
-
-        time_delta = time_delta_dict.get(aggregated_log_date_type)
 
         aggregated_logs = [log for log in aggregated_logs if log.date >= current_date - time_delta]
 
