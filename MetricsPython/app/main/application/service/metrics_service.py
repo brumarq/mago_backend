@@ -1,6 +1,7 @@
 from app.main.domain.entities.aggregated_log import AggregatedLog
 from app.main.domain.entities.log_value import LogValue
 from app.main.domain.entities.log_collection import LogCollection
+from app.main.domain.enums.aggregated_log_date_type import AggregatedLogDateType
 from datetime import date, timedelta
 from typing import List
 from app.main.application.service.interfaces.i_metrics_service import IMetricsService
@@ -15,6 +16,9 @@ class MetricsService(IMetricsService):
         self.log_value_repository = Repository(LogValue)
 
     def get_aggregated_logs(self, aggregated_log_date_type) -> List[AggregatedLog]:
+
+        if not any(aggregated_log_date_type == item.value for item in AggregatedLogDateType):
+            abort(400, "Invalid date type entered (must be 'Weekly', 'Monthly' or 'Yearly').")
 
         aggregated_logs = self.aggregated_log_repository.get_all()
 
