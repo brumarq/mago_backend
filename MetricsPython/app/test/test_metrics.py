@@ -30,7 +30,7 @@ class MetricsTest(BaseTest):
             self.assertIsInstance(metrics_data, list)
             self.assertGreater(len(metrics_data), 1)
 
-    def test_get_device_metrics_for_device_0_should_raise_400_and_provide_proper_error_message(self):
+    def test_metrics_for_device_0_should_raise_400_and_provide_proper_error_message(self):
         with self.client:
             response = get_device_metrics_for_device_0(self)
 
@@ -42,6 +42,16 @@ class MetricsTest(BaseTest):
 
             # Check if the error message is as expected
             self.assertEqual(response_data['message'], "Device id cannot be 0 or negative!")
+    
+    def test_metrics_for_device_0_should_have_content_type_is_present_and_is_application_json(self):
+        with self.client:
+            response = get_device_metrics_for_device_0(self)
+
+            # Check if the 'Content-Type' header is present
+            self.assertIn('Content-Type', response.headers)
+
+            # Check if the 'Content-Type' is 'application/json'
+            self.assertEqual(response.headers['Content-Type'], 'application/json')
             
 
 if __name__ == '__main__':
