@@ -10,5 +10,6 @@ public interface IAuth0Service
     Task<List<Auth0UserResponseDto>> GetAllUsers();
     Task<Auth0UserResponseDto> UpdateUserAsync(string userId, UpdateUserDTO updateUserDto);
     Task<bool> DeleteUserAsync(string userId);
+    Task<bool> UpdateUserDetailsInAuth0(string userId, object userDetails);
 
 }

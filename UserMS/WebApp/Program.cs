@@ -81,6 +81,8 @@ builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 builder.Services.AddScoped<IAuth0ManagementService, Auth0ManagementService>();
 builder.Services.AddScoped<IAuth0Service, Auth0Service>();
 
+builder.Services.AddScoped<IAuth0RolesService, Auth0RolesService>();
+
 builder.Services.AddScoped<UserService>();
 builder.Services.AddHttpClient();
 // Build the application

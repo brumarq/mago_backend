@@ -60,7 +60,6 @@ public class UserController : ControllerBase
 
     // GET: /customers
     [HttpGet]
-    [Authorize]
     public async Task<ActionResult<IEnumerable<UserResponseDTO>>> GetAllUsers()
     {
         try
