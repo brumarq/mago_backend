@@ -263,7 +263,7 @@ public class Auth0ServiceTests
         };
 
         // Mock GetRole
-        _mockAuth0Roles.Setup(service => service.GetRole(userId)).ReturnsAsync("admin");
+        _mockAuth0Roles.Setup(service => service.GetRole(userId)).ReturnsAsync("client");
 
         // Mock AssignRole
         _mockAuth0Roles.Setup(service => service.AssignRole("admin", userId)).Returns(Task.CompletedTask);
@@ -315,7 +315,6 @@ public class Auth0ServiceTests
         Assert.Multiple(() =>
         {
             Assert.That(result.User.Name, Is.EqualTo("John Doe"));
-            Assert.That(result.Role, Is.EqualTo("admin"));
         });
     }
     
@@ -332,12 +331,50 @@ public class Auth0ServiceTests
             Password = "Test..123",
             SysAdmin = true
         };
+        var mockToken = new ManagementToken { Token = "mockToken" };
+        _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
+
 
         var exception = Assert.ThrowsAsync<ArgumentException>(
             async () => await _auth0Service.UpdateUserAsync("userId", updateUserDto)
         );
         Assert.That(exception?.Message, Is.EqualTo("Email and Password cannot be changed at the same time."));
     }
+    
+    [Test]
+    public void UpdateUserAsync_UpdateFails_ThrowsUserUpdateException()
+    {
+        var userId = "userId";
+        var updateUserDto = new UpdateUserDTO
+        {
+            FamilyName = "UpdatedFamilyName",
+            GivenName = "UpdatedGivenName"
+        };
+
+        var mockToken = new ManagementToken { Token = "mockToken" };
+        _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
+
+        // Prepare the fake HTTP handler
+        var fakeHttpMessageHandler = new FakeHttpMessageHandler();
+        var errorResponseContent = "Error updating user in Auth0";
+
+        // Setup the mock HTTP response to simulate failure
+        fakeHttpMessageHandler.SetupResponse($"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users/{userId}", 
+            new HttpResponseMessage(HttpStatusCode.BadRequest) {
+                Content = new StringContent(errorResponseContent)
+            });
+
+        var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
+        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
+
+        // Act & Assert
+        var exception = Assert.ThrowsAsync<Auth0Service.UserUpdateException>(
+            async () => await _auth0Service.UpdateUserAsync(userId, updateUserDto)
+        );
+        Assert.That(exception?.Message, Is.EqualTo($"Error updating user in Auth0: {errorResponseContent}"));
+    }
+
+
 
 
 

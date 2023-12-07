@@ -115,11 +115,7 @@ public class Auth0Service : IAuth0Service
 
         if (updateDetails.Count > 0)
         {
-            var result = await UpdateUserDetailsInAuth0(userId, updateDetails);
-            if (!result)
-            {
-                throw new UserUpdateException("Something went wrong with updating the user");
-            }
+            await UpdateUserDetailsInAuth0(userId, updateDetails);
         }
 
         // Check and update the user role if needed
@@ -289,13 +285,6 @@ public class Auth0Service : IAuth0Service
 
         return true;
     }
-
-    
-    /* ---------
-        Roles
-    --------- */
-    
-   
     
     /* --------------------
         Validation Methods
