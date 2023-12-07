@@ -13,7 +13,7 @@ class DevelopmentConfig(Config):
     # uncomment the line below to use postgres
     # SQLALCHEMY_DATABASE_URI = postgres_local_base
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'mssql://ALEX/MetricsDB?driver=ODBC+Driver+17+for+SQL+Server'
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', 'mssql://ALEX/MetricsDB?driver=ODBC+Driver+17+for+SQL+Server')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PYTHONDONTWRITEBYTECODE = True
     ERROR_404_HELP = False
@@ -22,7 +22,7 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     DEBUG = True
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'mssql://ALEX/MetricsDB?driver=ODBC+Driver+17+for+SQL+Server'
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', 'mssql://ALEX/MetricsDB?driver=ODBC+Driver+17+for+SQL+Server')
     PRESERVE_CONTEXT_ON_EXCEPTION = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PYTHONDONTWRITEBYTECODE = True
@@ -31,7 +31,7 @@ class TestingConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = 'mssql://ALEX/MetricsDB?driver=ODBC+Driver+17+for+SQL+Server'
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', 'mssql://ALEX/MetricsDB?driver=ODBC+Driver+17+for+SQL+Server')
     # uncomment the line below to use postgres
     # SQLALCHEMY_DATABASE_URI = postgres_local_base
 
