@@ -8,7 +8,7 @@ def get_yearly_aggregated_logs(self):
     return self.client.get('metrics/aggregated-logs/Yearly')
 
 
-class AggregatedLogTest(BaseTest):
+class AggregatedLogTestApi(BaseTest):
   
     def test_invalid_date_type_returns_400_and_proper_message(self):
         with self.client:

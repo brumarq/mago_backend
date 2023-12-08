@@ -8,7 +8,7 @@ def get_device_metrics_for_device_0(self):
     return self.client.get('/metrics/devices/0')
 
 
-class MetricsTest(BaseTest):
+class MetricsTestApi(BaseTest):
   
     # def test_metrics_for_device_1_should_not_be_empty(self):
     #     with self.client:
