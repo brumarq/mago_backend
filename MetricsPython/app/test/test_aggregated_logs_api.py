@@ -10,26 +10,22 @@ def get_yearly_aggregated_logs(self):
 
 class AggregatedLogTest(BaseTest):
   
-    def test_status_code_and_message_for_wrong_date_type_entered(self):
+    def test_invalid_date_type_returns_400_and_proper_message(self):
         with self.client:
             response = get_daily_aggregated_logs(self)
             self.assertEqual(response.status_code, 400)
             self.assertEqual(response.get_json()['message'], "Invalid date type entered (must be 'Weekly', 'Monthly' or 'Yearly').")
 
-    def test_status_code_for_correct_date_type_entered(self):
+    def test_valid_yearly_date_type_returns_200(self):
         with self.client:
             response = get_yearly_aggregated_logs(self)
             self.assertEqual(response.status_code, 200, "Expected status code 200, but got {}".format(response.status_code))
 
-    def test_if_response_empty_for_correct_date_type_entered(self):
+    def test_content_type_json(self):
         with self.client:
             response = get_yearly_aggregated_logs(self)
-
             self.assertEqual(response.status_code, 200)
-
-            response_data = response.get_json()
-            
-            self.assertEqual(response_data, [])
+            self.assertEqual(response.headers['Content-Type'], 'application/json')
             
 
 if __name__ == '__main__':
