@@ -38,6 +38,12 @@ Make sure to run the initial migration commands to update the database (from the
     > flask db upgrade (pushes changes from code to database)
 
 
+### Tests
+In order to run the tests use the following command:
+    
+    > flask test
+
+
 ### Viewing the app ###
     Open the following url on your browser to view swagger documentation
     http://127.0.0.1:5000/
