@@ -32,7 +32,7 @@ class MetricsService(IMetricsService):
 
         current_date = date.today()
 
-        aggregated_logs = [log for log in aggregated_logs if log.date >= current_date - time_delta]
+        aggregated_logs = [log for log in aggregated_logs if log.created_at.date() >= current_date - time_delta]
 
         return aggregated_logs
 
