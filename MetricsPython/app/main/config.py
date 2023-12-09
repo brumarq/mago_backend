@@ -1,6 +1,5 @@
 import os
 
-
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
@@ -8,6 +7,7 @@ class Config:
     DEBUG = False
     # Swagger
     RESTX_MASK_SWAGGER = False
+    PORT = int(os.getenv('FLASK_RUN_PORT', 5000))
 
 class DevelopmentConfig(Config):
     # uncomment the line below to use postgres
@@ -32,8 +32,7 @@ class TestingConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', 'mssql://ALEX/MetricsDB?driver=ODBC+Driver+17+for+SQL+Server')
-    # uncomment the line below to use postgres
-    # SQLALCHEMY_DATABASE_URI = postgres_local_base
+    PORT = int(os.getenv('FLASK_RUN_PORT', 8001))
 
 
 config_by_name = dict(

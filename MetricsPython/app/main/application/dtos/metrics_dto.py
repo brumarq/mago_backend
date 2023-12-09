@@ -23,7 +23,7 @@ class MetricsDto:
         'id': fields.Integer(required=True, description="Log Collection identifier (int)"),
         'created_at': fields.Date(required=True, description="Log Collection created at (datetime)"),
         'updated_at': fields.Date(required=True, description="Log Collection updated at (datetime)"),
-        'device_id': fields.Integer(required=True, description="Device identifier (int)"), #id for not, need object later
+        'device_id': fields.Integer(required=True, description="Device identifier (int)"), #id for now, need object later
         'log_collection_type': fields.Nested(log_collection_type, required=True, description="Log Collection Type object"),
     })
 
@@ -56,4 +56,9 @@ class MetricsDto:
         'average_value': fields.Float(required=True, description="AggregatedLog Average value (float)"),
         'min_value': fields.Float(required=True, description="AggregatedLog Min value (float)"),
         'max_value': fields.Float(required=True, description="AggregatedLog Max value (float)")
+    })
+
+    export_aggregated_logs_csv_dto = api.model('ExportAggregatedLogsCsvDto', {
+        'file_name': fields.String(required=True, description="File name (without extension)"),
+        'aggregated_log_date_type': fields.String(required=True, description="Aggregated log date type (Weekly, Monthly, Yearly)")
     })

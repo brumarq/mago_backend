@@ -1,16 +1,16 @@
 import sys
+sys.dont_write_bytecode = True
+
 import unittest
 from flask_migrate import Migrate
 from app import blueprint
 from app.main import create_app, db
 from app.main.domain.entities import field, aggregated_log, log_value, log_collection, log_collection_type
 
-sys.dont_write_bytecode = True
-
 app = create_app('dev')
 app.register_blueprint(blueprint)
 
-app.app_context().push()
+#app.app_context().push()
 
 migrate = Migrate(app, db)
 
@@ -26,3 +26,8 @@ def test():
     if result.wasSuccessful():
         return 0
     return 1
+
+
+if __name__ == '__main__':
+    # Run the app in the '__main__' block
+    app.run(port=app.config['PORT'], host='0.0.0.0')

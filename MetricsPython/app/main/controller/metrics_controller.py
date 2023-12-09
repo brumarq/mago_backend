@@ -2,6 +2,8 @@ from flask_restx import Resource
 from app.main.application.dtos.metrics_dto import MetricsDto
 from app.main.application.service.metrics_service import MetricsService
 from app.main.domain.enums.aggregated_log_date_type import AggregatedLogDateType
+from app.main.application.dtos.export_aggregated_logs_csv_dto import ExportAggregatedLogsCsvDto
+from typing import Dict, Tuple
 from flask import request
 
 api = MetricsDto.api
@@ -33,3 +35,16 @@ class AggregatedLogList(Resource):
     def get(self, aggregated_log_date_type: str):
         """Provides list of aggregated logs based on date type"""
         return metrics_service.get_aggregated_logs(aggregated_log_date_type)
+
+@api.expect(MetricsDto.export_aggregated_logs_csv_dto, validate=True)
+@api.route('/aggregated-logs/export-csv')
+class ExportAggregatedLogsCsv(Resource):
+    @api.response(201, 'CSV file successfully exported')
+    def post(self):
+        """Export aggregated logs to CSV file"""
+
+        export_csv_dto = ExportAggregatedLogsCsvDto(
+            file_name=api.payload["file_name"],
+            aggregated_log_date_type=api.payload["aggregated_log_date_type"]
+        )     
+        return metrics_service.export_aggregated_logs_csv(export_csv_dto)
