@@ -1,6 +1,6 @@
-namespace Application.DTOs;
+﻿namespace Application.DTOs;
 
-public class CreateUserDTO
+public class UpdateUserDTO
 {
     public string? FamilyName { get; set; }
     public string? GivenName { get; set; }
