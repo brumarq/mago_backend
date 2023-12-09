@@ -7,4 +7,5 @@ public class User : BaseEntity
     public string? PwHash { get; set; }
     public string? Salt { get; set; }
     public bool SysAdmin { get; set; }
+    public string? Auth0Id { get; set; }
 }
