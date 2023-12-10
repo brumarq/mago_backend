@@ -4,6 +4,6 @@ import "time"
 
 type BaseDTO struct {
 	ID        int       `json:"id"`
-	CreateAt  time.Time `json:"createAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
