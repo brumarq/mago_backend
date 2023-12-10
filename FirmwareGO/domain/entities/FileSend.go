@@ -7,7 +7,7 @@ import (
 
 type FileSend struct {
 	BaseEntity           //Embedded
-	UpdateStatus *string `gorm:"size:255"`
+	UpdateStatus *string `gorm:"size:255;default:New"`
 	DeviceId     int
 	UserId       int
 	File         *string `gorm:"size:255"`

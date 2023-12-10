@@ -29,9 +29,16 @@ func (r *Repository[T]) GetAll(ctx context.Context) ([]T, error) {
 }
 
 // GetCollectionByCondition retrieves a collection of entities based on a condition
-func (r *Repository[T]) GetCollectionByCondition(ctx context.Context, condition map[string]interface{}) ([]T, error) {
+func (r *Repository[T]) GetCollectionByCondition(ctx context.Context, condition map[string]interface{}, orderBy ...string) ([]T, error) {
 	var entities []T
-	err := r.DB.WithContext(ctx).Where(condition).Find(&entities).Error
+
+	query := r.DB.WithContext(ctx).Where(condition)
+
+	if len(orderBy) > 0 {
+		query = query.Order(orderBy[0])
+	}
+
+	err := query.Find(&entities).Error
 	return entities, err
 }
 
