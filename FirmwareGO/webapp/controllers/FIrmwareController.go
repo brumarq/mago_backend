@@ -49,7 +49,7 @@ func (controller *FirmwareController) CreateFirmwareFileSend(context *gin.Contex
 		context.JSON(http.StatusInternalServerError, gin.H{"Internal server error": "The Firmware Record could not be created."})
 	}
 
-	context.JSON(http.StatusOK, result)
+	context.JSON(http.StatusCreated, result)
 }
 
 // GetFirmwareHistoryForDevice godoc
