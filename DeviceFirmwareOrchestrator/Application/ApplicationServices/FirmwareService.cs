@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs.Firmware;
+using Application.Exceptions;
 using Microsoft.Extensions.Configuration;
 
 namespace Application.ApplicationServices;
@@ -27,12 +28,9 @@ public class FirmwareService : IFirmwareService
         var deviceExists = await _deviceService.DeviceExists(newFileSendDto.DeviceId);
 
         if (!deviceExists)
-            throw new Exception("Device does not exist"); //TODO: Fix this abomination
-            
-        Console.WriteLine("FileSend Base URI:");
-        Console.WriteLine(_baseUri);
+            throw new NotFoundException("The selected device does not exist.");
         
-        var response = await _httpClient.PostAsJsonAsync<CreateFileSendDTO>(_baseUri, newFileSendDto);
+        var response = await _httpClient.PostAsJsonAsync(_baseUri, newFileSendDto);
         response.EnsureSuccessStatusCode();
 
         var responseBody = await response.Content.ReadFromJsonAsync<FileSendResponseDTO>();
