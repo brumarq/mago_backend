@@ -7,9 +7,9 @@ def get_aggregated_logs(self, date_type):
     return self.client.get(f'/metrics/aggregated-logs/{date_type}')
 
 
-class AggregatedLogTestApi(BaseTest):
+class AggregatedLogsTestApi(BaseTest):
   
-    def test_invalid_date_type_should_return_400_and_proper_message(self):
+    def test_invalid_date_type_should_return_400_and_proper_error_message(self):
         with self.client:
             response = get_aggregated_logs(self, "Daily")
             self.assertEqual(response.status_code, 400)

@@ -53,17 +53,17 @@ class MetricsService(MetricsAbstractService):
 
         return device_metrics
     
-    def export_aggregated_logs_csv(self, export_csv_dto: ExportAggregatedLogsCsvDto):     
+    def export_aggregated_logs_csv(self, export_aggregated_logs_csv_dto: ExportAggregatedLogsCsvDto):     
 
-        if not export_csv_dto.file_name.isalnum():
-            abort(400, f"Filename '{export_csv_dto.file_name}' is invalid. Please provide a valid filename")
+        if not export_aggregated_logs_csv_dto.file_name.isalnum():
+            abort(400, f"Filename '{export_aggregated_logs_csv_dto.file_name}' is invalid. Please provide a valid filename.")
 
-        aggregated_logs = self.get_aggregated_logs(export_csv_dto.aggregated_log_date_type)
+        aggregated_logs = self.get_aggregated_logs(export_aggregated_logs_csv_dto.aggregated_log_date_type)
 
         csv_data = MetricsHelper.generate_csv(aggregated_logs)
 
         response = make_response(csv_data.getvalue(), 201)
-        response.headers["Content-Disposition"] = f"attachment; filename={export_csv_dto.file_name}.csv"
+        response.headers["Content-Disposition"] = f"attachment; filename={export_aggregated_logs_csv_dto.file_name}.csv"
         response.headers["Content-Type"] = "application/octet-stream"
         response.headers["Content-Transfer-Encoding"] = "bytes"
 

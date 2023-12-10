@@ -2,7 +2,7 @@ from typing import List
 from abc import ABC, abstractmethod
 from app.main.domain.entities.aggregated_log import AggregatedLog
 from app.main.domain.entities.log_value import LogValue
-from typing import Dict
+from app.main.application.dtos.export_aggregated_logs_csv_dto import ExportAggregatedLogsCsvDto
 
 class MetricsAbstractService(ABC):
     @abstractmethod
@@ -14,5 +14,5 @@ class MetricsAbstractService(ABC):
         pass
 
     @abstractmethod
-    def export_aggregated_logs_csv(data: Dict[str, str]) -> None:
+    def export_aggregated_logs_csv(export_aggregated_logs_csv_dto: ExportAggregatedLogsCsvDto) -> None:
         pass
