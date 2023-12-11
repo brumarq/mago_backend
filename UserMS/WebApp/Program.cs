@@ -54,9 +54,6 @@ builder.Services.AddDbContext<UsersDbContext>(options =>
 // Repository configuration for dependency injection
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
-// Service configuration for dependency injection
-builder.Services.AddScoped<IUserService, UserService>();
-
 // Authentication configuration
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -83,7 +80,6 @@ builder.Services.AddScoped<IAuth0Service, Auth0Service>();
 
 builder.Services.AddScoped<IAuth0RolesService, Auth0RolesService>();
 
-builder.Services.AddScoped<UserService>();
 builder.Services.AddHttpClient();
 // Build the application
 var app = builder.Build();

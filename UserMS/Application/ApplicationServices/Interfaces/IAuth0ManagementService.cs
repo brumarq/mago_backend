@@ -1,4 +1,6 @@
-﻿namespace Application.ApplicationServices.Interfaces;
+﻿using Application.DTOs;
+
+namespace Application.ApplicationServices.Interfaces;
 
 public interface IAuth0ManagementService
 {

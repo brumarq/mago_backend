@@ -9,14 +9,14 @@ namespace Application.ApplicationServices;
 
 public class Auth0Service : IAuth0Service
 {
-    private readonly ILogger<UserService> _logger;
+    private readonly ILogger<Auth0Service> _logger;
     private readonly IAuth0ManagementService _auth0ManagementService;
     private readonly IAuth0RolesService _auth0RolesService;
 
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
 
-    public Auth0Service(ILogger<UserService> logger, IAuth0ManagementService auth0ManagementService,
+    public Auth0Service(ILogger<Auth0Service> logger, IAuth0ManagementService auth0ManagementService,
         IHttpClientFactory httpClientFactory, IConfiguration configuration, IAuth0RolesService auth0RolesService)
     {
         _logger = logger;
@@ -182,11 +182,6 @@ public class Auth0Service : IAuth0Service
 
         var auth0User = await response.Content.ReadFromJsonAsync<Auth0UserResponse>();
         var role = await _auth0RolesService.GetRole(userId);
-        
-        if (auth0User == null)
-        {
-            throw new Exception();
-        }
 
         return new Auth0UserResponseDto
         {
@@ -197,35 +192,34 @@ public class Auth0Service : IAuth0Service
     
     public async Task<List<Auth0UserResponseDto>> GetAllUsers()
     {
-        var adminUsers = await GetUsersByRoleName("admin");
-        var clientUsers = await GetUsersByRoleName("client");
-
-        // Combine the lists
+        var roleNames = new List<string> { "admin", "client" }; // Extend this list with other roles as needed
         var allUsersWithRoles = new List<Auth0UserResponseDto>();
-        allUsersWithRoles.AddRange(adminUsers);
-        allUsersWithRoles.AddRange(clientUsers);
+
+        foreach (var roleName in roleNames)
+        {
+            var roleId = _configuration[$"Auth0-Roles:{roleName}"];
+            if (string.IsNullOrEmpty(roleId))
+            {
+                _logger.LogError($"Role ID for {roleName} not found in configuration.");
+                continue; // Skip to the next role if the role ID is not found
+            }
+
+            var users = await GetUsersByRoleId(roleId);
+
+            var usersWithRole = users.Select(user => new Auth0UserResponseDto
+            {
+                User = user,
+                Role = roleName
+            }).ToList();
+
+            allUsersWithRoles.AddRange(usersWithRole);
+        }
 
         return allUsersWithRoles;
     }
 
-    private async Task<List<Auth0UserResponseDto>> GetUsersByRoleName(string roleName)
-    {
-        var roleId = _configuration[$"Auth0-Roles:{roleName}"];
-        if (string.IsNullOrEmpty(roleId))
-        {
-            _logger.LogError($"Role ID for {roleName} not found in configuration.");
-            return new List<Auth0UserResponseDto>();
-        }
 
-        var users = await GetUsersByRoleId(roleId);
-        return users.Select(user => new Auth0UserResponseDto
-        {
-            User = user,
-            Role = roleName
-        }).ToList();
-    }
-
-    private async Task<List<Auth0UserResponse>> GetUsersByRoleId(string roleId)
+    public async Task<List<Auth0UserResponse>> GetUsersByRoleId(string roleId)
     {
         var token = await _auth0ManagementService.GetToken();
 
@@ -255,13 +249,6 @@ public class Auth0Service : IAuth0Service
     
     public async Task<bool> DeleteUserAsync(string userId)
     {
-        // First, check if the user exists
-        var existingUser = await GetUser(userId);
-        if (existingUser == null)
-        {
-            throw new ArgumentException($"User with ID {userId} does not exist.");
-        }
-
         // Use _auth0ManagementService to get the access token
         var token = await _auth0ManagementService.GetToken();
 

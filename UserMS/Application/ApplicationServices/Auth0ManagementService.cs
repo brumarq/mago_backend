@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 using Microsoft.Extensions.Configuration;
-using System.Text.Json.Serialization;
 using Application.ApplicationServices.Interfaces;
+using Application.DTOs;
 using Microsoft.Extensions.Logging;
 
 namespace Application.ApplicationServices
@@ -60,25 +60,5 @@ namespace Application.ApplicationServices
                 ExpirationTime = DateTime.UtcNow.AddSeconds(86400)
             };
         }
-    }
-
-    public class ManagementToken
-    {
-        public string Token { get; set; }
-        public DateTime ExpirationTime { get; set; }
-    }
-
-    public class ManagementTokenRequestContent
-    {
-        public string client_id { get; set; } = string.Empty;
-        public string client_secret { get; set; } = string.Empty;
-        public string audience { get; set; } = string.Empty;
-        public string grant_type { get; set; } = string.Empty;
-    }
-
-    public class ManagementTokenResponse
-    {
-        [JsonPropertyName("access_token")]
-        public string Token { get; set; } = string.Empty;
     }
 }

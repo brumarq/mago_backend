@@ -13,13 +13,11 @@ namespace WebApp.Controllers;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly IUserService _userService;
     private readonly IConfiguration _configuration;
     private readonly IAuth0Service _auth0Service;
 
-    public UserController(IUserService userService, IConfiguration configuration, IAuth0Service auth0Service)
+    public UserController(IConfiguration configuration, IAuth0Service auth0Service)
     {
-        _userService = userService;
         _configuration = configuration;
         _auth0Service = auth0Service;
     }
