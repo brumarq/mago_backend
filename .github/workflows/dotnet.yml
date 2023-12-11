@@ -1,15 +1,16 @@
-name: .NET
-
-
+name: UserMS Pipeline
 on:
   pull_request:
     branches: [ main ]
+    paths:
+      - 'UserMS/**/*'
   push:
     branches: [ "main" ]
+    paths:
+      - 'UserMS/**/*'
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
