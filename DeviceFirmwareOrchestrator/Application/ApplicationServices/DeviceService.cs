@@ -7,19 +7,16 @@ namespace Application.ApplicationServices;
 
 public class DeviceService : IDeviceService
 {
-    private readonly IConfiguration _configuration;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly HttpClient _httpClient;
-    private readonly string _baseUri;
+    private readonly string? _baseUri;
 
     public DeviceService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
     {
-        _configuration = configuration;
         _httpClientFactory = httpClientFactory;
         _httpClient = httpClientFactory.CreateClient();
-        _baseUri = _configuration["ApiRequestUris:DeviceBaseUri"];
+        _baseUri = configuration["ApiRequestUris:DeviceBaseUri"];
     }
-
     public async Task EnsureDeviceExists(int deviceId)
     {
         try
