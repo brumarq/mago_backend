@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
+using Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace Application.ApplicationServices
@@ -33,7 +34,7 @@ namespace Application.ApplicationServices
             var client = _httpClientFactory.CreateClient();
             var request = new HttpRequestMessage(HttpMethod.Post, $"{_configuration["Auth0-Management:Domain"]}/oauth/token")
             {
-                Content = JsonContent.Create(new ManagementTokenRequestContent
+                Content = JsonContent.Create(new TokenRequestDTO
                 {
                     client_id = $"{_configuration["Auth0-Management:ClientId"]}",
                     client_secret = $"{_configuration["Auth0-Management:ClientSecret"]}",

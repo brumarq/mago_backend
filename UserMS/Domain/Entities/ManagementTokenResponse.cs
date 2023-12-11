@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Application.DTOs;
+namespace Domain.Entities;
 
 public class ManagementTokenResponse
 {

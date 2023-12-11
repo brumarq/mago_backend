@@ -3,6 +3,7 @@ using System.Text;
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
+using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
@@ -24,7 +25,7 @@ public class UserController : ControllerBase
 
     // GET: /customers/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Auth0UserResponse>> GetUserById(string id)
+    public async Task<ActionResult<User>> GetUserById(string id)
     {
         try
         {
@@ -115,7 +116,7 @@ public class UserController : ControllerBase
     
     
     [HttpPost]
-    public async Task<ActionResult<Auth0UserResponse>> CreateUser([FromBody] CreateUserDTO createUserDTO)
+    public async Task<ActionResult<User>> CreateUser([FromBody] CreateUserDTO createUserDTO)
     {
         try
         {

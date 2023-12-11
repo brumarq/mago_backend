@@ -1,11 +1,39 @@
+﻿using System.Text.Json.Serialization;
+
 namespace Domain.Entities;
 
-public class User : BaseEntity
+public class User
 {
+    
+    [JsonPropertyName("user_id")]
+    public string? UserId { get; set; }
+    
+    [JsonPropertyName("family_name")]
+    public string? FamilyName { get; set; }
+    
+    [JsonPropertyName("given_name")]
+    public string? GivenName { get; set; }
+    
+    [JsonPropertyName("name")]
     public string? Name { get; set; }
+    
+    [JsonPropertyName("email")]
     public string? Email { get; set; }
-    public string? PwHash { get; set; }
-    public string? Salt { get; set; }
-    public bool SysAdmin { get; set; }
-    public string? Auth0Id { get; set; }
+    
+    [JsonPropertyName("email_verified")]
+    public bool EmailVerified { get; set; }
+    
+    [JsonPropertyName("blocked")]
+    public bool Blocked { get; set; }
+
+    [JsonPropertyName("created_at")]
+    public string? CreatedAt { get; set; }
+    
+    [JsonPropertyName("updated_at")]
+    public string? UpdatedAt { get; set; }
+
+    [JsonPropertyName("picture")]
+    public string? Picture { get; set; }
+
+
 }

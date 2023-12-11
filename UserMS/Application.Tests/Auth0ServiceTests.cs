@@ -11,6 +11,7 @@ using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
+using User = Domain.Entities.User;
 
 namespace Application.Tests;
 
@@ -205,7 +206,7 @@ public class Auth0ServiceTests
         var fakeHttpMessageHandler = new FakeHttpMessageHandler();
 
         // Prepare the mock user JSON response
-        var mockUserJson = JsonConvert.SerializeObject(new Auth0UserResponse
+        var mockUserJson = JsonConvert.SerializeObject(new User
         {
             UserId = "auth0|jahsjdkhasjkd",
             Name = "John Doe",
@@ -275,7 +276,7 @@ public class Auth0ServiceTests
         var fakeHttpMessageHandler = new FakeHttpMessageHandler();
 
         // Prepare the mock user JSON response
-        var mockUserJson = JsonConvert.SerializeObject(new Auth0UserResponse
+        var mockUserJson = JsonConvert.SerializeObject(new User
         {
             UserId = "auth0|jahsjdkhasjkd",
             Name = "John Doe",
@@ -411,7 +412,7 @@ public class Auth0ServiceTests
         var roleId = "testRoleId";
         var mockToken = new ManagementToken { Token = "mockToken" };
         var fakeHttpMessageHandler = new FakeHttpMessageHandler();
-        var mockUsers = new List<Auth0UserResponse> { /* populate with test data */ };
+        var mockUsers = new List<User> { /* populate with test data */ };
 
         _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
         fakeHttpMessageHandler.SetupResponse($"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/roles/{roleId}/users",
@@ -499,8 +500,8 @@ public class Auth0ServiceTests
     {
         const string adminRoleId = "adminRoleId"; // Mock role ID for admin
         const string clientRoleId = "clientRoleId"; // Mock role ID for client
-        var mockAdminUsers = new List<Auth0UserResponse> { /* Mock data for admin users */ };
-        var mockClientUsers = new List<Auth0UserResponse> { /* Mock data for client users */ };
+        var mockAdminUsers = new List<User> { /* Mock data for admin users */ };
+        var mockClientUsers = new List<User> { /* Mock data for client users */ };
         var mockToken = new ManagementToken { Token = "mockToken" };
 
         // Setup configuration for role IDs
@@ -538,7 +539,7 @@ public class Auth0ServiceTests
     public async Task GetAllUsers_MissingRoleIdInConfiguration_SkipsRole()
     {
         const string clientRoleId = "clientRoleId";
-        var mockClientUsers = new List<Auth0UserResponse> { /* Mock data for client users */ };
+        var mockClientUsers = new List<User> { /* Mock data for client users */ };
         var mockToken = new ManagementToken { Token = "mockToken" };
 
         // Setup configuration with a missing role ID for admin

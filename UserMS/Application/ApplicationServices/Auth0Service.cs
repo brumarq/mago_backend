@@ -4,6 +4,7 @@ using Application.DTOs;
 using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using User = Domain.Entities.User;
 
 namespace Application.ApplicationServices;
 
@@ -27,7 +28,7 @@ public class Auth0Service : IAuth0Service
     }
 
     // Create User
-    public async Task<Auth0UserResponseDto> CreateAuth0UserAsync(CreateUserDTO createUserDto)
+    public async Task<UserDTO> CreateAuth0UserAsync(CreateUserDTO createUserDto)
     {
 
         ValidateEmail(createUserDto.Email);
@@ -69,14 +70,14 @@ public class Auth0Service : IAuth0Service
             throw new UserCreationException($"Error creating user in Auth0: {errorContent}");
         }
 
-        var auth0User = await response.Content.ReadFromJsonAsync<Auth0UserResponse>();
+        var auth0User = await response.Content.ReadFromJsonAsync<User>();
         
         
         var roleName = createUserDto.SysAdmin ? "admin" : "client";
         await _auth0RolesService.AssignRole(roleName, auth0User.UserId);
 
         
-        return new Auth0UserResponseDto
+        return new UserDTO
         {
             User = auth0User,
             Role = roleName
@@ -84,7 +85,7 @@ public class Auth0Service : IAuth0Service
     }
     
     // Update User
-    public async Task<Auth0UserResponseDto> UpdateUserAsync(string userId, UpdateUserDTO updateUserDto)
+    public async Task<UserDTO> UpdateUserAsync(string userId, UpdateUserDTO updateUserDto)
     {
         // Check if both Email and Password are being updated simultaneously
         if (!string.IsNullOrWhiteSpace(updateUserDto.Email) && !string.IsNullOrWhiteSpace(updateUserDto.Password))
@@ -156,7 +157,7 @@ public class Auth0Service : IAuth0Service
     }
     
     // Get User/s
-    public async Task<Auth0UserResponseDto> GetUser(string userId)
+    public async Task<UserDTO> GetUser(string userId)
     {
         // Use _auth0ManagementService to get the access token
         var token = await _auth0ManagementService.GetToken();
@@ -180,20 +181,20 @@ public class Auth0Service : IAuth0Service
             throw new UserNotFoundException($"Error retrieving user in Auth0: {errorContent}");
         }
 
-        var auth0User = await response.Content.ReadFromJsonAsync<Auth0UserResponse>();
+        var auth0User = await response.Content.ReadFromJsonAsync<User>();
         var role = await _auth0RolesService.GetRole(userId);
 
-        return new Auth0UserResponseDto
+        return new UserDTO
         {
             User = auth0User,
             Role = role
         };
     }
     
-    public async Task<List<Auth0UserResponseDto>> GetAllUsers()
+    public async Task<List<UserDTO>> GetAllUsers()
     {
         var roleNames = new List<string> { "admin", "client" }; // Extend this list with other roles as needed
-        var allUsersWithRoles = new List<Auth0UserResponseDto>();
+        var allUsersWithRoles = new List<UserDTO>();
 
         foreach (var roleName in roleNames)
         {
@@ -206,7 +207,7 @@ public class Auth0Service : IAuth0Service
 
             var users = await GetUsersByRoleId(roleId);
 
-            var usersWithRole = users.Select(user => new Auth0UserResponseDto
+            var usersWithRole = users.Select(user => new UserDTO
             {
                 User = user,
                 Role = roleName
@@ -219,7 +220,7 @@ public class Auth0Service : IAuth0Service
     }
 
 
-    public async Task<List<Auth0UserResponse>> GetUsersByRoleId(string roleId)
+    public async Task<List<User>> GetUsersByRoleId(string roleId)
     {
         var token = await _auth0ManagementService.GetToken();
 
@@ -241,8 +242,8 @@ public class Auth0Service : IAuth0Service
             throw new Exception($"Error retrieving users for role {roleId} in Auth0: {errorContent}");
         }
 
-        var users = await response.Content.ReadFromJsonAsync<List<Auth0UserResponse>>();
-        return users ?? new List<Auth0UserResponse>();
+        var users = await response.Content.ReadFromJsonAsync<List<User>>();
+        return users ?? new List<User>();
     }
 
     // Delete User
