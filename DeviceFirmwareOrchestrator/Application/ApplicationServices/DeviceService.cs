@@ -1,5 +1,6 @@
 using System.Net;
 using Application.ApplicationServices.Interfaces;
+using Application.Exceptions;
 using Microsoft.Extensions.Configuration;
 
 namespace Application.ApplicationServices;
@@ -17,31 +18,31 @@ public class DeviceService : IDeviceService
         _httpClientFactory = httpClientFactory;
         _httpClient = httpClientFactory.CreateClient();
         _baseUri = _configuration["ApiRequestUris:DeviceBaseUri"];
-
     }
 
-    public async Task<bool> DeviceExists(int deviceId)
+    public async Task EnsureDeviceExists(int deviceId)
     {
         try
         {
-            Console.WriteLine("Device Base URI:");
-            Console.WriteLine(_baseUri);
             var response = await _httpClient.GetAsync($"{_baseUri}{deviceId}");
 
-            if (response.IsSuccessStatusCode)
-                return true;
-
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return false;
-            
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                switch (response.StatusCode)
+                {
+                    case HttpStatusCode.NotFound:
+                        throw new NotFoundException("The selected device does not exist.");
+                    default:
+                        response.EnsureSuccessStatusCode();
+                        break;
+                    //TODO: add more response status codes
+                }
+            }
         }
         catch (HttpRequestException e)
         {
             Console.WriteLine(e);
             throw;
         }
-
-        return false;
     }
 }

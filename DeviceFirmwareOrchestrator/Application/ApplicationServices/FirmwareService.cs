@@ -14,7 +14,8 @@ public class FirmwareService : IFirmwareService
     private readonly IDeviceService _deviceService;
     private readonly string _baseUri;
 
-    public FirmwareService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService)
+    public FirmwareService(IConfiguration configuration, IHttpClientFactory httpClientFactory,
+        IDeviceService deviceService)
     {
         _configuration = configuration;
         _httpClientFactory = httpClientFactory;
@@ -25,17 +26,23 @@ public class FirmwareService : IFirmwareService
 
     public async Task<FileSendResponseDTO> CreateFileSendAsync(CreateFileSendDTO newFileSendDto)
     {
-        var deviceExists = await _deviceService.DeviceExists(newFileSendDto.DeviceId);
+        await _deviceService.EnsureDeviceExists(newFileSendDto.DeviceId);
 
-        if (!deviceExists)
-            throw new NotFoundException("The selected device does not exist.");
-        
         var response = await _httpClient.PostAsJsonAsync(_baseUri, newFileSendDto);
         response.EnsureSuccessStatusCode();
 
-        var responseBody = await response.Content.ReadFromJsonAsync<FileSendResponseDTO>();
+        var body = await response.Content.ReadFromJsonAsync<FileSendResponseDTO>();
+        return body!;
+    }
 
-        //TODO: Check if responseBody is not null
-        return responseBody;
+    public async Task<IEnumerable<FileSendResponseDTO>> GetFirmwareHistoryForDeviceAsync(int deviceId)
+    {
+        await _deviceService.EnsureDeviceExists(deviceId);
+
+        var response = await _httpClient.GetAsync($"{_baseUri}devices/{deviceId}");
+        response.EnsureSuccessStatusCode();
+
+        var body = await response.Content.ReadFromJsonAsync<IEnumerable<FileSendResponseDTO>>();
+        return body!;
     }
 }
