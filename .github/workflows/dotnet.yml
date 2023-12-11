@@ -21,10 +21,10 @@ jobs:
         dotnet-version: 6.0.x
 
     - name: Restore dependencies
-      run: dotnet restore UserMS/userMS.sln
+      run: dotnet restore UserMS/UserMS.sln
 
     - name: Build
-      run: dotnet build UserMS/userMS.sln --no-restore
+      run: dotnet build UserMS/UserMS.sln --no-restore
 
     - name: Test
-      run: dotnet test UserMS/userMS.sln --no-build --verbosity normal
+      run: dotnet test UserMS/UserMS.sln --no-build --verbosity normal
