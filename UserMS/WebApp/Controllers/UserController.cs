@@ -23,7 +23,7 @@ public class UserController : ControllerBase
         _auth0Service = auth0Service;
     }
 
-    // GET: /customers/6
+    // GET: /customers/7
     [HttpGet("{id}")]
     public async Task<ActionResult<User>> GetUserById(string id)
     {
