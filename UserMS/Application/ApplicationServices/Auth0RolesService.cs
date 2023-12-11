@@ -75,13 +75,6 @@ public class Auth0RolesService: IAuth0RolesService
             _logger.LogError("Error assigning role to user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
             throw new Auth0Service.UserRoleException($"Error assigning role to user in Auth0: {errorContent}");
         }
-
-        var auth0User = await response.Content.ReadFromJsonAsync<Auth0UserResponse>();
-
-        if (auth0User == null)
-        {
-            throw new Exception();
-        }
     }
     
     public async Task<string> GetRole(string userId)
