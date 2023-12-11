@@ -10,7 +10,8 @@ on:
       - 'UserMS/**/*'
 
 jobs:
-  build:
+  build-userMS:
+    name: Build and test UserMS
     runs-on: ubuntu-latest
 
     steps:
