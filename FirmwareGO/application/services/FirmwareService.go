@@ -41,7 +41,7 @@ func (service *FirmwareService) GetFirmwareHistoryByDeviceId(ctx context.Context
 
 	condition := map[string]interface{}{"device_id": deviceId}
 
-	fileSends, err := service.Repo.GetCollectionByCondition(ctx, condition)
+	fileSends, err := service.Repo.GetCollectionByCondition(ctx, condition, "created_at ASC")
 	if err != nil {
 		return nil, err
 	}

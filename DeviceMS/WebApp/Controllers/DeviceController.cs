@@ -66,6 +66,20 @@ namespace WebApp.Controllers
             }
         }
 
+        // [HttpGet("exists/{deviceId}")]
+        // public async Task<ActionResult<bool>> DeviceExists(int deviceId)
+        // {
+        //     try
+        //     {
+        //         var deviceExists = await _deviceService.DeviceExistsAsync(deviceId);
+        //         return (!deviceExists) ? NotFound() : Ok(deviceExists);
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         return StatusCode(500, $"Internal server error: {e.Message}");
+        //     }
+        // }
+
         [HttpPut("{id}")]
         public async Task<ActionResult<UpdateDeviceDTO>> UpdateDeviceAsync(int id,
             [FromBody] UpdateDeviceDTO updateDeviceDto)

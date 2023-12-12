@@ -1,8 +1,10 @@
 namespace Application.DTOs;
 
-public class CreateUserDTO // email/username??
+public class CreateUserDTO
 {
-    public string? Name { get; set; }
-    public bool SysAdmin { get; set; } // maybe this too because only an admin can set this
+    public string? FamilyName { get; set; }
+    public string? GivenName { get; set; }
+    public string? Email { get; set; }
+    public bool SysAdmin { get; set; }
     public string? Password { get; set; }
 }
