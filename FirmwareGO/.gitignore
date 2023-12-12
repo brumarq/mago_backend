@@ -24,12 +24,10 @@
 #############################
 .vscode/
 .idea/
-*.swp
 *~
 
 # Logs and databases #
 ######################
-*.log
 *.sql
 *.sqlite
 
@@ -64,3 +62,6 @@ Desktop.ini
 #########################
 /pkg/
 /bin/
+
+.env
+docker-compose.yml
