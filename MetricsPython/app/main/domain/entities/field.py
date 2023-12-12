@@ -14,8 +14,7 @@ class Field(db.Model):
     loggable = db.Column(db.Boolean, nullable=False, default=False)
 
     log_values = db.relationship('LogValue', back_populates='field') #is needed for relationship
-    aggregated_logs = db.relationship('AggregatedLog', back_populates='field')  # Update this line
 
-
-    def __repr__(self):
-        return "<Field '{}'>".format(self.name)
+    weekly_average = db.relationship('WeeklyAverage', back_populates='field')  # Update this line
+    monthly_average = db.relationship('MonthlyAverage', back_populates='field')  # Update this line
+    yearly_average = db.relationship('YearlyAverage', back_populates='field')  # Update this line

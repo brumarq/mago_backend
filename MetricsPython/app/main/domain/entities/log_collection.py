@@ -15,6 +15,3 @@ class LogCollection(db.Model):
 
     log_collection_type_id = db.Column(db.Integer, db.ForeignKey(LogCollectionType.id))
     log_collection_type = db.relationship('LogCollectionType', back_populates='log_collections', lazy=True)
-
-    def __repr__(self):
-        return "<LogCollection '{}'>".format(self.values)
