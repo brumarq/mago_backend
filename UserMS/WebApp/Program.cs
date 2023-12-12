@@ -1,9 +1,6 @@
 using System.Security.Claims;
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
-using Infrastructure.Data.Context;
-using Infrastructure.Repositories;
-using Infrastructure.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -47,16 +44,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Database context configuration
-builder.Services.AddDbContext<UsersDbContext>(options => 
-    options.UseSqlServer(builder.Configuration.GetConnectionString("UsersDb")));
-
-// Repository configuration for dependency injection
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
-// Service configuration for dependency injection
-builder.Services.AddScoped<IUserService, UserService>();
-
 // Authentication configuration
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -83,7 +70,6 @@ builder.Services.AddScoped<IAuth0Service, Auth0Service>();
 
 builder.Services.AddScoped<IAuth0RolesService, Auth0RolesService>();
 
-builder.Services.AddScoped<UserService>();
 builder.Services.AddHttpClient();
 // Build the application
 var app = builder.Build();

@@ -4,11 +4,11 @@ namespace Application.ApplicationServices.Interfaces;
 
 public interface IAuth0Service
 {
-    Task<Auth0UserResponseDto> CreateAuth0UserAsync(CreateUserDTO createUserDTO);
-    Task<Auth0UserResponseDto> GetUser(string userId);
+    Task<UserDTO> CreateAuth0UserAsync(CreateUserDTO createUserDTO);
+    Task<UserDTO> GetUser(string userId);
 
-    Task<List<Auth0UserResponseDto>> GetAllUsers();
-    Task<Auth0UserResponseDto> UpdateUserAsync(string userId, UpdateUserDTO updateUserDto);
+    Task<List<UserDTO>> GetAllUsers();
+    Task<UserDTO> UpdateUserAsync(string userId, UpdateUserDTO updateUserDto);
     Task<bool> DeleteUserAsync(string userId);
     Task<bool> UpdateUserDetailsInAuth0(string userId, object userDetails);
 

@@ -4,19 +4,20 @@ using Application.DTOs;
 using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using User = Domain.Entities.User;
 
 namespace Application.ApplicationServices;
 
 public class Auth0Service : IAuth0Service
 {
-    private readonly ILogger<UserService> _logger;
+    private readonly ILogger<Auth0Service> _logger;
     private readonly IAuth0ManagementService _auth0ManagementService;
     private readonly IAuth0RolesService _auth0RolesService;
 
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IConfiguration _configuration;
 
-    public Auth0Service(ILogger<UserService> logger, IAuth0ManagementService auth0ManagementService,
+    public Auth0Service(ILogger<Auth0Service> logger, IAuth0ManagementService auth0ManagementService,
         IHttpClientFactory httpClientFactory, IConfiguration configuration, IAuth0RolesService auth0RolesService)
     {
         _logger = logger;
@@ -27,7 +28,7 @@ public class Auth0Service : IAuth0Service
     }
 
     // Create User
-    public async Task<Auth0UserResponseDto> CreateAuth0UserAsync(CreateUserDTO createUserDto)
+    public async Task<UserDTO> CreateAuth0UserAsync(CreateUserDTO createUserDto)
     {
 
         ValidateEmail(createUserDto.Email);
@@ -69,14 +70,14 @@ public class Auth0Service : IAuth0Service
             throw new UserCreationException($"Error creating user in Auth0: {errorContent}");
         }
 
-        var auth0User = await response.Content.ReadFromJsonAsync<Auth0UserResponse>();
+        var auth0User = await response.Content.ReadFromJsonAsync<User>();
         
         
         var roleName = createUserDto.SysAdmin ? "admin" : "client";
         await _auth0RolesService.AssignRole(roleName, auth0User.UserId);
 
         
-        return new Auth0UserResponseDto
+        return new UserDTO
         {
             User = auth0User,
             Role = roleName
@@ -84,7 +85,7 @@ public class Auth0Service : IAuth0Service
     }
     
     // Update User
-    public async Task<Auth0UserResponseDto> UpdateUserAsync(string userId, UpdateUserDTO updateUserDto)
+    public async Task<UserDTO> UpdateUserAsync(string userId, UpdateUserDTO updateUserDto)
     {
         // Check if both Email and Password are being updated simultaneously
         if (!string.IsNullOrWhiteSpace(updateUserDto.Email) && !string.IsNullOrWhiteSpace(updateUserDto.Password))
@@ -156,7 +157,7 @@ public class Auth0Service : IAuth0Service
     }
     
     // Get User/s
-    public async Task<Auth0UserResponseDto> GetUser(string userId)
+    public async Task<UserDTO> GetUser(string userId)
     {
         // Use _auth0ManagementService to get the access token
         var token = await _auth0ManagementService.GetToken();
@@ -180,52 +181,46 @@ public class Auth0Service : IAuth0Service
             throw new UserNotFoundException($"Error retrieving user in Auth0: {errorContent}");
         }
 
-        var auth0User = await response.Content.ReadFromJsonAsync<Auth0UserResponse>();
+        var auth0User = await response.Content.ReadFromJsonAsync<User>();
         var role = await _auth0RolesService.GetRole(userId);
-        
-        if (auth0User == null)
-        {
-            throw new Exception();
-        }
 
-        return new Auth0UserResponseDto
+        return new UserDTO
         {
             User = auth0User,
             Role = role
         };
     }
     
-    public async Task<List<Auth0UserResponseDto>> GetAllUsers()
+    public async Task<List<UserDTO>> GetAllUsers()
     {
-        var adminUsers = await GetUsersByRoleName("admin");
-        var clientUsers = await GetUsersByRoleName("client");
+        var roleNames = new List<string> { "admin", "client" }; // Extend this list with other roles as needed
+        var allUsersWithRoles = new List<UserDTO>();
 
-        // Combine the lists
-        var allUsersWithRoles = new List<Auth0UserResponseDto>();
-        allUsersWithRoles.AddRange(adminUsers);
-        allUsersWithRoles.AddRange(clientUsers);
+        foreach (var roleName in roleNames)
+        {
+            var roleId = _configuration[$"Auth0-Roles:{roleName}"];
+            if (string.IsNullOrEmpty(roleId))
+            {
+                _logger.LogError($"Role ID for {roleName} not found in configuration.");
+                continue; // Skip to the next role if the role ID is not found
+            }
+
+            var users = await GetUsersByRoleId(roleId);
+
+            var usersWithRole = users.Select(user => new UserDTO
+            {
+                User = user,
+                Role = roleName
+            }).ToList();
+
+            allUsersWithRoles.AddRange(usersWithRole);
+        }
 
         return allUsersWithRoles;
     }
 
-    private async Task<List<Auth0UserResponseDto>> GetUsersByRoleName(string roleName)
-    {
-        var roleId = _configuration[$"Auth0-Roles:{roleName}"];
-        if (string.IsNullOrEmpty(roleId))
-        {
-            _logger.LogError($"Role ID for {roleName} not found in configuration.");
-            return new List<Auth0UserResponseDto>();
-        }
 
-        var users = await GetUsersByRoleId(roleId);
-        return users.Select(user => new Auth0UserResponseDto
-        {
-            User = user,
-            Role = roleName
-        }).ToList();
-    }
-
-    private async Task<List<Auth0UserResponse>> GetUsersByRoleId(string roleId)
+    public async Task<List<User>> GetUsersByRoleId(string roleId)
     {
         var token = await _auth0ManagementService.GetToken();
 
@@ -247,21 +242,14 @@ public class Auth0Service : IAuth0Service
             throw new Exception($"Error retrieving users for role {roleId} in Auth0: {errorContent}");
         }
 
-        var users = await response.Content.ReadFromJsonAsync<List<Auth0UserResponse>>();
-        return users ?? new List<Auth0UserResponse>();
+        var users = await response.Content.ReadFromJsonAsync<List<User>>();
+        return users ?? new List<User>();
     }
 
     // Delete User
     
     public async Task<bool> DeleteUserAsync(string userId)
     {
-        // First, check if the user exists
-        var existingUser = await GetUser(userId);
-        if (existingUser == null)
-        {
-            throw new ArgumentException($"User with ID {userId} does not exist.");
-        }
-
         // Use _auth0ManagementService to get the access token
         var token = await _auth0ManagementService.GetToken();
 
