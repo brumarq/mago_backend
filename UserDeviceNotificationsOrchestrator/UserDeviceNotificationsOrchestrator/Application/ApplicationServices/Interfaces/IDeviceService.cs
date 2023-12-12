@@ -8,5 +8,6 @@ namespace Application.ApplicationServices.Interfaces
 {
     public interface IDeviceService
     {
+        Task<HttpResponseMessage> GetDeviceExistenceStatus(int deviceId);
     }
 }

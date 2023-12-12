@@ -11,7 +11,7 @@ using System.Text.Json.Serialization;
 
 namespace UserDeviceNotificationsOrchestrator.Controllers
 {
-    [Route("orchestrator/notification")] 
+    [Route("orchestrator/notification")]
     [ApiController]
     public class NotificationsController : ControllerBase
     {
@@ -39,10 +39,18 @@ namespace UserDeviceNotificationsOrchestrator.Controllers
 
         // POST /<notifications>
         [HttpPost]
-            public async Task<ActionResult<NotificationResponse>> CreateNotificationAsync([FromBody] CreateNotification createNotification)
+        public async Task<ActionResult<NotificationResponseDTO>> CreateNotificationAsync([FromBody] CreateNotificationDTO createNotificationDTO)
+        {
+            try
             {
-            return Ok();
+                var notifications = await _notificationService.CreateNotificationAsync(createNotificationDTO);
+                return Ok(notifications);
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
 
     }
 }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Application.DTOs;
 using System.Web.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Application.ApplicationServices
 {
@@ -30,11 +31,15 @@ namespace Application.ApplicationServices
 
         }
 
-            public async Task<ActionResult<NotificationResponseDTO>> GetAllNotificationsAsync()
+        public async Task<CreateNotificationDTO> CreateNotificationAsync(CreateNotificationDTO createNotificationDTO)
         {
-            var notifications = await _notificationRepository.GetAllAsync();
+            HttpResponseMessage deviceResponseStatus = await _deviceService.GetDeviceExistenceStatus(createNotificationDTO.DeviceID);
+            if (!deviceResponseStatus.IsSuccessStatusCode)
+            {
+                throw new Exception
+            }
 
-            return _mapper.Map<IEnumerable<NotificationResponseDTO>>(notifications);    
+            return;  
         }
     }
 }

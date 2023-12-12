@@ -1,4 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Application.ApplicationServices.Interfaces;
+using Application.DTOs;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Application.ApplicationServices
 {
-    public class DeviceService
+    public class DeviceService : IDeviceService
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly HttpClient _httpClient;
@@ -21,20 +25,24 @@ namespace Application.ApplicationServices
             _baseUri = configuration["ApiRequestUris:DeviceBaseUri"];
         }
 
-        public async Task<bool> CheckDeviceExists(int deviceId)
+        public async Task<HttpResponseMessage> GetDeviceExistenceStatus(int deviceId)
         {
             string requestUrl = $"{_baseUri}{deviceId}";
-            
+
             try
             {
                 var response = await _httpClient.GetAsync(requestUrl);
-                return response.IsSuccessStatusCode;
+                return response;
             }
             catch (HttpRequestException e)
             {
-                Console.WriteLine($"Error checking device existence: {e.Message}");
-                throw;
+                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+                {
+                    ReasonPhrase = $"Exception occurred when checking device existence: {e.Message}"
+                };
             }
         }
+
+
     }
 }
