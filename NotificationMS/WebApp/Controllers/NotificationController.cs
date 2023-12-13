@@ -51,7 +51,7 @@ namespace WebApp.Controllers
         }
 
         // GET /notifications/users/5
-        [HttpGet("notifications/users/{userId}")]
+        [HttpGet("users/{userId}")]
         public async Task<ActionResult<NotificationResponseDTO>> GetNotificationForUserOnStatusTypeAsync(int userId)
         {
             try
@@ -71,7 +71,7 @@ namespace WebApp.Controllers
         }
 
         // GET /notifications/device/5
-        [HttpGet("/notifications/device/{deviceId}")]
+        [HttpGet("device/{deviceId}")]
         public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId)
         {
             try
