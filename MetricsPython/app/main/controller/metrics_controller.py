@@ -22,7 +22,7 @@ class MetricsList(Resource):
         return metrics_service.get_device_metrics_by_device(device_id)
 
 
-@api.route('/aggregated-logs/<string:aggregated_log_date_type>')
+@api.route('/aggregated-logs/<int:device_id>/<int:field_id>/<string:aggregated_log_date_type>')
 @api.doc(params={'aggregated_log_date_type': 'Aggregation log date type'})
 @api.response(200, 'Sucessfully retrieved aggregated logs')
 @api.response(400, 'Invalid property provided')
@@ -41,17 +41,17 @@ class AggregatedLogList(Resource):
         """Provides list of aggregated logs based on date type"""
         return metrics_service.get_aggregated_logs(aggregated_log_date_type)
 
-@api.expect(MetricsDto.export_aggregated_logs_csv_dto, validate=True)
-@api.route('/aggregated-logs/export-csv')
-@api.response(201, 'CSV file successfully exported')
-@api.response(400, 'Invalid body provided')
-class ExportAggregatedLogsCsv(Resource):
-    @api.doc('export_aggregated_logs_csv', description="Export aggregated logs to CSV file")
-    def post(self):
-        """Export aggregated logs to CSV file"""
+# @api.expect(MetricsDto.export_aggregated_logs_csv_dto, validate=True)
+# @api.route('/aggregated-logs/export-csv')
+# @api.response(201, 'CSV file successfully exported')
+# @api.response(400, 'Invalid body provided')
+# class ExportAggregatedLogsCsv(Resource):
+#     @api.doc('export_aggregated_logs_csv', description="Export aggregated logs to CSV file")
+#     def post(self):
+#         """Export aggregated logs to CSV file"""
 
-        export_csv_dto = ExportAggregatedLogsCsvDto(
-            file_name=api.payload["file_name"],
-            aggregated_log_date_type=api.payload["aggregated_log_date_type"]
-        )     
-        return metrics_service.export_aggregated_logs_csv(export_csv_dto)
+#         export_csv_dto = ExportAggregatedLogsCsvDto(
+#             file_name=api.payload["file_name"],
+#             aggregated_log_date_type=api.payload["aggregated_log_date_type"]
+#         )     
+#         return metrics_service.export_aggregated_logs_csv(export_csv_dto)
