@@ -24,19 +24,24 @@ namespace UserDeviceNotificationsOrchestrator.Controllers
             this._notificationService = notificationService;
         }
 
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<NotificationResponseDTO>>> GetAllNotificationsAsync()
-        //{
-        //    try
-        //    {
-        //        var notifications = await _notificationService.GetAllNotificationsAsync();
-        //        return Ok(notifications);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, $"Internal server error: {ex.Message}");
-        //    }
-        //}
+        [HttpGet("device/{deviceId}")]
+        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId)
+        {
+            try
+            {
+                var notificationDTO = await _notificationService.GetNotificationsByDeviceIdAsync(deviceId);
+                if (notificationDTO == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(notificationDTO);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
 
         // POST /<notifications>
         [HttpPost]

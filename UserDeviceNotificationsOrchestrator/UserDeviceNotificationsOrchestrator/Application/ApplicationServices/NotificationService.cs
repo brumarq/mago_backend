@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Web.Helpers;
 using System.Net;
+using Newtonsoft.Json.Serialization;
 
 namespace Application.ApplicationServices
 {
@@ -34,7 +35,36 @@ namespace Application.ApplicationServices
 
         }
 
-        public async Task<HttpResponseMessage> CreateNotificationAsync(CreateNotificationDTO createNotificationDTO)
+        public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId)
+        {
+            HttpResponseMessage deviceResponseStatus = await _deviceService.GetDeviceExistenceStatus(deviceId);
+            if (!deviceResponseStatus.IsSuccessStatusCode)
+            {
+                throw new Exception($"Device check failed: {deviceResponseStatus.StatusCode}: {deviceResponseStatus.ReasonPhrase}");
+            }
+                
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUri}device/{deviceId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    var notificationResponseDTOs = JsonConvert.DeserializeObject<List<NotificationResponseDTO>>(responseContent);
+                    return notificationResponseDTOs;
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new HttpRequestException($"Get notifications request failed {(int)response.StatusCode}: {errorContent}");
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                throw new Exception($"Request failed: {e.Message}");
+            }
+        }
+
+        public async Task<NotificationResponseDTO> CreateNotificationAsync(CreateNotificationDTO createNotificationDTO)
         {
             HttpResponseMessage deviceResponseStatus = await _deviceService.GetDeviceExistenceStatus(createNotificationDTO.DeviceID);
             if (!deviceResponseStatus.IsSuccessStatusCode)
@@ -48,12 +78,24 @@ namespace Application.ApplicationServices
             try
             {
                 var response = await _httpClient.PostAsync(_baseUri, content);
-                return response;
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    var notificationResponseDTO = JsonConvert.DeserializeObject<NotificationResponseDTO>(responseContent);
+                    return notificationResponseDTO;
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new HttpRequestException($"Create notification request failed {(int)response.StatusCode}: {errorContent}");
+                }                   
             }
             catch (HttpRequestException e)
             {
-                throw new Exception($"Creating notification failed: {e.Message}");
+                throw new Exception($"Request failed: {e.Message}");
             }
         }
+
+
     }
 }
