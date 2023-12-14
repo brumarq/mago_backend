@@ -152,6 +152,7 @@ jobs:
         # Otherwise, point this to your Dockerfile/Containerfile relative to the repository root.
         dockerfiles: |
           ./UserMS/Dockerfile
+        context: ./UserMS/
 
     # https://github.com/redhat-actions/push-to-registry#readme
     - name: Push to registry
