@@ -135,6 +135,9 @@ jobs:
       if: env.IMAGE_TAGS == ''
       run: |
         echo "IMAGE_TAGS=latest ${GITHUB_SHA::12}" | tee -a $GITHUB_ENV
+        
+    - name: List directory contents
+      run: ls -la ./UserMS
 
     # https://github.com/redhat-actions/buildah-build#readme
     - name: Build from Dockerfile
