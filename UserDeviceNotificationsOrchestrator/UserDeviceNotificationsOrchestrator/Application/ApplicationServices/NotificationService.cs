@@ -9,6 +9,9 @@ using Application.DTOs;
 using System.Web.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Web.Helpers;
+using System.Net;
 
 namespace Application.ApplicationServices
 {
@@ -18,7 +21,7 @@ namespace Application.ApplicationServices
         private readonly HttpClient _httpClient;
         private readonly IDeviceService _deviceService;
         private readonly IUserService _userService;
-        //private readonly string _baseUri;
+        private readonly string _baseUri;
 
 
         public NotificationService(IHttpClientFactory httpClientFactory, IDeviceService deviceService, IUserService userService, IConfiguration configuration)
@@ -27,19 +30,30 @@ namespace Application.ApplicationServices
             _httpClient = httpClientFactory.CreateClient();
             this._deviceService = deviceService;
             this._userService = userService;
-            //_baseUri = configuration["ApiRequestUris:NotificationBaseUri"];
+            _baseUri = configuration["ApiRequestUris:NotificationBaseUri"];
 
         }
 
-        public async Task<CreateNotificationDTO> CreateNotificationAsync(CreateNotificationDTO createNotificationDTO)
+        public async Task<HttpResponseMessage> CreateNotificationAsync(CreateNotificationDTO createNotificationDTO)
         {
             HttpResponseMessage deviceResponseStatus = await _deviceService.GetDeviceExistenceStatus(createNotificationDTO.DeviceID);
             if (!deviceResponseStatus.IsSuccessStatusCode)
             {
-                throw new Exception
+                throw new Exception($"Device check failed: {deviceResponseStatus.StatusCode}: {deviceResponseStatus.ReasonPhrase}");
             }
 
-            return;  
+            var jsonNotificationDTO = JsonConvert.SerializeObject(createNotificationDTO);
+            var content = new StringContent(jsonNotificationDTO, Encoding.UTF8, "application/json");
+
+            try
+            {
+                var response = await _httpClient.PostAsync(_baseUri, content);
+                return response;
+            }
+            catch (HttpRequestException e)
+            {
+                throw new Exception($"Creating notification failed: {e.Message}");
+            }
         }
     }
 }

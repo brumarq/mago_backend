@@ -2,6 +2,7 @@
 using Application.DTOs;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -43,14 +44,26 @@ namespace UserDeviceNotificationsOrchestrator.Controllers
         {
             try
             {
-                var notifications = await _notificationService.CreateNotificationAsync(createNotificationDTO);
-                return Ok(notifications);
+                var response = await _notificationService.CreateNotificationAsync(createNotificationDTO);
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    var notificationResponseDTO = JsonConvert.DeserializeObject<NotificationResponseDTO>(responseContent);
+                    return Ok(notificationResponseDTO);
+                }
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    return StatusCode((int)response.StatusCode, errorContent);
+                }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
+
+
 
     }
 }

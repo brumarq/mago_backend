@@ -9,6 +9,6 @@ namespace Application.ApplicationServices.Interfaces
 {
     public interface INotificationService
     {
-        Task<CreateNotificationDTO> CreateNotificationAsync(CreateNotificationDTO createNotificationDTO);
+        Task<HttpResponseMessage> CreateNotificationAsync(CreateNotificationDTO createNotificationDTO);
     }
 }
