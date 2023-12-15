@@ -180,18 +180,22 @@ jobs:
         openshift_token: ${{ env.OPENSHIFT_TOKEN }}
         insecure_skip_tls_verify: true
         namespace: ${{ env.OPENSHIFT_NAMESPACE }}
-        
-    # This step should create a deployment, service, and route to run your app and expose it to the internet.
-    # https://github.com/redhat-actions/oc-new-app#readme
+      
+    # Step to create an Image Stream
+    - name: Create Image Stream
+      run: |
+        oc import-image mago-backend --from=${{ steps.push-image.outputs.registry-path }} --confirm --namespace=${{ env.OPENSHIFT_NAMESPACE }}
+    
+    # Step to create and expose the application
     - name: Create and expose app
       id: deploy-and-expose
       uses: redhat-actions/oc-new-app@v1
       with:
         app_name: "mago-backend"
-        image: ${{ steps.push-image.outputs.registry-path }}
+        image: "mago-backend:latest"  # Using the image stream
         namespace: ${{ env.OPENSHIFT_NAMESPACE }}
         port: ${{ env.APP_PORT }}
-
+        
     - name: Print application URL
       env:
         ROUTE: ${{ steps.deploy-and-expose.outputs.route }}
