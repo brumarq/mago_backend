@@ -161,10 +161,9 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-    # Push the image using Buildah
     - name: Push image to Docker Hub
       run: |
-        buildah push ${{ env.APP_NAME }}:${{ env.IMAGE_TAGS }} docker://docker.io/brumarq/${{ env.APP_NAME }}:${{ env.IMAGE_TAGS }}
+        buildah push "${{ env.APP_NAME }}:${{ env.IMAGE_TAGS }}" "docker://docker.io/brumarq/${{ env.APP_NAME }}:${{ env.IMAGE_TAGS }}"
 
     # The path the image was pushed to is now stored in ${{ steps.push-image.outputs.registry-path }}
 
