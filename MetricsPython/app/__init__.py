@@ -2,6 +2,7 @@ from flask_restx import Api
 from flask import Blueprint
 
 from app.main.controller.metrics_controller import api as metrics_ns
+from app.main.controller.aggregated_logs_controller import api as aggregated_logs_ns
 
 blueprint = Blueprint('api', __name__)
 
@@ -13,4 +14,5 @@ api = Api(
 )
 
 api.add_namespace(metrics_ns, path="/metrics")
+api.add_namespace(aggregated_logs_ns, path="/aggregated-logs")
 

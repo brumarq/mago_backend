@@ -18,11 +18,15 @@ oauth = OAuth()
 def create_app(config_name: str) -> Flask:
     app = Flask(__name__)
     app.config.from_object(config_by_name[config_name])
-    app.secret_key = os.getenv('APP_SECRET_KEY')
     db.init_app(app)
     flask_bcrypt.init_app(app)
     oauth.init_app(app)
 
+    configure_oauth()
+
+    return app
+
+def configure_oauth():
     oauth.register(
         "auth0",
         client_id=os.getenv('AUTH0_CLIENT_ID'),
@@ -30,7 +34,6 @@ def create_app(config_name: str) -> Flask:
         client_kwargs={
             "scope": "openid profile email",         
         },
-    server_metadata_url = f"https://{os.getenv('AUTH0_DOMAIN')}/.well-known/openid-configuration"
-    )   
+        server_metadata_url=f"https://{os.getenv('AUTH0_DOMAIN')}/.well-known/openid-configuration"
+    )  
 
-    return app

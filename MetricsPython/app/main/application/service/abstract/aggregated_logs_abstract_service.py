@@ -4,7 +4,7 @@ from app.main.application.dtos.export_aggregated_logs_csv_dto import ExportAggre
 
 class AggregatedLogsAbstractService(ABC):
     @abstractmethod
-    def get_aggregated_logs(device_id: int, field_id: int, aggregated_log_date_type: str):
+    def get_aggregated_logs(aggregated_log_date_type: str, device_id: int, field_id: int):
         pass
 
     @abstractmethod

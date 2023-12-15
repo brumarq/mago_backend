@@ -15,6 +15,6 @@ class Field(db.Model):
 
     log_values = db.relationship('LogValue', back_populates='field') #is needed for relationship
 
-    weekly_average = db.relationship('WeeklyAverage', back_populates='field')  # Update this line
-    monthly_average = db.relationship('MonthlyAverage', back_populates='field')  # Update this line
-    yearly_average = db.relationship('YearlyAverage', back_populates='field')  # Update this line
+    weekly_averages = db.relationship('WeeklyAverage', back_populates='field')  # Update this line
+    monthly_averages = db.relationship('MonthlyAverage', back_populates='field')  # Update this line
+    yearly_averages = db.relationship('YearlyAverage', back_populates='field')  # Update this line
