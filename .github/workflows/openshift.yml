@@ -163,7 +163,7 @@ jobs:
 
     - name: Push image to Docker Hub
       run: |
-        buildah push "${{ env.APP_NAME }}:${{ env.IMAGE_TAGS }}" "docker://docker.io/brumarq/${{ env.APP_NAME }}:${{ env.IMAGE_TAGS }}"
+        buildah push "mago_backend:latest" "docker://docker.io/brumarq/mago_backend:latest"
 
     # The path the image was pushed to is now stored in ${{ steps.push-image.outputs.registry-path }}
 
