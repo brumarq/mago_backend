@@ -4,7 +4,7 @@
 # documentation.
 
 # 💁 The OpenShift Starter workflow will:
-# - Checkout your repository
+# - Checkout your repository.
 # - Perform a container image build
 # - Push the built image to the GitHub Container Registry (GHCR)
 # - Log in to your OpenShift cluster
