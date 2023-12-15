@@ -183,7 +183,7 @@ jobs:
 
     - name: Link image pull secret to service account
       run: |
-        oc secrets link robot ghcr-io-secret-brumarq --for=pull --namespace=${{ env.OPENSHIFT_NAMESPACE }}
+        oc secrets link robot ghcr-io-secret-v2 --for=pull --namespace=${{ env.OPENSHIFT_NAMESPACE }}
   
     # This step should create a deployment, service, and route to run your app and expose it to the internet.
     # https://github.com/redhat-actions/oc-new-app#readme
