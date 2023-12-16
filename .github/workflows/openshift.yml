@@ -179,22 +179,30 @@ jobs:
         insecure_skip_tls_verify: true
         namespace: ${{ env.OPENSHIFT_NAMESPACE }}
           
-    - name: Delete existing service if it exists
+    - name: Check if Deployment Exists
+      id: check-deployment
       run: |
-        oc delete svc user-microservice-service -n mago-backend || true
+        if oc get deployment user-microservice -n mago-backend; then
+          echo "DEPLOYMENT_EXISTS=true" >> $GITHUB_ENV
+        else
+          echo "DEPLOYMENT_EXISTS=false" >> $GITHUB_ENV
 
-    - name: Delete existing route if it exists
+    - name: Update Existing Deployment
+      if: env.DEPLOYMENT_EXISTS == 'true'
       run: |
-        oc delete route user-microservice-route -n mago-backend || true
+        oc set image deployment/user-microservice user-microservice=docker.io/brumarq/mago_backend:latest -n mago-backend
 
-    - name: Create Deployment
+    - name: Create New Deployment
+      if: env.DEPLOYMENT_EXISTS == 'false'
       run: |
         oc create deployment user-microservice --image=docker.io/brumarq/mago_backend:latest -n mago-backend
 
     - name: Expose Deployment as a Service
       run: |
+        oc delete svc user-microservice-service -n mago-backend || true
         oc expose deployment user-microservice --port=8080 --target-port=8080 --name=user-microservice-service -n mago-backend
 
-    - name: Create HTTPS Route
+    - name: Create or Update HTTPS Route
       run: |
+        oc delete route user-microservice-route -n mago-backend || true
         oc create route edge --service=user-microservice-service --port=8080 -n mago-backend
