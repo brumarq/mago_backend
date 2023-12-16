@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace WebApp.Controllers;
 
-[Route("userss")]
+[Route("users")]
 [ApiController]
 public class UserController : ControllerBase
 {
@@ -71,67 +71,4 @@ public class UserController : ControllerBase
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
-
-    // PUT: /users
-    [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateUser(string id, [FromBody] UpdateUserDTO updateUserDto)
-    {
-        try
-        {
-            var updatedUser = await _auth0Service.UpdateUserAsync(id, updateUserDto);
-            return Ok(updatedUser);
-        }
-        catch (Auth0Service.UserUpdateException ex)
-        {
-            return BadRequest(ex.Message); // Or another appropriate status code
-        }
-        catch (Auth0Service.UserNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
-    }    
-    // DELETE: /users/{id}
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUser(string id)
-    {
-        try
-        {
-            await _auth0Service.DeleteUserAsync(id);
-            return Ok();
-        }
-        catch (Auth0Service.UserNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
-    }
-
-    
-    
-    [HttpPost]
-    public async Task<ActionResult<User>> CreateUser([FromBody] CreateUserDTO createUserDTO)
-    {
-        try
-        {
-            var result = await _auth0Service.CreateAuth0UserAsync(createUserDTO);
-            return Ok(result);
-        }
-        catch (Auth0Service.UserCreationException ex)
-        {
-            return BadRequest(ex.Message); // Or another appropriate status code
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
-        }
-    }
-
-
 }
