@@ -192,7 +192,7 @@ jobs:
       if: env.DEPLOYMENT_EXISTS == 'true'
       run: |
         CONTAINER_NAME=$(oc get deployment user-microservice -n mago-backend -o=jsonpath='{.spec.template.spec.containers[0].name}')
-        oc set image deployment/user-microservice $CONTAINER_NAME=docker.io/***/mago_backend:latest -n mago-backend
+        oc set image deployment/user-microservice $CONTAINER_NAME=docker.io/brumarq/mago_backend:latest -n mago-backend
 
     - name: Create New Deployment
       if: env.DEPLOYMENT_EXISTS == 'false'
