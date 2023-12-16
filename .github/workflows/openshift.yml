@@ -193,7 +193,7 @@ jobs:
       run: |
         CONTAINER_NAME=$(oc get deployment user-microservice -n mago-backend -o=jsonpath='{.spec.template.spec.containers[0].name}')
         oc set image deployment/user-microservice $CONTAINER_NAME=docker.io/brumarq/mago_backend:latest -n mago-backend
-
+        
     - name: Create New Deployment
       if: env.DEPLOYMENT_EXISTS == 'false'
       run: |
@@ -212,3 +212,7 @@ jobs:
       run: |
         oc create route edge --service=user-microservice-service --port=8080 -n mago-backend || true
 
+    - name: Start rollout
+      if: env.DEPLOYMENT_EXISTS == 'true'
+      run: |
+        oc rollout restart deployment/user-microservice -n mago-backend
