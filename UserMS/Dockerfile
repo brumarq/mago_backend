@@ -2,6 +2,9 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
 WORKDIR /app
 
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
+
 # Copy the csproj and restore any dependencies (via nuget)
 COPY *.sln .
 COPY Application/*.csproj ./Application/
@@ -23,4 +26,12 @@ RUN dotnet publish -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /app
 COPY --from=build-env /app/out .
+
+# Create a user with a specific user ID (e.g., 1001) and switch to it
+# Ensure this user ID has the necessary permissions to run your application
+RUN useradd -u 1001 -r -g 0 -d /app -s /sbin/nologin -c "ASP.NET Core User" dotnetuser && \
+    chown -R 1001:0 /app && \
+    chmod -R g=u /app
+USER 1001
+
 ENTRYPOINT ["dotnet", "WebApp.dll"]

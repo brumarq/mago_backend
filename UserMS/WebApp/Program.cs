@@ -71,19 +71,18 @@ builder.Services.AddScoped<IAuth0Service, Auth0Service>();
 builder.Services.AddScoped<IAuth0RolesService, Auth0RolesService>();
 
 builder.Services.AddHttpClient();
+
+var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://*:{httpPort}");
+
+
 // Build the application
 var app = builder.Build();
 
 // Middleware configuration
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseHttpsRedirection();
 app.MapControllers();
-
 app.Run();

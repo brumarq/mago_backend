@@ -4,7 +4,7 @@
 # documentation.
 
 # 💁 The OpenShift Starter workflow will:
-# - Checkout your repository
+# - Checkout your repository.
 # - Perform a container image build
 # - Push the built image to the GitHub Container Registry (GHCR)
 # - Log in to your OpenShift cluster
@@ -41,7 +41,7 @@ env:
   # 🖊️ EDIT with the port your application should be accessible on.
   # If the container image exposes *exactly one* port, this can be left blank.
   # Refer to the 'port' input of https://github.com/redhat-actions/oc-new-app
-  APP_PORT: ""
+  APP_PORT: "8080"
 
   # 🖊️ EDIT to change the image registry settings.
   # Registries such as GHCR, Quay.io, and Docker Hub are supported.
@@ -154,16 +154,14 @@ jobs:
           ./UserMS/Dockerfile
         context: ./UserMS/
 
-    # https://github.com/redhat-actions/push-to-registry#readme
-    - name: Push to registry
-      id: push-image
-      uses: redhat-actions/push-to-registry@v2
-      with:
-        image: ${{ steps.build-image.outputs.image }}
-        tags: ${{ steps.build-image.outputs.tags }}
-        registry: ${{ env.IMAGE_REGISTRY }}
-        username: ${{ env.IMAGE_REGISTRY_USER }}
-        password: ${{ env.IMAGE_REGISTRY_PASSWORD }}
+    - name: Login to Docker Hub with Buildah
+      run: |
+        buildah login --username ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }} --password ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }} docker.io
+
+
+    - name: Push image to Docker Hub
+      run: |
+        buildah push "mago_backend:latest" "docker://docker.io/brumarq/mago_backend:latest"
 
     # The path the image was pushed to is now stored in ${{ steps.push-image.outputs.registry-path }}
 
@@ -180,22 +178,18 @@ jobs:
         openshift_token: ${{ env.OPENSHIFT_TOKEN }}
         insecure_skip_tls_verify: true
         namespace: ${{ env.OPENSHIFT_NAMESPACE }}
-
-    - name: Link image pull secret to service account
-      run: |
-        oc secrets link robot ghcr-io-secret-brumarq --for=pull --namespace=${{ env.OPENSHIFT_NAMESPACE }}
-  
+          
     # This step should create a deployment, service, and route to run your app and expose it to the internet.
     # https://github.com/redhat-actions/oc-new-app#readme
     - name: Create and expose app
       id: deploy-and-expose
       uses: redhat-actions/oc-new-app@v1
       with:
-        app_name: "mago-backend"
-        image: ${{ steps.push-image.outputs.registry-path }}
+        app_name: "user-microservice-10"
+        image: "docker.io/brumarq/mago_backend:latest"
         namespace: ${{ env.OPENSHIFT_NAMESPACE }}
         port: ${{ env.APP_PORT }}
-
+        
     - name: Print application URL
       env:
         ROUTE: ${{ steps.deploy-and-expose.outputs.route }}
