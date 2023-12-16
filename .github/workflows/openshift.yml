@@ -30,14 +30,10 @@ jobs:
         tags: latest
         dockerfiles: ./UserMS/Dockerfile
         context: ./UserMS/
-
-    - name: Log in to OpenShift
-      uses: redhat-actions/oc-login@v1
-      with:
-        openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
-        openshift_token: ${{ env.OPENSHIFT_TOKEN }}
-        insecure_skip_tls_verify: true
-        namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+        
+    - name: Login to Docker Hub with Buildah
+      run: |
+        buildah login --username ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }} --password ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }} docker.io
         
     - name: Push image to Docker Hub
       run: |
@@ -47,12 +43,13 @@ jobs:
       uses: redhat-actions/openshift-tools-installer@v1
       with:
         oc: 4
-
+        
     - name: Log in to OpenShift
       uses: redhat-actions/oc-login@v1
       with:
         openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
         openshift_token: ${{ env.OPENSHIFT_TOKEN }}
+        insecure_skip_tls_verify: true
         namespace: ${{ env.OPENSHIFT_NAMESPACE }}
 
     - name: Deploy to OpenShift
