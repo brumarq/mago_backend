@@ -181,7 +181,11 @@ jobs:
         oc delete svc user-microservice-service -n mago-backend || true
         oc expose deployment user-microservice --port=8080 --target-port=8080 --name=user-microservice-service -n mago-backend
 
-    - name: Create or Update HTTPS Route
+    - name: Delete existing route if it exists
       run: |
-        oc delete route user-microservice-route -n mago-backend || true
-        oc create route edge --service=user-microservice-service --port=8080 -n mago-backend
+        oc delete route user-microservice-service -n mago-backend || true
+    
+    - name: Create HTTPS Route
+      run: |
+        oc create route edge --service=user-microservice-service --port=8080 -n mago-backend || true
+
