@@ -72,7 +72,7 @@ public class UserController : ControllerBase
         }
     }
 
-    // PUT: /users
+    // PUT: /userss
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateUser(string id, [FromBody] UpdateUserDTO updateUserDto)
     {
