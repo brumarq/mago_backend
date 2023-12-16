@@ -179,26 +179,18 @@ jobs:
         insecure_skip_tls_verify: true
         namespace: ${{ env.OPENSHIFT_NAMESPACE }}
           
-    # This step should create a deployment, service, and route to run your app and expose it to the internet.
-    # https://github.com/redhat-actions/oc-new-app#readme
-    - name: Create and expose app
-      id: deploy-and-expose
-      uses: redhat-actions/oc-new-app@v1
-      with:
-        app_name: "user-microservice-10"
-        image: "docker.io/brumarq/mago_backend:latest"
-        namespace: ${{ env.OPENSHIFT_NAMESPACE }}
-        port: ${{ env.APP_PORT }}
-        
-    - name: Print application URL
-      env:
-        ROUTE: ${{ steps.deploy-and-expose.outputs.route }}
-        SELECTOR: ${{ steps.deploy-and-expose.outputs.selector }}
+    - name: Import Image
       run: |
-        [[ -n ${{ env.ROUTE }} ]] || (echo "Determining application route failed in previous step"; exit 1)
-        echo
-        echo "======================== Your application is available at: ========================"
-        echo ${{ env.ROUTE }}
-        echo "==================================================================================="
-        echo
-        echo "Your app can be taken down with: \"oc delete all --selector='${{ env.SELECTOR }}'\""
+        oc import-image mago-backend --from=docker.io/brumarq/mago_backend:latest --confirm -n mago-backend
+
+    - name: Create Deployment
+      run: |
+        oc create deployment user-microservice --image=docker.io/brumarq/mago_backend:latest -n mago-backend
+
+    - name: Expose Deployment as a Service
+      run: |
+        oc expose deployment user-microservice --port=8080 --target-port=8080 --name=user-microservice-service -n mago-backend
+
+    - name: Create HTTPS Route
+      run: |
+        oc create route edge --service=user-microservice-service --port=8080 -n mago-backend
