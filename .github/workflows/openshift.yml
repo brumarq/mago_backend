@@ -139,29 +139,6 @@ jobs:
     - name: List directory contents
       run: ls -la ./UserMS
 
-    # https://github.com/redhat-actions/buildah-build#readme
-    - name: Build from Dockerfile
-      id: build-image
-      uses: redhat-actions/buildah-build@v2
-      with:
-        image: ${{ env.APP_NAME }}
-        tags: ${{ env.IMAGE_TAGS }}
-
-        # If you don't have a Dockerfile/Containerfile, refer to https://github.com/redhat-actions/buildah-build#scratch-build-inputs
-        # Or, perform a source-to-image build using https://github.com/redhat-actions/s2i-build
-        # Otherwise, point this to your Dockerfile/Containerfile relative to the repository root.
-        dockerfiles: |
-          ./UserMS/Dockerfile
-        context: ./UserMS/
-
-    - name: Login to Docker Hub with Buildah
-      run: |
-        buildah login --username ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }} --password ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }} docker.io
-
-
-    - name: Push image to Docker Hub
-      run: |
-        buildah push "mago_backend:latest" "docker://docker.io/brumarq/mago_backend:latest"
 
     # The path the image was pushed to is now stored in ${{ steps.push-image.outputs.registry-path }}
 
@@ -191,7 +168,8 @@ jobs:
     - name: Update Existing Deployment
       if: env.DEPLOYMENT_EXISTS == 'true'
       run: |
-        oc set image deployment/user-microservice user-microservice=docker.io/brumarq/mago_backend:latest -n mago-backend
+        CONTAINER_NAME=$(oc get deployment user-microservice -n mago-backend -o=jsonpath='{.spec.template.spec.containers[0].name}')
+        oc set image deployment/user-microservice $CONTAINER_NAME=docker.io/***/mago_backend:latest -n mago-backend
 
     - name: Create New Deployment
       if: env.DEPLOYMENT_EXISTS == 'false'
