@@ -46,3 +46,11 @@ class Repository:
         except SQLAlchemyError as e:
             db.session.rollback()
             raise e
+        
+    def exists_by_id(self, record_id):
+        try:
+            return self.model.query.get(record_id) is not None
+        except SQLAlchemyError as e:
+            # Handle the exception according to your application's requirements
+            # For now, re-raise the exception
+            raise e

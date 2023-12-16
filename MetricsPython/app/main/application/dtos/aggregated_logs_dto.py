@@ -20,7 +20,7 @@ class AggregatedLogsDto:
         'averageValue': fields.Float(required=True, description="AggregatedLog Average value (float)", attribute="average_value"),
         'minValue': fields.Float(required=True, description="AggregatedLog Min value (float)", attribute="min_value"),
         'maxValue': fields.Float(required=True, description="AggregatedLog Max value (float)", attribute="max_value"),
-        'deviceId': fields.Float(required=True, description="Device ifentifier", attribute="device_id"),
+        'deviceId': fields.Integer(required=True, description="Device ifentifier", attribute="device_id"),
         'field': fields.Nested(field, required=True, description="Field object (object)", attribute="field"),
     })
 

@@ -6,10 +6,13 @@ from app.main.application.dtos.export_aggregated_logs_csv_dto import ExportAggre
 from app.main.domain.entities.weekly_average import WeeklyAverage
 from app.main.domain.entities.monthly_average import MonthlyAverage
 from app.main.domain.entities.yearly_average import YearlyAverage
+from app.main.domain.entities.field import Field
 from flask import abort, make_response
 
 
 class AggregatedLogsService(AggregatedLogsAbstractService):
+    def __init__(self):
+        self.field_repository = Repository(Field)
 
     def get_aggregated_logs(self, aggregated_log_date_type: str, device_id: int, field_id: int):
 
@@ -17,6 +20,9 @@ class AggregatedLogsService(AggregatedLogsAbstractService):
 
         if not any(aggregated_log_date_type == item.value.upper() for item in AggregatedLogDateType):
             abort(400, "Invalid date type entered (must be 'Weekly', 'Monthly' or 'Yearly').")
+
+        if not self.field_repository.exists_by_id(field_id):
+            abort(404, f"Field with id {field_id} does not exist.")
 
         if aggregated_log_date_type == AggregatedLogDateType.WEEKLY.value.upper():
             repository = Repository(WeeklyAverage)
@@ -52,6 +58,7 @@ class AggregatedLogsService(AggregatedLogsAbstractService):
         response.headers["Content-Transfer-Encoding"] = "bytes"
 
         return response
+    
 
 
 

@@ -14,7 +14,7 @@ namespace Application.ApplicationServices
         private readonly IDeviceService _deviceService;
         private readonly string _baseUri;
 
-        public MetricsService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService, IDeviceTypeService deviceTypeService)
+        public MetricsService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService)
         {
             _httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient();
@@ -22,15 +22,18 @@ namespace Application.ApplicationServices
             _baseUri = configuration["ApiRequestUris:MetricsBaseUri"];
         }
 
-        public async Task<IEnumerable<MetricsResponseDTO>> GetMetricsForDevice(int deviceId)
+        public async Task<IEnumerable<MetricsResponseDTO>> GetMetricsForDeviceAsync(int deviceId)
         {
-            if (!await _deviceService.DeviceExists(deviceId))
+            if (!await _deviceService.DeviceExistsAsync(deviceId))
                 throw new NotFoundException($"Device with id {deviceId} does not exist!");
 
             var response = await _httpClient.GetAsync($"{_baseUri}devices/{deviceId}");
             response.EnsureSuccessStatusCode();
 
             var body = await response.Content.ReadFromJsonAsync<IEnumerable<MetricsResponseDTO>>();
+
+            if (body == null)
+                throw new NotFoundException("Metrics failed to get retrieved.");
 
             return body!;
         }

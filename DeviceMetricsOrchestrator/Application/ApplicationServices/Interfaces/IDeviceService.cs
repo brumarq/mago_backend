@@ -4,5 +4,6 @@ namespace Application.ApplicationServices.Interfaces;
 
 public interface IDeviceService
 {
-    Task<bool> DeviceExists(int deviceId);
+    Task<DeviceResponseDTO> GetDeviceByIdAsync(int deviceId);
+    Task<bool> DeviceExistsAsync(int deviceId);
 }

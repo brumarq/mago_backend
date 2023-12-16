@@ -1,6 +1,6 @@
 ﻿namespace Application.DTOs.Device
 {
-    public class DeviceResponseDTO
+    public class DeviceResponseDTO : BaseDTO
     {
         public string? Name { get; set; }
         public DeviceTypeResponseDTO? DeviceType { get; set; }
