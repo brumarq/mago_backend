@@ -179,9 +179,13 @@ jobs:
         insecure_skip_tls_verify: true
         namespace: ${{ env.OPENSHIFT_NAMESPACE }}
           
-    - name: Import Image
+    - name: Delete existing service if it exists
       run: |
-        oc import-image mago-backend --from=docker.io/brumarq/mago_backend:latest --confirm -n mago-backend
+        oc delete svc user-microservice-service -n mago-backend || true
+
+    - name: Delete existing route if it exists
+      run: |
+        oc delete route user-microservice-route -n mago-backend || true
 
     - name: Create Deployment
       run: |
