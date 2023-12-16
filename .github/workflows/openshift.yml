@@ -178,14 +178,6 @@ jobs:
         openshift_token: ${{ env.OPENSHIFT_TOKEN }}
         insecure_skip_tls_verify: true
         namespace: ${{ env.OPENSHIFT_NAMESPACE }}
-
-    - name: Create service if not exists
-      run: |
-        oc create service clusterip mago-backend --tcp=8080:8080 -n mago-backend || true
-
-    - name: Expose the route for "mago-backend" service
-      run: |
-          oc expose service mago-backend --namespace=mago-backend
           
     # This step should create a deployment, service, and route to run your app and expose it to the internet.
     # https://github.com/redhat-actions/oc-new-app#readme
@@ -193,7 +185,7 @@ jobs:
       id: deploy-and-expose
       uses: redhat-actions/oc-new-app@v1
       with:
-        app_name: "mago-backend"
+        app_name: "user-microservice-10"
         image: "docker.io/brumarq/mago_backend:latest"
         namespace: ${{ env.OPENSHIFT_NAMESPACE }}
         port: ${{ env.APP_PORT }}
