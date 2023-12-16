@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace WebApp.Controllers;
 
-[Route("users")]
+[Route("userss")]
 [ApiController]
 public class UserController : ControllerBase
 {

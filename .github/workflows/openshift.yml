@@ -139,7 +139,7 @@ jobs:
     - name: List directory contents
       run: ls -la ./UserMS
 
-    # https://github.com/redhat-actions/buildah-build#readme
+        # https://github.com/redhat-actions/buildah-build#readme
     - name: Build from Dockerfile
       id: build-image
       uses: redhat-actions/buildah-build@v2
@@ -179,26 +179,36 @@ jobs:
         insecure_skip_tls_verify: true
         namespace: ${{ env.OPENSHIFT_NAMESPACE }}
           
-    # This step should create a deployment, service, and route to run your app and expose it to the internet.
-    # https://github.com/redhat-actions/oc-new-app#readme
-    - name: Create and expose app
-      id: deploy-and-expose
-      uses: redhat-actions/oc-new-app@v1
-      with:
-        app_name: "user-microservice-10"
-        image: "docker.io/brumarq/mago_backend:latest"
-        namespace: ${{ env.OPENSHIFT_NAMESPACE }}
-        port: ${{ env.APP_PORT }}
-        
-    - name: Print application URL
-      env:
-        ROUTE: ${{ steps.deploy-and-expose.outputs.route }}
-        SELECTOR: ${{ steps.deploy-and-expose.outputs.selector }}
+    - name: Check if Deployment Exists
+      id: check-deployment
       run: |
-        [[ -n ${{ env.ROUTE }} ]] || (echo "Determining application route failed in previous step"; exit 1)
-        echo
-        echo "======================== Your application is available at: ========================"
-        echo ${{ env.ROUTE }}
-        echo "==================================================================================="
-        echo
-        echo "Your app can be taken down with: \"oc delete all --selector='${{ env.SELECTOR }}'\""
+        if oc get deployment user-microservice -n mago-backend; then
+          echo "DEPLOYMENT_EXISTS=true" >> $GITHUB_ENV
+        else
+          echo "DEPLOYMENT_EXISTS=false" >> $GITHUB_ENV
+        fi
+
+    - name: Update Existing Deployment
+      if: env.DEPLOYMENT_EXISTS == 'true'
+      run: |
+        CONTAINER_NAME=$(oc get deployment user-microservice -n mago-backend -o=jsonpath='{.spec.template.spec.containers[0].name}')
+        oc set image deployment/user-microservice $CONTAINER_NAME=docker.io/brumarq/mago_backend:latest -n mago-backend
+
+    - name: Create New Deployment
+      if: env.DEPLOYMENT_EXISTS == 'false'
+      run: |
+        oc create deployment user-microservice --image=docker.io/brumarq/mago_backend:latest -n mago-backend
+
+    - name: Expose Deployment as a Service
+      run: |
+        oc delete svc user-microservice-service -n mago-backend || true
+        oc expose deployment user-microservice --port=8080 --target-port=8080 --name=user-microservice-service -n mago-backend
+
+    - name: Delete existing route if it exists
+      run: |
+        oc delete route user-microservice-service -n mago-backend || true
+    
+    - name: Create HTTPS Route
+      run: |
+        oc create route edge --service=user-microservice-service --port=8080 -n mago-backend || true
+
