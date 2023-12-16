@@ -186,6 +186,7 @@ jobs:
           echo "DEPLOYMENT_EXISTS=true" >> $GITHUB_ENV
         else
           echo "DEPLOYMENT_EXISTS=false" >> $GITHUB_ENV
+        fi
 
     - name: Update Existing Deployment
       if: env.DEPLOYMENT_EXISTS == 'true'
