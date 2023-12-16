@@ -1,7 +1,9 @@
 ﻿# Use the Microsoft official image with the .NET SDK to build the solution
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
 WORKDIR /app
-EXPOSE 8080 8443
+
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 
 # Copy the csproj and restore any dependencies (via nuget)
 COPY *.sln .
