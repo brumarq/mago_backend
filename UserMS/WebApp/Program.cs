@@ -73,8 +73,7 @@ builder.Services.AddScoped<IAuth0RolesService, Auth0RolesService>();
 builder.Services.AddHttpClient();
 
 var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8080";
-var httpsPort = Environment.GetEnvironmentVariable("HTTPS_PORT") ?? "8443";
-builder.WebHost.UseUrls($"http://*:{httpPort}", $"https://*:{httpsPort}");
+builder.WebHost.UseUrls($"http://*:{httpPort}");
 
 
 // Build the application
@@ -89,6 +88,5 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();
