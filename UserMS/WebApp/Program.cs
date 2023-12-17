@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebApp;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,8 @@ builder.Services.AddControllers();
 
 // AutoMapper configuration for dependency injection
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+// Add the Prometheus metrics service
 
 // Swagger/OpenAPI configuration
 builder.Services.AddEndpointsApiExplorer();
@@ -81,6 +84,7 @@ var app = builder.Build();
 
 // Middleware configuration
 app.UseSwagger();
+app.UseMetricServer();
 app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseAuthorization();
