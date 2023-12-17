@@ -1,4 +1,4 @@
-name: OpenShift CI/CD
+name: User Service CI/CD
 
 on:
   workflow_dispatch:
