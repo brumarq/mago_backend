@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace WebApp.Controllers;
 
-[Route("userss")]
+[Route("users")]
 [ApiController]
 public class UserController : ControllerBase
 {
@@ -72,7 +72,7 @@ public class UserController : ControllerBase
         }
     }
 
-    // PUT: /users
+    // PUT: /userss
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateUser(string id, [FromBody] UpdateUserDTO updateUserDto)
     {
