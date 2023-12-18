@@ -1,5 +1,5 @@
 from app.main.domain.enums.aggregated_log_date_type import AggregatedLogDateType
-from app.main.application.service.abstract.aggregated_logs_abstract_service import AggregatedLogsAbstractService
+from app.main.application.service.abstract.base_aggregated_logs_service import BaseAggregatedLogsService
 from app.main.infrastructure.repositories.repository import Repository
 from app.main.application.helpers.aggregation_logs_helper import AggregationLogsHelper
 from app.main.application.dtos.export_aggregated_logs_csv_dto import ExportAggregatedLogsCsvDto
@@ -10,9 +10,12 @@ from app.main.domain.entities.field import Field
 from flask import abort, make_response
 
 
-class AggregatedLogsService(AggregatedLogsAbstractService):
-    def __init__(self):
-        self.field_repository = Repository(Field)
+class AggregatedLogsService(BaseAggregatedLogsService):
+    def __init__(self, field_respository: Repository(Field), weekly_average_repository: Repository(WeeklyAverage), monthly_average_repository: Repository(MonthlyAverage), yearly_average_repository: Repository(YearlyAverage)):
+        self.field_repository = field_respository
+        self.weekly_average_repository = weekly_average_repository
+        self.monthly_average_repository = monthly_average_repository
+        self.yearly_average_repository = yearly_average_repository
 
     def get_aggregated_logs(self, aggregated_log_date_type: str, device_id: int, field_id: int):
 
@@ -25,14 +28,11 @@ class AggregatedLogsService(AggregatedLogsAbstractService):
             abort(404, f"Field with id {field_id} does not exist.")
 
         if aggregated_log_date_type == AggregatedLogDateType.WEEKLY.value.upper():
-            repository = Repository(WeeklyAverage)
+            repository = self.weekly_average_repository
         elif aggregated_log_date_type == AggregatedLogDateType.MONTHLY.value.upper():
-            repository = Repository(MonthlyAverage)
+            repository = self.monthly_average_repository
         elif aggregated_log_date_type == AggregatedLogDateType.YEARLY.value.upper():
-            repository = Repository(YearlyAverage)
-
-        if repository is None:
-            abort(500, "Unexpected error determining the repository.")
+            repository = self.yearly_average_repository
 
         condition = (repository.model.device_id == device_id) & (repository.model.field_id == field_id)
 

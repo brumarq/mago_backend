@@ -1,7 +1,8 @@
 from sqlalchemy.exc import SQLAlchemyError
 from app.main import db
+from app.main.infrastructure.repositories.abstract.base_repository import BaseRepository
 
-class Repository:
+class Repository(BaseRepository):
     def __init__(self, model):
         self.model = model
 

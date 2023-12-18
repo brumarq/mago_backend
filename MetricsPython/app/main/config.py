@@ -13,6 +13,7 @@ class Config:
     MSSQL_DRIVER=os.getenv('MSSQL_DRIVER')
     SQLALCHEMY_DATABASE_URI=f"mssql://{MSSQL_USER}/{MSSQL_DB}?driver={MSSQL_DRIVER}"
     FLASK_ENV=os.getenv('FLASK_ENV')
+    ERROR_404_HELP = False
 
 class DevelopmentConfig(Config):
     DEBUG = True
@@ -35,6 +36,7 @@ class TestingConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
     PORT = os.getenv('FLASK_RUN_PORT_PROD')
+    ERROR_404_HELP = False
 
 
 config_by_name = dict(
