@@ -35,6 +35,17 @@ namespace Application.ApplicationServices
 
         }
 
+        public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsForUserOnStatusTypeByUserIdAsync(int userId)
+        {
+            HttpResponseMessage userResponseStatus = await _userService.GetUserExistenceStatus(userId);
+            if (!userResponseStatus.IsSuccessStatusCode)
+            {
+                throw new Exception($"Device check failed: {userResponseStatus.StatusCode}: {userResponseStatus.ReasonPhrase}");
+            }
+
+            return new List<NotificationResponseDTO>();
+        }
+
         public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId)
         {
             HttpResponseMessage deviceResponseStatus = await _deviceService.GetDeviceExistenceStatus(deviceId);

@@ -24,18 +24,29 @@ namespace UserDeviceNotificationsOrchestrator.Controllers
             this._notificationService = notificationService;
         }
 
+
+        [HttpGet("users/{userId}")]
+        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationForUserOnStatusTypeAsync(int userId)
+        {
+            try
+            {
+                var notificationResponseDTO = await _notificationService.GetNotificationsByDeviceIdAsync(userId);
+                return Ok(notificationResponseDTO);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
         [HttpGet("device/{deviceId}")]
         public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId)
         {
             try
             {
-                var notificationDTO = await _notificationService.GetNotificationsByDeviceIdAsync(deviceId);
-                if (notificationDTO == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(notificationDTO);
+                var notificationDTOs = await _notificationService.GetNotificationsByDeviceIdAsync(deviceId);
+                return Ok(notificationDTOs);
             }
             catch (Exception ex)
             {
@@ -49,18 +60,8 @@ namespace UserDeviceNotificationsOrchestrator.Controllers
         {
             try
             {
-                var response = await _notificationService.CreateNotificationAsync(createNotificationDTO);
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseContent = await response.Content.ReadAsStringAsync();
-                    var notificationResponseDTO = JsonConvert.DeserializeObject<NotificationResponseDTO>(responseContent);
-                    return Ok(notificationResponseDTO);
-                }
-                else
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    return StatusCode((int)response.StatusCode, errorContent);
-                }
+                var notificationResponseDTO = await _notificationService.CreateNotificationAsync(createNotificationDTO);
+                return Ok(notificationResponseDTO);
             }
             catch (Exception e)
             {
