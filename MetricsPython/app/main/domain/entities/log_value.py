@@ -17,6 +17,3 @@ class LogValue(db.Model):
 
     log_collection_id = db.Column(db.Integer, db.ForeignKey(LogCollection.id))
     log_collection = db.relationship('LogCollection', back_populates='log_values') #needed for relatipnship
-    
-    def __repr__(self):
-        return "<LogValue '{}'>".format(self.value)

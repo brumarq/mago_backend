@@ -1,7 +1,8 @@
 from sqlalchemy.exc import SQLAlchemyError
 from app.main import db
+from app.main.infrastructure.repositories.abstract.base_repository import BaseRepository
 
-class Repository:
+class Repository(BaseRepository):
     def __init__(self, model):
         self.model = model
 
@@ -45,4 +46,12 @@ class Repository:
             return True
         except SQLAlchemyError as e:
             db.session.rollback()
+            raise e
+        
+    def exists_by_id(self, record_id):
+        try:
+            return self.model.query.get(record_id) is not None
+        except SQLAlchemyError as e:
+            # Handle the exception according to your application's requirements
+            # For now, re-raise the exception
             raise e

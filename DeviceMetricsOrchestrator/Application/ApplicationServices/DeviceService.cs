@@ -1,5 +1,6 @@
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs.Device;
+using Application.DTOs.Metrics;
 using Application.Exceptions;
 using Microsoft.Extensions.Configuration;
 using System.Net;
@@ -22,7 +23,7 @@ public class DeviceService : IDeviceService
         _baseUri = _configuration["ApiRequestUris:DeviceBaseUri"];
     }
 
-    public async Task<bool> DeviceExists(int deviceId)
+    public async Task<bool> DeviceExistsAsync(int deviceId)
     {
         try
         {
@@ -35,5 +36,18 @@ public class DeviceService : IDeviceService
             Console.WriteLine($"Error checking device existence: {e.Message}");
             return false;
         }
+    }
+
+    public async Task<DeviceResponseDTO> GetDeviceByIdAsync(int deviceId)
+    {
+        if (!await DeviceExistsAsync(deviceId))
+            throw new NotFoundException($"Device with id {deviceId} does not exist!");
+
+        var response = await _httpClient.GetAsync($"{_baseUri}{deviceId}");
+        response.EnsureSuccessStatusCode();
+
+        var body = await response.Content.ReadFromJsonAsync<DeviceResponseDTO>();
+
+        return body!;
     }
 }

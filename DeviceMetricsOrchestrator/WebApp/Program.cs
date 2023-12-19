@@ -1,5 +1,6 @@
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
+using System.Text.Json.Serialization;
 // using Infrastructure.Data.Context;
 // using Infrastructure.Repositories;
 // using Infrastructure.Repositories.Interfaces;
@@ -25,11 +26,18 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<IMetricsService, MetricsService>();
-builder.Services.AddScoped<IDeviceTypeService, DeviceTypeService>();
+builder.Services.AddScoped<IAggregatedLogsService, AggregatedLogsService>();
+builder.Services.AddScoped<IDeviceMetricsService, DeviceMetricsService>();
 // builder.Services.AddScoped<IDeviceSettingsService, DeviceSettingsService>();
 
 // Add services for dependency injection
 //...
+
+// Extra stuff for converting int to string representation of enums in Swagger UI
+builder.Services
+    .AddControllersWithViews()
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters
+    .Add(new JsonStringEnumConverter()));
 
 var app = builder.Build();
 
