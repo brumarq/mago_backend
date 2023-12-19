@@ -43,7 +43,38 @@ namespace Application.ApplicationServices
                 throw new Exception($"Device check failed: {userResponseStatus.StatusCode}: {userResponseStatus.ReasonPhrase}");
             }
 
-            return new List<NotificationResponseDTO>();
+            try
+            {
+                //"/user-on-statustype/user/{userId}/device-ids"
+                var deviceIdsResponse = await _httpClient.GetAsync($"{_baseUri}user-on-statustype/user/{userId}/device-ids");
+                string content = await deviceIdsResponse.Content.ReadAsStringAsync();
+                List<int> deviceIds = JsonConvert.DeserializeObject<List<int>>(content);
+                foreach (var deviceId in deviceIds)
+                {
+                    var deviceResponseStatus = await _deviceService.GetDeviceExistenceStatus(deviceId);
+                    if (!deviceResponseStatus.IsSuccessStatusCode)
+                    {
+                        throw new Exception($"Device check failed: {deviceResponseStatus.StatusCode}: {deviceResponseStatus.ReasonPhrase}");
+                    }
+                }
+
+                var notificatinonsResponse = await _httpClient.GetAsync($"{_baseUri}users/{userId}");
+                if (notificatinonsResponse.IsSuccessStatusCode)
+                {
+                    var responseContent = await notificatinonsResponse.Content.ReadAsStringAsync();
+                    var notificationResponseDTOs = JsonConvert.DeserializeObject<List<NotificationResponseDTO>>(responseContent);
+                    return notificationResponseDTOs;
+                }
+                else
+                {
+                    var errorContent = await notificatinonsResponse.Content.ReadAsStringAsync();
+                    throw new HttpRequestException($"Get notifications request failed {(int)notificatinonsResponse.StatusCode}: {errorContent}");
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                throw new Exception($"Request failed: {e.Message}");
+            }
         }
 
         public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId)
