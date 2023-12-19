@@ -79,6 +79,18 @@ namespace Application.ApplicationServices
 
             return _mapper.Map<IEnumerable<NotificationResponseDTO>>(filteredNotifications);
         }
+
+        public async Task<IEnumerable<int>> GetDeviceIdsFromUserOnStatusByUserId(int userId)
+        {
+            var userOnStatusTypes = await _userOnStatusTypeRepository.GetAllAsync();
+
+            var filteredUserOnStatusTypes = userOnStatusTypes.Where(x => x.UserId == userId);
+
+            var deviceIds = filteredUserOnStatusTypes.Select(x => x.DeviceId);
+
+            return deviceIds;
+        }
+
     }
 }
 
