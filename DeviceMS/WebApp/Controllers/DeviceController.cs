@@ -2,7 +2,9 @@ using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
 using Application.DTOs.Device;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace WebApp.Controllers
 {
@@ -101,5 +103,17 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
+        
+        private string? GetUserId()
+        {
+            return User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        }
+
+        private bool HasPermission(string permission)
+        {
+            return User.HasClaim(c => c.Type == "permissions" && c.Value == permission);
+        }
+
     }
+    
 }
