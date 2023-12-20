@@ -8,11 +8,12 @@ class Config:
     DEBUG = False
     # Swagger
     RESTX_MASK_SWAGGER = False
-    MSSQL_USER=os.getenv('MSSQL_USER')
-    MSSQL_DB=os.getenv('MSSQL_DB')
-    MSSQL_DRIVER=os.getenv('MSSQL_DRIVER')
-    SQLALCHEMY_DATABASE_URI=f"mssql://{MSSQL_USER}/{MSSQL_DB}?driver={MSSQL_DRIVER}"
+    # LOCAL CONNECTION STRING
+    #SQLALCHEMY_DATABASE_URI=f"mssql://{os.getenv('MSSQL_USER')}/{os.getenv('MSSQL_DB')}?driver={os.getenv('MSSQL_DRIVER')}" 
+    # AZURE DB CONNECTION STRING
+    SQLALCHEMY_DATABASE_URI = f"mssql+pyodbc://{os.getenv('AZURE_SQL_UID')}:{os.getenv('AZURE_SQL_PWD')}@{os.getenv('AZURE_SQL_SERVER')}:{os.getenv('AZURE_SQL_HOST')}/{os.getenv('AZURE_SQL_DATABASE')}?driver={os.getenv('AZURE_SQL_DRIVER')}"
     FLASK_ENV=os.getenv('FLASK_ENV')
+    ERROR_404_HELP = False
 
 class DevelopmentConfig(Config):
     DEBUG = True
@@ -35,6 +36,7 @@ class TestingConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
     PORT = os.getenv('FLASK_RUN_PORT_PROD')
+    ERROR_404_HELP = False
 
 
 config_by_name = dict(
