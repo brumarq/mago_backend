@@ -44,7 +44,7 @@ public class Auth0RolesService: IAuth0RolesService
         {
             var errorContent = await response.Content.ReadAsStringAsync();
             _logger.LogError("Error unassigning role from user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
-            throw new Auth0Service.UserRoleException($"Error unassigning role from user in Auth0: {errorContent}");
+            throw new Auth0Service.UserRoleException($"{errorContent}");
         }
     }
 
@@ -73,7 +73,7 @@ public class Auth0RolesService: IAuth0RolesService
         {
             var errorContent = await response.Content.ReadAsStringAsync();
             _logger.LogError("Error assigning role to user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
-            throw new Auth0Service.UserRoleException($"Error assigning role to user in Auth0: {errorContent}");
+            throw new Auth0Service.UserRoleException($"{errorContent}");
         }
     }
     
@@ -97,7 +97,7 @@ public class Auth0RolesService: IAuth0RolesService
         {
             var errorContent = await response.Content.ReadAsStringAsync();
             _logger.LogError("Error retrieving roles for user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
-            throw new Auth0Service.UserRoleException($"Error retrieving roles for user in Auth0: {errorContent}");
+            throw new Auth0Service.UserRoleException($"{errorContent}");
         }
 
         // Read the response content and deserialize it

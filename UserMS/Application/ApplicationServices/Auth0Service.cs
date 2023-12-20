@@ -67,7 +67,7 @@ public class Auth0Service : IAuth0Service
         {
             var errorContent = await response.Content.ReadAsStringAsync();
             _logger.LogError("Error creating user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
-            throw new UserCreationException($"Error creating user in Auth0: {errorContent}");
+            throw new UserCreationException($"{errorContent}");
         }
 
         var auth0User = await response.Content.ReadFromJsonAsync<User>();
@@ -150,7 +150,7 @@ public class Auth0Service : IAuth0Service
         {
             var errorContent = await response.Content.ReadAsStringAsync();
             _logger.LogError("Error updating user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
-            throw new UserUpdateException($"Error updating user in Auth0: {errorContent}");
+            throw new UserUpdateException($"{errorContent}");
         }
 
         return true;
@@ -178,7 +178,7 @@ public class Auth0Service : IAuth0Service
         {
             var errorContent = await response.Content.ReadAsStringAsync();
             _logger.LogError("Error retrieving user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
-            throw new UserNotFoundException($"Error retrieving user in Auth0: {errorContent}");
+            throw new UserNotFoundException($"{errorContent}");
         }
 
         var auth0User = await response.Content.ReadFromJsonAsync<User>();
@@ -239,7 +239,7 @@ public class Auth0Service : IAuth0Service
         {
             var errorContent = await response.Content.ReadAsStringAsync();
             _logger.LogError("Error retrieving users for role {RoleId} in Auth0. Status Code: {StatusCode}, Details: {Details}", roleId, response.StatusCode, errorContent);
-            throw new Exception($"Error retrieving users for role {roleId} in Auth0: {errorContent}");
+            throw new Exception($"{errorContent}");
         }
 
         var users = await response.Content.ReadFromJsonAsync<List<User>>();
@@ -268,7 +268,7 @@ public class Auth0Service : IAuth0Service
         {
             var errorContent = await response.Content.ReadAsStringAsync();
             _logger.LogError("Error deleting user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
-            throw new Exception($"Error deleting user in Auth0: {errorContent}");
+            throw new Exception($"{errorContent}");
         }
 
         return true;

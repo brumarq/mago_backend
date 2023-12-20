@@ -24,7 +24,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Middleware\Authentication\" />
       <Folder Include="Middleware\Logging\" />
     </ItemGroup>
 

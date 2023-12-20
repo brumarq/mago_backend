@@ -8,16 +8,15 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebApp;
 using Prometheus;
+using WebApp.Middleware.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
-
+var domain = $"https://{builder.Configuration["Auth0:Domain"]}/";
 // Add services to the container.
 builder.Services.AddControllers();
 
 // AutoMapper configuration for dependency injection
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-// Add the Prometheus metrics service
 
 // Swagger/OpenAPI configuration
 builder.Services.AddEndpointsApiExplorer();
@@ -62,11 +61,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Authorization policies
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("get:users", policy => policy.RequireClaim("permissions", "get:users"));
+    options.AddPolicy("Admin", policy => policy.RequireClaim("permissions", "admin"));
+    options.AddPolicy("Client", policy => policy.RequireClaim("permissions", "client"));
+    options.AddPolicy("All", policy => policy.RequireAssertion(context =>
+        context.User.HasClaim(c => 
+            (c.Type == "permissions" && (c.Value == "admin" || c.Value == "client")))));
 });
 
 // Authorization handler registration
-builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
+builder.Services.AddSingleton<IAuthorizationHandler, HasPermissionHandler>();
 
 builder.Services.AddScoped<IAuth0ManagementService, Auth0ManagementService>();
 builder.Services.AddScoped<IAuth0Service, Auth0Service>();
@@ -77,7 +80,6 @@ builder.Services.AddHttpClient();
 
 var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://*:{httpPort}");
-
 
 // Build the application
 var app = builder.Build();
