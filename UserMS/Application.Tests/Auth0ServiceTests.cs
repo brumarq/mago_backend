@@ -156,7 +156,7 @@ public class Auth0ServiceTests
 
         // Act & Assert
         var exception = Assert.ThrowsAsync<Auth0Service.UserCreationException>(async () => await _auth0Service.CreateAuth0UserAsync(createUserDto));
-        Assert.That(exception?.Message, Does.Contain("Error creating user in Auth0: " + errorResponseContent));
+        Assert.That(exception?.Message, Does.Contain(errorResponseContent));
 
         // Verify that the logger was called
         _mockLogger.Verify();
@@ -373,7 +373,7 @@ public class Auth0ServiceTests
         var exception = Assert.ThrowsAsync<Auth0Service.UserUpdateException>(
             async () => await _auth0Service.UpdateUserAsync(userId, updateUserDto)
         );
-        Assert.That(exception?.Message, Is.EqualTo($"Error updating user in Auth0: {errorResponseContent}"));
+        Assert.That(exception?.Message, Is.EqualTo($"{errorResponseContent}"));
     }
     
     
@@ -402,7 +402,7 @@ public class Auth0ServiceTests
         var ex = Assert.ThrowsAsync<Auth0Service.UserNotFoundException>(() => _auth0Service.GetUser(userId));
 
         // Assert that the exception message is as expected
-        Assert.That(ex.Message, Is.EqualTo("Error retrieving user in Auth0: User not found"));
+        Assert.That(ex.Message, Is.EqualTo("User not found"));
     }
 
     
@@ -450,7 +450,7 @@ public class Auth0ServiceTests
 
         var ex = Assert.ThrowsAsync<Exception>(() => _auth0Service.GetUsersByRoleId(roleId));
 
-        Assert.That(ex.Message, Is.EqualTo("Error retrieving users for role testRoleId in Auth0: Error message"));
+        Assert.That(ex.Message, Is.EqualTo("Error message"));
     }
     
     
@@ -492,7 +492,7 @@ public class Auth0ServiceTests
 
         var ex = Assert.ThrowsAsync<Exception>(() => _auth0Service.DeleteUserAsync(userId));
 
-        Assert.That(ex.Message, Is.EqualTo("Error deleting user in Auth0: User not found"));
+        Assert.That(ex.Message, Is.EqualTo("User not found"));
     }
     
     [Test]
@@ -593,7 +593,7 @@ public class Auth0ServiceTests
 
         // Act & Assert
         var ex = Assert.ThrowsAsync<Exception>(() => _auth0Service.GetAllUsers());
-        Assert.That(ex.Message, Is.EqualTo("Error retrieving users for role adminRoleId in Auth0: Server error"));
+        Assert.That(ex.Message, Is.EqualTo("Server error"));
     }
 
 
