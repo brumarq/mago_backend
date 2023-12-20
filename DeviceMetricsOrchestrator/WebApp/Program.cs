@@ -38,7 +38,7 @@ builder.Services.AddScoped<IDeviceMetricsService, DeviceMetricsService>();
 // builder.Services.AddScoped<IDeviceSettingsService, DeviceSettingsService>();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - User Service", Version = "v1.0.0" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - Device Firmare Service", Version = "v1.0.0" });
 
     // Security schema for Swagger UI
     var securitySchema = new OpenApiSecurityScheme
@@ -104,8 +104,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
