@@ -77,6 +77,7 @@ builder.Services.AddHttpClient();
 
 var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://*:{httpPort}");
+builder.Configuration.AddEnvironmentVariables();
 
 // Build the application
 var app = builder.Build();
