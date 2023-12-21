@@ -21,7 +21,7 @@ class AggregatedLogsService(BaseAggregatedLogsService):
     def get_aggregated_logs(self, aggregated_log_date_type: str, device_id: int, field_id: int):
 
         if not (has_required_permission("client") or has_required_permission("admin")):
-            abort(403, "This user does not have sufficient permissions")
+            abort(401, "This user does not have sufficient permissions")
 
         aggregated_log_date_type = aggregated_log_date_type.upper()  # to avoid case problems
 
