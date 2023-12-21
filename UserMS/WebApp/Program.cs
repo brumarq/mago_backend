@@ -3,10 +3,8 @@ using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using WebApp;
 using Prometheus;
 using WebApp.Middleware.Authentication;
 
@@ -73,7 +71,6 @@ builder.Services.AddSingleton<IAuthorizationHandler, HasPermissionHandler>();
 
 builder.Services.AddScoped<IAuth0ManagementService, Auth0ManagementService>();
 builder.Services.AddScoped<IAuth0Service, Auth0Service>();
-
 builder.Services.AddScoped<IAuth0RolesService, Auth0RolesService>();
 
 builder.Services.AddHttpClient();
