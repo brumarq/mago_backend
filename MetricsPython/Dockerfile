@@ -17,9 +17,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the current directory contents into the container at /app
 COPY . /app/
 
-# Set environment variables from .env file
-ARG ENV_FILE_PATH=.env
-ENV $(cat $ENV_FILE_PATH | grep -v '^#' | xargs)
+# Copy the .env file into the container at /app
+COPY .env /app/
 
 # Expose the port on which the Flask app will run
 EXPOSE 5000
