@@ -8,6 +8,7 @@ from app.main.domain.entities.monthly_average import MonthlyAverage
 from app.main.domain.entities.yearly_average import YearlyAverage
 from app.main.domain.entities.field import Field
 from flask import abort, make_response
+from app.main.webapp.middleware.authentication import has_required_permission
 
 
 class AggregatedLogsService(BaseAggregatedLogsService):
@@ -18,6 +19,9 @@ class AggregatedLogsService(BaseAggregatedLogsService):
         self.yearly_average_repository = yearly_average_repository
 
     def get_aggregated_logs(self, aggregated_log_date_type: str, device_id: int, field_id: int):
+
+        if not (has_required_permission("client") or has_required_permission("admin")):
+            abort(401, "This user does not have sufficient permissions")
 
         aggregated_log_date_type = aggregated_log_date_type.upper()  # to avoid case problems
 
