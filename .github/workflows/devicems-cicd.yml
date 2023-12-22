@@ -12,7 +12,7 @@ env:
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
   OPENSHIFT_NAMESPACE: mago-backend
   APP_NAME: device-microservice
-  APP_PORT: 9191
+  APP_PORT: 8181
 
 jobs:
 #   userms-unit-tests:
