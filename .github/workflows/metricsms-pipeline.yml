@@ -10,8 +10,8 @@ on:
 env:
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
-  OPENSHIFT_NAMESPACE: metrics-ms
-  APP_NAME: metrics-deployment-test
+  OPENSHIFT_NAMESPACE: mago-backend
+  APP_NAME: metrics-microservice
   APP_PORT: 5000
 
 jobs:
