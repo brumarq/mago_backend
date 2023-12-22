@@ -41,7 +41,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r MetricsPython/requirements.txt
 
       - name: Run tests
         run: pytest
@@ -61,7 +61,7 @@ jobs:
         with:
           image: ${{ env.APP_NAME }}
           tags: latest
-          dockerfiles: ./Dockerfile
+          dockerfiles: ./MetricsPython/Dockerfile
           context: ./MetricsPython/ #idk if needed
 
       - name: Login to Docker Hub
