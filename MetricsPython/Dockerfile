@@ -22,17 +22,6 @@ RUN curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/so
 # Update the package list and install the ODBC Driver 18 for SQL Server
 RUN apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18
 
-# Set environment variables
-ENV AZURE_SQL_DRIVER=ODBC+Driver+18+for+SQL+Server
-ENV AZURE_SQL_SERVER=mago-db-server.database.windows.net
-ENV AZURE_SQL_HOST=1433
-ENV AZURE_SQL_DATABASE=MetricsDB
-ENV AZURE_SQL_UID=MagoDBAdmin
-ENV AZURE_SQL_PWD=Test123*
-
-ENV AUTH0_DOMAIN=dev-izvg6e0c4usamzex.eu.auth0.com
-ENV AUTH0_AUDIENCE=https://localhost:7208
-
 # Copy the current directory contents into the container at /app
 COPY . /app/
 
