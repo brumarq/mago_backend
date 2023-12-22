@@ -5,7 +5,7 @@ on:
   push:
     branches: ["main"]
     paths:
-      - 'MetricsPython/**/*' #this is a test
+      - 'MetricsPython/**/*'
 
 env:
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
