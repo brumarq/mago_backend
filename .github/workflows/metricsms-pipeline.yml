@@ -1,0 +1,120 @@
+name: Metrics Microservice CI/CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - 'MetricsPython/**/*'
+
+env:
+  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+  OPENSHIFT_NAMESPACE: mago-backend
+  APP_NAME: metrics-microservice
+  APP_PORT: 5000
+
+jobs:
+  flask-app-unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          cd MetricsPython
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest
+
+  docker-upload:
+    name: Deploy Docker Container
+    runs-on: ubuntu-20.04
+    needs: flask-app-unit-tests
+    environment: production
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Build from Dockerfile
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.APP_NAME }}
+          tags: latest
+          dockerfiles: ./MetricsPython/Dockerfile
+          context: ./MetricsPython         
+
+      - name: Login to Docker Hub with Buildah
+        run: |
+          buildah login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} docker.io
+        
+      - name: Push image to Docker Hub
+        run: |
+          buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
+
+  build-deploy:
+    runs-on: ubuntu-20.04
+    needs: docker-upload
+    name: Deploy to OpenShift
+    environment: production
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Install oc CLI
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: 4
+
+      - name: Log in to OpenShift
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+          openshift_token: ${{ env.OPENSHIFT_TOKEN }}
+          insecure_skip_tls_verify: true
+          namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Deploy to OpenShift
+        run: |
+          DEPLOYMENT_EXISTS=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+          SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+        
+          if [ -n "$DEPLOYMENT_EXISTS" ]; then
+            CONTAINER_NAME=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -o=jsonpath='{.spec.template.spec.containers[0].name}')
+            oc set image deployment/${{ env.APP_NAME }} $CONTAINER_NAME=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
+            oc rollout restart deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+          else
+            oc create deployment ${{ env.APP_NAME }} --image=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
+          fi
+
+          oc set env deployment/${{ env.APP_NAME }} \
+          AZURE_SQL_METRICS_DRIVER=${{ secrets.AZURE_SQL_METRICS_DRIVER }} \
+          AZURE_SQL_SERVER=${{ secrets.AZURE_SQL_SERVER }} \
+          AZURE_SQL_METRICS_DB=${{ secrets.AZURE_SQL_METRICS_DB }} \
+          AZURE_SQL_METRICS_UID=${{ secrets.AZURE_SQL_METRICS_UID }} \
+          AZURE_SQL_METRICS_PWD=${{ secrets.AZURE_SQL_METRICS_PWD }} \
+          AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }} \
+          AUTH0_AUDIENCE=${{ secrets.AUTH0_AUDIENCE }}
+          
+          if [ -n "$SERVICE_EXISTS" ]; then
+            oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+          fi
+          oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+          
+          ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+          if [ -n "$ROUTE_EXISTS" ]; then
+            oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+          fi
+          oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}

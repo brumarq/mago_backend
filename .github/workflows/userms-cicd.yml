@@ -86,21 +86,10 @@ jobs:
         namespace: ${{ env.OPENSHIFT_NAMESPACE }}
 
     - name: Deploy to OpenShift
-      env:
-        AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
-        AUTH0_AUDIENCE: ${{ secrets.AUTH0_AUDIENCE }}
-        AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
-        AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
-        AUTH0_MGMT_DOMAIN: ${{ secrets.AUTH0_MGMT_DOMAIN }}
-        AUTH0_MGMT_AUDIENCE: ${{ secrets.AUTH0_MGMT_AUDIENCE }}
-        AUTH0_MGMT_CLIENT_ID: ${{ secrets.AUTH0_MGMT_CLIENT_ID }}
-        AUTH0_MGMT_CLIENT_SECRET: ${{ secrets.AUTH0_MGMT_CLIENT_SECRET }}
-        AUTH0_ROLE_ADMIN: ${{ secrets.AUTH0_ROLE_ADMIN }}
-        AUTH0_ROLE_CLIENT: ${{ secrets.AUTH0_ROLE_CLIENT }}
       run: |
         DEPLOYMENT_EXISTS=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
         SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
-        
+    
         if [ -n "$DEPLOYMENT_EXISTS" ]; then
           CONTAINER_NAME=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -o=jsonpath='{.spec.template.spec.containers[0].name}')
           oc set image deployment/${{ env.APP_NAME }} $CONTAINER_NAME=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
@@ -108,6 +97,18 @@ jobs:
         else
           oc create deployment ${{ env.APP_NAME }} --image=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
         fi
+
+        oc set env deployment/${{ env.APP_NAME }} \
+        Auth0__Domain=${{ secrets.AUTH0_DOMAIN_HTTPS }} \
+        Auth0__Audience=${{ secrets.AUTH0_AUDIENCE }} \
+        Auth0__ClientId=${{ secrets.AUTH0_CLIENT_ID }} \
+        Auth0__ClientSecret=${{ secrets.AUTH0_CLIENT_SECRET }} \
+        Auth0-Management__Domain=${{ secrets.AUTH0_MGMT_DOMAIN }} \
+        Auth0-Management__Audience=${{ secrets.AUTH0_MGMT_AUDIENCE }} \
+        Auth0-Management__ClientId=${{ secrets.AUTH0_MGMT_CLIENT_ID }} \
+        Auth0-Management__ClientSecret=${{ secrets.AUTH0_MGMT_CLIENT_SECRET }} \
+        Auth0-Roles__admin=${{ secrets.AUTH0_ROLE_ADMIN }} \
+        Auth0-Roles__client=${{ secrets.AUTH0_ROLE_CLIENT }}
         
         if [ -n "$SERVICE_EXISTS" ]; then
           oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}

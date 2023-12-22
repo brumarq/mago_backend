@@ -2,11 +2,8 @@ from flask import request, _request_ctx_stack, abort
 from six.moves.urllib.request import urlopen
 from functools import wraps
 from jose import jwt
-from dotenv import load_dotenv
 import json
 import os
-
-load_dotenv()
 
 def get_token_from_auth_header():
     """Obtains the Access Token from the Authorization Header
@@ -35,7 +32,7 @@ def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = get_token_from_auth_header()
-        jsonurl = urlopen(f"https://{os.getenv('AUTH0_DOMAIN')}/.well-known/jwks.json")
+        jsonurl = urlopen(f"https://{os.environ.get('AUTH0_DOMAIN')}/.well-known/jwks.json")
         jwks = json.loads(jsonurl.read())
         unverified_header = jwt.get_unverified_header(token)
         rsa_key = {}
@@ -54,8 +51,8 @@ def requires_auth(f):
                     token,
                     rsa_key,
                     algorithms=ALGORITHMS,
-                    audience=os.getenv('AUTH0_AUDIENCE'),
-                    issuer=f"https://{os.getenv('AUTH0_DOMAIN')}/"
+                    audience=os.environ.get('AUTH0_AUDIENCE'),
+                    issuer=f"https://{os.environ.get('AUTH0_DOMAIN')}/"
                 )
             except jwt.ExpiredSignatureError:
                 abort(401, "Token has expired")

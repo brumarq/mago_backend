@@ -5,9 +5,6 @@ from flask_testing import TestCase
 import os
 
 from manage import app
-from dotenv import load_dotenv
-
-load_dotenv()
 
 class TestDevelopmentConfig(TestCase):
     def create_app(self):
@@ -19,7 +16,7 @@ class TestDevelopmentConfig(TestCase):
         self.assertTrue(app.config['DEBUG'] is True)
         self.assertFalse(current_app is None)
         self.assertTrue(
-            app.config['SQLALCHEMY_DATABASE_URI'] == f"mssql://{os.getenv('MSSQL_USER')}/{os.getenv('MSSQL_DB')}?driver={os.getenv('MSSQL_DRIVER')}"
+            app.config['SQLALCHEMY_DATABASE_URI'] == f"mssql+pyodbc://{os.environ.get('AZURE_SQL_METRICS_UID')}:{os.environ.get('AZURE_SQL_METRICS_PWD')}@{os.environ.get('AZURE_SQL_SERVER')}/{os.environ.get('AZURE_SQL_METRICS_DB')}?driver={os.environ.get('AZURE_SQL_METRICS_DRIVER')}"
         )
 
 class TestTestingConfig(TestCase):
@@ -31,7 +28,7 @@ class TestTestingConfig(TestCase):
         self.assertFalse(app.config['SECRET_KEY'] == 'my_precious')
         self.assertTrue(app.config['DEBUG'])
         self.assertTrue(
-            app.config['SQLALCHEMY_DATABASE_URI'] == f"mssql://{os.getenv('MSSQL_USER')}/{os.getenv('MSSQL_DB')}?driver={os.getenv('MSSQL_DRIVER')}"
+            app.config['SQLALCHEMY_DATABASE_URI'] == f"mssql+pyodbc://{os.environ.get('AZURE_SQL_METRICS_UID')}:{os.environ.get('AZURE_SQL_METRICS_PWD')}@{os.environ.get('AZURE_SQL_SERVER')}/{os.environ.get('AZURE_SQL_METRICS_DB')}?driver={os.environ.get('AZURE_SQL_METRICS_DRIVER')}"
         )
 
 class TestProductionConfig(TestCase):
