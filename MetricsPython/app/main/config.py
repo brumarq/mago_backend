@@ -5,7 +5,7 @@ class Config:
     DEBUG = False
     # Swagger UI #1
     RESTX_MASK_SWAGGER = False
-    # LOCAL CONNECTION STRING
+    # LOCAL CONNECTION
     #SQLALCHEMY_DATABASE_URI=f"mssql://{os.getenv('MSSQL_USER')}/{os.getenv('MSSQL_DB')}?driver={os.getenv('MSSQL_DRIVER')}" 
     # AZURE DB CONNECTION STRING
     SQLALCHEMY_DATABASE_URI = f"mssql+pyodbc://{os.environ.get('AZURE_SQL_METRICS_UID')}:{os.environ.get('AZURE_SQL_METRICS_PWD')}@{os.environ.get('AZURE_SQL_SERVER')}/{os.environ.get('AZURE_SQL_METRICS_DB')}?driver={os.environ.get('AZURE_SQL_METRICS_DRIVER')}"
