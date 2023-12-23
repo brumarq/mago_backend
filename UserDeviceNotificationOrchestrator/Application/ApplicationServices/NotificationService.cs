@@ -1,18 +1,10 @@
 ﻿using Application.ApplicationServices.Interfaces;
-using System.Net.Http;
+using Application.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Application.DTOs;
-using System.Web.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.Web.Helpers;
-using System.Net;
-using Newtonsoft.Json.Serialization;
 
 namespace Application.ApplicationServices
 {
@@ -84,7 +76,7 @@ namespace Application.ApplicationServices
             {
                 throw new Exception($"Device check failed: {deviceResponseStatus.StatusCode}: {deviceResponseStatus.ReasonPhrase}");
             }
-                
+
             try
             {
                 var response = await _httpClient.GetAsync($"{_baseUri}device/{deviceId}");
@@ -130,14 +122,12 @@ namespace Application.ApplicationServices
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
                     throw new HttpRequestException($"Create notification request failed {(int)response.StatusCode}: {errorContent}");
-                }                   
+                }
             }
             catch (HttpRequestException e)
             {
                 throw new Exception($"Request failed: {e.Message}");
             }
         }
-
-
     }
 }

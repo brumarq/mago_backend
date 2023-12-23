@@ -1,22 +1,15 @@
 ﻿using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
-using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace UserDeviceNotificationsOrchestrator.Controllers
+namespace WebApp.Controllers
 {
     [Route("orchestrator/notification")]
     [ApiController]
     public class NotificationsController : ControllerBase
     {
-        //private readonly IHttpClientFactory _httpClientFactory;
         private readonly INotificationService _notificationService;
 
         public NotificationsController(INotificationService notificationService)
