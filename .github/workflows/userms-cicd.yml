@@ -8,8 +8,8 @@ on:
       - 'UserMS/**/*'
 
 env:
-  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
-  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER_SANDER }}
+  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_SANDER }}
   OPENSHIFT_NAMESPACE: mago-backend
   APP_NAME: user-microservice
   APP_PORT: 8080
