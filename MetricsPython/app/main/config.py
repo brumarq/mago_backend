@@ -3,7 +3,7 @@ import os
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
     DEBUG = False
-    # Swagger UI
+    # Swagger UI #1
     RESTX_MASK_SWAGGER = False
     # LOCAL CONNECTION STRING
     #SQLALCHEMY_DATABASE_URI=f"mssql://{os.getenv('MSSQL_USER')}/{os.getenv('MSSQL_DB')}?driver={os.getenv('MSSQL_DRIVER')}" 

@@ -1,4 +1,4 @@
-namespace Domain.Entities; // test
+namespace Domain.Entities;
 
 public class BaseEntity
 {

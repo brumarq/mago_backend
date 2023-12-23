@@ -10,7 +10,7 @@ on:
 env:
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
-  OPENSHIFT_NAMESPACE: mago-backend
+  OPENSHIFT_NAMESPACE: sander-harks-dev
   APP_NAME: device-microservice
   APP_PORT: 8181
 
