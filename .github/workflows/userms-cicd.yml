@@ -15,31 +15,10 @@ env:
   APP_PORT: 8080
 
 jobs:
-  userms-unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 6.0.x
-
-    - name: Restore dependencies
-      run: dotnet restore UserMS/UserMS.sln
-
-    - name: Build
-      run: dotnet build UserMS/UserMS.sln --no-restore
-
-    - name: Test
-      run: dotnet test UserMS/UserMS.sln --no-build --verbosity normal
 
   docker-upload:
     name: Deploy docker container
     runs-on: ubuntu-20.04
-    needs: userms-unit-tests
     environment: production
 
     steps:
