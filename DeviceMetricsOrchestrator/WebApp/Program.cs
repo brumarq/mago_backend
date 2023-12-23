@@ -35,10 +35,11 @@ builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<IMetricsService, MetricsService>();
 builder.Services.AddScoped<IAggregatedLogsService, AggregatedLogsService>();
 builder.Services.AddScoped<IDeviceMetricsService, DeviceMetricsService>();
+builder.Services.AddScoped<IUnitService, UnitService>();
 // builder.Services.AddScoped<IDeviceSettingsService, DeviceSettingsService>();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - Device Firmare Service", Version = "v1.0.0" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - Device Metrics Orchestrator", Version = "v1.0.0" });
 
     // Security schema for Swagger UI
     var securitySchema = new OpenApiSecurityScheme

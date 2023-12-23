@@ -33,6 +33,7 @@ builder.Services.AddScoped<IFakerService, FakerService>();
 builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<IDeviceTypeService, DeviceTypeService>();
 builder.Services.AddScoped<IDeviceSettingsService, DeviceSettingsService>();
+builder.Services.AddScoped<IUnitService, UnitService>();
 
 // Swagger/OpenAPI configuration
 builder.Services.AddEndpointsApiExplorer();
