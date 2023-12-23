@@ -1,0 +1,116 @@
+name: Device Service CI/CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'DeviceMS/**/*'
+
+env:
+  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+  OPENSHIFT_NAMESPACE: mago-backend
+  APP_NAME: device-microservice
+  APP_PORT: 8181
+
+jobs:
+#   userms-unit-tests:
+#   name: Unit Tests
+#   runs-on: ubuntu-latest
+
+#   steps:
+#   - uses: actions/checkout@v3
+
+#   - name: Setup .NET
+#       uses: actions/setup-dotnet@v3
+#     with:
+#       dotnet-version: 6.0.x
+
+#    - name: Restore dependencies
+#      run: dotnet restore UserMS/UserMS.sln
+
+#    - name: Build
+#      run: dotnet build UserMS/UserMS.sln --no-restore
+
+#    - name: Test
+#      run: dotnet test UserMS/UserMS.sln --no-build --verbosity normal
+
+  docker-upload:
+    name: Deploy docker container
+    runs-on: ubuntu-20.04
+#    needs: userms-unit-tests
+    environment: production
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+    - name: Build from Dockerfile
+      uses: redhat-actions/buildah-build@v2
+      with:
+        image: ${{ env.APP_NAME }}
+        tags: latest
+        dockerfiles: ./DeviceMS/Dockerfile
+        context: ./DeviceMS/
+        
+    - name: Login to Docker Hub with Buildah
+      run: |
+        buildah login --username ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }} --password ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }} docker.io
+        
+    - name: Push image to Docker Hub
+      run: |
+        buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
+        
+  build-deploy:
+    runs-on: ubuntu-20.04
+    needs: docker-upload
+    name: Deploy to Openshift
+    environment: production
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+    - name: Install oc CLI
+      uses: redhat-actions/openshift-tools-installer@v1
+      with:
+        oc: 4
+        
+    - name: Log in to OpenShift
+      uses: redhat-actions/oc-login@v1
+      with:
+        openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+        openshift_token: ${{ env.OPENSHIFT_TOKEN }}
+        insecure_skip_tls_verify: true
+        namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+
+    - name: Deploy to OpenShift
+      run: |
+        DEPLOYMENT_EXISTS=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+        SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+    
+        if [ -n "$DEPLOYMENT_EXISTS" ]; then
+          CONTAINER_NAME=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -o=jsonpath='{.spec.template.spec.containers[0].name}')
+          oc set image deployment/${{ env.APP_NAME }} $CONTAINER_NAME=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
+          oc rollout restart deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+        else
+          oc create deployment ${{ env.APP_NAME }} --image=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
+        fi
+
+        oc set env deployment/${{ env.APP_NAME }} \
+        Auth0__Domain=${{ secrets.AUTH0_DOMAIN_HTTPS }} \
+        Auth0__Audience=${{ secrets.AUTH0_AUDIENCE }} \
+        Auth0__ClientId=${{ secrets.AUTH0_CLIENT_ID }} \
+        Auth0__ClientSecret=${{ secrets.AUTH0_CLIENT_SECRET }}
+        
+        if [ -n "$SERVICE_EXISTS" ]; then
+          oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+        fi
+        oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+        
+        ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+        if [ -n "$ROUTE_EXISTS" ]; then
+          oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+        fi
+        oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
