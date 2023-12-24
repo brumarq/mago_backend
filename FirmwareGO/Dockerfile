@@ -10,6 +10,8 @@ COPY . .
 # Download all the dependencies
 RUN go mod download
 
+# Install & run swag command
+RUN go install github.com/swaggo/swag/cmd/swag@v1.16.2
 RUN swag init
 
 # Build the Go app
