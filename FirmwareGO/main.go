@@ -1,3 +1,12 @@
+// @title FirmwareGO API
+// @description This is a Microservice for managing Mago Bio Solutions Composter Firmware
+// @version 1.0
+// @host localhost:8080
+// @BasePath /
+// @schemes http
+// @securityDefinitions.apikey JWTAuth
+// @in header
+// @name Authorization
 package main
 
 import (

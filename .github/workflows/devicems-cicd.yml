@@ -8,8 +8,8 @@ on:
       - 'DeviceMS/**/*'
 
 env:
-  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER_SANDER  }}
-  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_SANDER  }}
+  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER_SANDER }}
+  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_SANDER }}
   OPENSHIFT_NAMESPACE: sander-harks-dev
   APP_NAME: device-microservice
   APP_PORT: 8181
@@ -80,8 +80,8 @@ jobs:
     - name: Log in to OpenShift
       uses: redhat-actions/oc-login@v1
       with:
-        openshift_server_url: ${{ env.OPENSHIFT_SERVER_SANDER }}
-        openshift_token: ${{ env.OPENSHIFT_TOKEN_SANDER }}
+        openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+        openshift_token: ${{ env.OPENSHIFT_TOKEN }}
         insecure_skip_tls_verify: true
         namespace: ${{ env.OPENSHIFT_NAMESPACE }}
 
