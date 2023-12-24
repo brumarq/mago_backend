@@ -4,7 +4,7 @@
 
 namespace WebApp.Controllers
 {
-    [Route("orchestrator/device")]
+    [Route("orchestrator/device/user-on-device")]
     [ApiController]
     public class DeviceController : ControllerBase
     {
