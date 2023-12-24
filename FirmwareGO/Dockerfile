@@ -10,6 +10,8 @@ COPY . .
 # Download all the dependencies
 RUN go mod download
 
+RUN swag init
+
 # Build the Go app
 RUN go build -o main .
 
