@@ -5,6 +5,8 @@ using Application.ApplicationServices.Interfaces;
 using Application.DTOs.Firmware;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Domain.Tests.Firmware;
 
@@ -29,7 +31,7 @@ public class FirmwareServiceTests
 
         // Set up HttpClient and HttpClientFactory
         _fakeHttpMessageHandler = new MockHttpMessageHandler();
-        _httpClient = new HttpClient(_fakeHttpMessageHandler); // Use a mock handler
+        _httpClient = new HttpClient(_fakeHttpMessageHandler);
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_httpClient);
 
         // Create instance of FirmwareService
@@ -69,6 +71,8 @@ public class FirmwareServiceTests
 
         var result = await _firmwareService.CreateFileSendAsync(newFileSendDto);
 
+        Console.WriteLine(JsonSerializer.Serialize(expectedResponse));
+        Console.WriteLine(JsonSerializer.Serialize(result));
         Assert.That(expectedResponse, Is.EqualTo(result));
     }
 }
