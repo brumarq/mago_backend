@@ -1,0 +1,88 @@
+name: Build Docker Image
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "FirmwareGO/**/*"
+
+env:
+  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER_SANDER }}
+  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_SANDER }}
+  OPENSHIFT_NAMESPACE: sander-harks-dev
+  APP_NAME: firmware-microservice
+  APP_PORT: 8081
+
+jobs:
+  docker-upload:
+    name: Deploy docker container
+    runs-on: ubuntu-20.04
+    environment: production
+
+    steps:
+      - name: Check Out repository
+        uses: actions/checkout@v2
+
+      - name: Build from dockerfile
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.APP_NAME }}
+          tags: latest
+          dockerfiles: ./FirmwareGO/Dockerfile
+          context: ./FirmwareGO/
+
+      - name: Login to Docker Hub with Buildah
+        run: |
+          buildah login --username ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }} --password ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }} docker.io
+
+  build-deploy:
+    runs-on: ubuntu-20.04
+    needs: docker-upload
+    name: Deploy to Openshift
+    environment: production
+
+    steps:
+      - name: Log in to Openshift
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+          openshift_token: ${{ env.OPENSHIFT_TOKEN }}
+          insecure_skip_tls_verify: true
+          namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Deploy to Openshift
+        run: |
+          DEPLOYMENT_EXISTS=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+          SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+
+          if [ -n "$DEPLOYMENT_EXISTS" ]; then
+          CONTAINER_NAME=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -o=jsonpath='{.spec.template.spec.containers[0].name}')
+          oc set image deployment/${{ env.APP_NAME }} $CONTAINER_NAME=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
+          oc rollout restart deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+          else
+            oc create deployment ${{ env.APP_NAME }} --image=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
+          fi
+
+          oc set env deployment/${{ env.APP_NAME }} \
+          Auth0__Domain=${{ secrets.AUTH0_DOMAIN_HTTPS }} \
+          Auth0__Audience=${{ secrets.AUTH0_AUDIENCE }} \
+          Auth0__ClientId=${{ secrets.AUTH0_CLIENT_ID }} \
+          Auth0__ClientSecret=${{ secrets.AUTH0_CLIENT_SECRET }} \
+          Auth0-Management__Domain=${{ secrets.AUTH0_MGMT_DOMAIN }} \
+          Auth0-Management__Audience=${{ secrets.AUTH0_MGMT_AUDIENCE }} \
+          Auth0-Management__ClientId=${{ secrets.AUTH0_MGMT_CLIENT_ID }} \
+          Auth0-Management__ClientSecret=${{ secrets.AUTH0_MGMT_CLIENT_SECRET }} \
+          Auth0-Roles__admin=${{ secrets.AUTH0_ROLE_ADMIN }} \
+          Auth0-Roles__client=${{ secrets.AUTH0_ROLE_CLIENT }}
+
+          if [ -n "$SERVICE_EXISTS" ]; then
+            oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+          fi
+          oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+          ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+          if [ -n "$ROUTE_EXISTS" ]; then
+          oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+          fi
+          oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
