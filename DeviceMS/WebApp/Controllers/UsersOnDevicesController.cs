@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.Controllers
 {
-    [Route("deviceMS/[controller]")]
+    [Route("deviceMS/users-on-devices")]
     [ApiController]
     public class UsersOnDevicesController : ControllerBase
     {

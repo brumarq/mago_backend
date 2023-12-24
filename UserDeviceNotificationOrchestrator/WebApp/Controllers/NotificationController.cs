@@ -47,7 +47,6 @@ namespace WebApp.Controllers
             }
         }
 
-        // POST /<notifications>
         [HttpPost]
         public async Task<ActionResult<NotificationResponseDTO>> CreateNotificationAsync([FromBody] CreateNotificationDTO createNotificationDTO)
         {
