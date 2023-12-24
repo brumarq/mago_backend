@@ -100,11 +100,7 @@ jobs:
           fi
 
           oc set env deployment/${{ env.APP_NAME }} \
-          AZURE_SQL_METRICS_DRIVER=${{ secrets.AZURE_SQL_METRICS_DRIVER }} \
-          AZURE_SQL_SERVER=${{ secrets.AZURE_SQL_SERVER }} \
-          AZURE_SQL_METRICS_DB=${{ secrets.AZURE_SQL_METRICS_DB }} \
-          AZURE_SQL_METRICS_UID=${{ secrets.AZURE_SQL_METRICS_UID }} \
-          AZURE_SQL_METRICS_PWD=${{ secrets.AZURE_SQL_METRICS_PWD }} \
+          METRICS_DB_CONNECTION_STRING=${{ secrets.METRICS_DB_CONNECTION_STRING }} \
           AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }} \
           AUTH0_AUDIENCE=${{ secrets.AUTH0_AUDIENCE }}
           
