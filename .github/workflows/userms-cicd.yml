@@ -68,20 +68,6 @@ jobs:
 
     - name: Deploy to OpenShift
       run: |
-        DEPLOYMENT_RESPONSE=$(curl -X POST \
-          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Accept: application/vnd.github.ant-man-preview+json" \
-          -H "Content-Type: application/json" \
-          https://api.github.com/repos/${{ github.repository }}/deployments \
-          -d '{
-            "ref": "${{ github.ref }}",
-            "environment": "userms-production",
-            "auto_merge": false,
-            "required_contexts": []
-          }')
-        DEPLOYMENT_ID=$(echo "$DEPLOYMENT_RESPONSE" | jq '.id')
-        echo "DEPLOYMENT_ID=$DEPLOYMENT_ID" >> $GITHUB_ENV
-          
         DEPLOYMENT_EXISTS=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
         SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
     
@@ -123,21 +109,6 @@ jobs:
         ROUTE_URL=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} -o=jsonpath='{.spec.host}')
         echo "ROUTE_URL=$ROUTE_URL" >> $GITHUB_ENV
 
-    - name: Update Deployment Status
-      if: env.ROUTE_URL
-      run: |
-        curl -X POST \
-          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Accept: application/vnd.github.flash-preview+json" \
-          -H "Content-Type: application/json" \
-          https://api.github.com/repos/${{ github.repository }}/deployments/${{ env.DEPLOYMENT_ID }}/statuses \
-          -d '{
-            "state": "success",
-            "environment_url": "${{ env.ROUTE_URL }}",
-            "log_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-            "auto_inactive": true
-          }'
-
     - name: Display Route URL
       run: |
-        echo "The application is available at: ${{ env.ROUTE_URL }}"
+        echo "The application is available at: ${{ env.ROUTE_URL }}"  
