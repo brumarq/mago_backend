@@ -14,11 +14,13 @@ namespace Application.ApplicationServices
         private readonly IMetricsService _metricsService;
         private readonly IAggregatedLogsService _aggregatedLogsService;
         private readonly IDeviceService _deviceService;
-        public DeviceMetricsService(IMetricsService metricsService, IAggregatedLogsService aggregatedLogsService, IDeviceService deviceService)
+        private readonly IUnitService _unitService;
+        public DeviceMetricsService(IMetricsService metricsService, IAggregatedLogsService aggregatedLogsService, IDeviceService deviceService, IUnitService unitService)
         {
             _deviceService = deviceService;
             _metricsService = metricsService;
             _aggregatedLogsService = aggregatedLogsService;
+            _unitService = unitService;
         }
 
         public async Task<IEnumerable<DeviceAggregatedLogsResponseDTO>> GetDeviceAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId)
@@ -26,26 +28,38 @@ namespace Application.ApplicationServices
             var device = await _deviceService.GetDeviceByIdAsync(deviceId);
             var aggregatedLogs = await _aggregatedLogsService.GetAggregatedLogsAsync(aggregatedLogDateType, deviceId, fieldId);
 
-            return aggregatedLogs.Select(aggregatedLog => new DeviceAggregatedLogsResponseDTO
+            var responseList = new List<DeviceAggregatedLogsResponseDTO>();
+
+            foreach (var aggregatedLog in aggregatedLogs)
             {
-                Id = aggregatedLog.Id,
-                CreatedAt = aggregatedLog.CreatedAt,
-                UpdatedAt = aggregatedLog.UpdatedAt,
-                AverageValue = aggregatedLog.AverageValue,
-                MinValue = aggregatedLog.MinValue,
-                MaxValue = aggregatedLog.MaxValue,
-                Device = device,
-                Field = new FieldDTONew
+                var field = aggregatedLog.Field!;
+                var unit = await _unitService.GetUnitByIdAsync(field.UnitId);
+
+                var deviceAggregatedLogsResponse = new DeviceAggregatedLogsResponseDTO
                 {
-                    Id = aggregatedLog.Field!.Id,
-                    CreatedAt = aggregatedLog.Field.CreatedAt,
-                    UpdatedAt = aggregatedLog.Field.UpdatedAt,
-                    Name = aggregatedLog.Field.Name,
-                    UnitId = aggregatedLog.Field.UnitId,
-                    DeviceType = device.DeviceType,
-                    Loggable = aggregatedLog.Field.Loggable,
-                }
-            }).ToList();
+                    Id = aggregatedLog.Id,
+                    CreatedAt = aggregatedLog.CreatedAt,
+                    UpdatedAt = aggregatedLog.UpdatedAt,
+                    AverageValue = aggregatedLog.AverageValue,
+                    MinValue = aggregatedLog.MinValue,
+                    MaxValue = aggregatedLog.MaxValue,
+                    Device = device,
+                    Field = new FieldDTONew
+                    {
+                        Id = field.Id,
+                        CreatedAt = field.CreatedAt,
+                        UpdatedAt = field.UpdatedAt,
+                        Name = field.Name,
+                        Unit = unit, // Use the unit retrieved above
+                        DeviceType = device.DeviceType,
+                        Loggable = field.Loggable,
+                    }
+                };
+
+                responseList.Add(deviceAggregatedLogsResponse);
+            }
+
+            return responseList;
         }
 
         public async Task<IEnumerable<DeviceMetricsResponseDTO>> GetDeviceMetricsAsync(int deviceId)
@@ -53,31 +67,43 @@ namespace Application.ApplicationServices
             var device = await _deviceService.GetDeviceByIdAsync(deviceId);
             var metrics = await _metricsService.GetMetricsForDeviceAsync(deviceId);
 
-            return metrics.Select(metric => new DeviceMetricsResponseDTO
+            var responseList = new List<DeviceMetricsResponseDTO>();
+
+            foreach (var metric in metrics)
             {
-                Id = metric.Id,
-                CreatedAt = metric.CreatedAt,
-                UpdatedAt = metric.UpdatedAt,
-                Value = metric.Value,
-                Field = new FieldDTONew
+                var field = metric.Field!;
+                var unit = await _unitService.GetUnitByIdAsync(field.UnitId);
+
+                var deviceMetricsResponse = new DeviceMetricsResponseDTO
                 {
-                    Id = metric.Field!.Id,
-                    CreatedAt = metric.Field.CreatedAt,
-                    UpdatedAt = metric.Field.UpdatedAt,
-                    Name = metric.Field.Name,
-                    UnitId = metric.Field.UnitId,
-                    DeviceType = device.DeviceType,
-                    Loggable = metric.Field.Loggable,
-                },
-                LogCollection = new LogCollectionDTONew
-                {
-                    Id = metric.LogCollection!.Id,
-                    CreatedAt = metric.LogCollection.CreatedAt,
-                    UpdatedAt = metric.LogCollection.UpdatedAt,
-                    Device = device,
-                    LogCollectionType = metric.LogCollection.LogCollectionType
-                }
-            }).ToList();
+                    Id = metric.Id,
+                    CreatedAt = metric.CreatedAt,
+                    UpdatedAt = metric.UpdatedAt,
+                    Value = metric.Value,
+                    Field = new FieldDTONew
+                    {
+                        Id = field.Id,
+                        CreatedAt = field.CreatedAt,
+                        UpdatedAt = field.UpdatedAt,
+                        Name = field.Name,
+                        Unit = unit, // Use the unit retrieved above
+                        DeviceType = device.DeviceType,
+                        Loggable = field.Loggable,
+                    },
+                    LogCollection = new LogCollectionDTONew
+                    {
+                        Id = metric.LogCollection!.Id,
+                        CreatedAt = metric.LogCollection.CreatedAt,
+                        UpdatedAt = metric.LogCollection.UpdatedAt,
+                        Device = device,
+                        LogCollectionType = metric.LogCollection.LogCollectionType
+                    }
+                };
+
+                responseList.Add(deviceMetricsResponse);
+            }
+
+            return responseList;
         }
 
         public async Task<string> ExportDeviceAggregatedLogsAsnc(ExportAggregatedLogsCsvDTO exportAggregatedLogsCsvDTO)

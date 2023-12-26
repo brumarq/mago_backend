@@ -10,11 +10,15 @@ COPY . .
 # Download all the dependencies
 RUN go mod download
 
+# Install & run swag command
+RUN go install github.com/swaggo/swag/cmd/swag@v1.16.2
+RUN swag init
+
 # Build the Go app
 RUN go build -o main .
 
 # Expose port 8080 to outside world
-EXPOSE 8080
+EXPOSE 6969
 
 # Run the executable
 CMD ["./main"]
