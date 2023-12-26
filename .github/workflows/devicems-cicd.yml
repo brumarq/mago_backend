@@ -99,6 +99,7 @@ jobs:
         fi
 
         oc set env deployment/${{ env.APP_NAME }} \
+        ConnectionStrings__DevicesDb=${{ secrets.DEVICE_DB_CONNECTION_STRING }} \ 
         Auth0__Domain=${{ secrets.AUTH0_DOMAIN_HTTPS }} \
         Auth0__Audience=${{ secrets.AUTH0_AUDIENCE }} \
         Auth0__ClientId=${{ secrets.AUTH0_CLIENT_ID }} \
