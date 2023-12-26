@@ -107,9 +107,8 @@ jobs:
         oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
 
         ROUTE_URL=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} -o=jsonpath='{.spec.host}')
-        echo "Route URL is $ROUTE_URL"
-        echo "::set-output name=route_url::$ROUTE_URL"        
+        echo "ROUTE_URL=$ROUTE_URL" >> $GITHUB_ENV
 
     - name: Display Route URL
       run: |
-        echo "The application is available at: ${{ steps.create_route.outputs.route_url }}"
+        echo "The application is available at: ${{ env.ROUTE_URL }}"  
