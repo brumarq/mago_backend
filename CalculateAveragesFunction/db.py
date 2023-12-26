@@ -2,13 +2,18 @@ import os
 import pyodbc
 from datetime import datetime, timedelta
 from typing import List, Tuple
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def connect_to_database() -> pyodbc.Connection:
+    
     return pyodbc.connect(driver='{ODBC Driver 18 for SQL Server}',
-                          server='tcp:mago-database-server.database.windows.net,1433',
-                          database='MetricsDB',
-                          uid='MagoDBAdmin',
-                          pwd='Test123*')
+                          server='mago-database-server.database.windows.net,1433',
+                          database=os.environ.get('AZURE_SQL_METRICS_DB'),
+                          uid=os.environ.get('AZURE_SQL_METRICS_UID'),
+                          pwd=os.environ.get('AZURE_SQL_METRICS_PWD'),
+    )
 
 def execute_select_query(connection: pyodbc.Connection, query: str, parameters=None) -> List[Tuple]:
     cursor = connection.cursor()
