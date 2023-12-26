@@ -95,9 +95,21 @@ jobs:
           oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
         fi
         oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
-        
+
+
+    - name: Create Route
+      id: create_route
+      run: |
         ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
         if [ -n "$ROUTE_EXISTS" ]; then
           oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
         fi
         oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+        ROUTE_URL=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} -o=jsonpath='{.spec.host}')
+        echo "Route URL is $ROUTE_URL"
+        echo "::set-output name=route_url::$ROUTE_URL"        
+
+    - name: Display Route URL
+      run: |
+        echo "The application is available at: ${{ steps.create_route.outputs.route_url }}"
