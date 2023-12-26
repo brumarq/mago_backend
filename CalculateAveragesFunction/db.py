@@ -7,13 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def connect_to_database() -> pyodbc.Connection:
-    
-    return pyodbc.connect(driver='{ODBC Driver 18 for SQL Server}',
-                          server='mago-database-server.database.windows.net,1433',
-                          database=os.environ.get('AZURE_SQL_METRICS_DB'),
-                          uid=os.environ.get('AZURE_SQL_METRICS_UID'),
-                          pwd=os.environ.get('AZURE_SQL_METRICS_PWD'),
-    )
+    return pyodbc.connect(os.environ.get('METRICS_DB_CONNECTION_STRING_PYODBC'))
 
 def execute_select_query(connection: pyodbc.Connection, query: str, parameters=None) -> List[Tuple]:
     cursor = connection.cursor()

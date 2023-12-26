@@ -8,7 +8,7 @@ class Config:
     # LOCAL CONNECTION
     #SQLALCHEMY_DATABASE_URI=f"mssql://{os.getenv('MSSQL_USER')}/{os.getenv('MSSQL_DB')}?driver={os.getenv('MSSQL_DRIVER')}" 
     # AZURE DB CONNECTION STRING
-    SQLALCHEMY_DATABASE_URI = f"mssql+pyodbc://{os.environ.get('METRICS_DB_CONNECTION_STRING')}"
+    SQLALCHEMY_DATABASE_URI = f"mssql+pyodbc://{os.environ.get('METRICS_DB_CONNECTION_STRING_SQLALCHEMY')}"
     FLASK_ENV=os.environ.get('FLASK_ENV')
     RESTX_ERROR_404_HELP = False
 
