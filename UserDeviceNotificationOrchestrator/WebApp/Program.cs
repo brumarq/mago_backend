@@ -1,3 +1,6 @@
+using Application.ApplicationServices.Interfaces;
+using Application.ApplicationServices;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -10,7 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // Add services for dependency injection
-//...
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 var app = builder.Build();
 

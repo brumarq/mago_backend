@@ -109,5 +109,20 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        // GET /user-on-statustype/user/5/device-ids
+        [HttpGet("/user-on-statustype/user/{userId}/device-ids")]
+        public async Task<ActionResult<IEnumerable<int>>> GetDeviceIdsFromUserOnStatusByUserId(int userId)
+        {
+            try
+            {
+                var notifications = await _notificationService.GetDeviceIdsFromUserOnStatusByUserId(userId);
+                return Ok(notifications);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }

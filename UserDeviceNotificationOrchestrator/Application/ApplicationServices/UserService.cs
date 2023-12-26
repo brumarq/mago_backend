@@ -1,7 +1,4 @@
 ﻿using Application.ApplicationServices.Interfaces;
-using Application.DTOs;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -12,22 +9,22 @@ using System.Threading.Tasks;
 
 namespace Application.ApplicationServices
 {
-    public class DeviceService : IDeviceService
+    public class UserService : IUserService
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly HttpClient _httpClient;
         private readonly string? _baseUri;
 
-        public DeviceService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public UserService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient();
-            _baseUri = configuration["ApiRequestUris:DeviceBaseUri"];
+            _baseUri = configuration["ApiRequestUris:UserBaseUri"];
         }
 
-        public async Task<HttpResponseMessage> GetDeviceExistenceStatus(int deviceId)
+        public async Task<HttpResponseMessage> GetUserExistenceStatus(int userId)
         {
-            string requestUrl = $"{_baseUri}{deviceId}";
+            string requestUrl = $"{_baseUri}{userId}";
 
             try
             {
@@ -38,11 +35,9 @@ namespace Application.ApplicationServices
             {
                 return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
                 {
-                    ReasonPhrase = $"Exception occurred when checking device existence: {e.Message}"
+                    ReasonPhrase = $"Exception occurred when checking user existence: {e.Message}"
                 };
             }
         }
-
-
     }
 }
