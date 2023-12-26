@@ -3,6 +3,7 @@ package controllers
 import (
 	. "FirmwareGO/application/dtos"
 	. "FirmwareGO/application/services"
+	"FirmwareGO/webapp/middleware/authentication"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -16,9 +17,31 @@ func NewFirmwareController(firmwareService *FirmwareService) *FirmwareController
 	return &FirmwareController{FirmwareService: firmwareService}
 }
 
+func jwtMiddlewareHandler(jwtMiddleware func(next http.Handler) http.Handler) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		handler := jwtMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			c.Request = r
+			c.Next()
+		}))
+		handler.ServeHTTP(c.Writer, c.Request)
+
+		if c.Writer.Status() == http.StatusUnauthorized {
+			// If unauthorized, abort the Gin context to prevent further processing
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
+
 func (controller *FirmwareController) RegisterRoutes(router *gin.Engine) {
-	router.POST("/firmware", controller.CreateFirmwareFileSend)
-	router.GET("/firmware/devices/:deviceId", controller.GetFirmwareHistoryForDevice)
+	ginJWTMiddleware := jwtMiddlewareHandler(authentication.EnsureValidToken())
+
+	secureGroup := router.Group("/firmware")
+	secureGroup.Use(ginJWTMiddleware)
+
+	secureGroup.POST("", controller.CreateFirmwareFileSend)
+	secureGroup.GET("/devices/:deviceId", controller.GetFirmwareHistoryForDevice)
 }
 
 // CreateFirmwareFileSend godoc
@@ -27,6 +50,7 @@ func (controller *FirmwareController) RegisterRoutes(router *gin.Engine) {
 // @Tags firmware
 // @Accept json
 // @Produce json
+// @Security JWTAuth
 // @Param createFileSendDTO body CreateFileSendDTO true "Create File Send Data"
 // @Success 200 {object} FileSendResponseDTO "Successfully created firmware file send record"
 // @Failure 400 {object} map[string]string "Bad Request"
@@ -58,6 +82,7 @@ func (controller *FirmwareController) CreateFirmwareFileSend(context *gin.Contex
 // @Tags firmware
 // @Accept json
 // @Produce json
+// @Security JWTAuth
 // @Param deviceId path int true "Device ID"
 // @Success 200 {array} FileSendResponseDTO "List of firmware records"
 // @Failure 404 {object} map[string]string "Firmware Record not found"

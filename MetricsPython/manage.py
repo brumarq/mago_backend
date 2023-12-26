@@ -2,7 +2,7 @@ import sys
 sys.dont_write_bytecode = True
 
 import unittest
-import os
+import pytest
 from flask_migrate import Migrate
 from app import blueprint
 from app.main import create_app, db
@@ -31,3 +31,9 @@ def test():
     if result.wasSuccessful():
         return 0
     return 1
+
+@app.cli.command()
+def testpy():
+    """Runs the unit tests."""
+    result_code = pytest.main(['-v', 'app/test'])
+    return result_code

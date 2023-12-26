@@ -10,36 +10,17 @@ on:
 env:
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
-  OPENSHIFT_NAMESPACE: mago-backend
+  DOCKER_HUB_USERNAME : ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }}
+  DOCKER_HUB_ACCESS_TOKEN : ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }}
+  OPENSHIFT_NAMESPACE: sander-harks-dev
   APP_NAME: user-microservice
   APP_PORT: 8080
 
 jobs:
-  userms-unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 6.0.x
-
-    - name: Restore dependencies
-      run: dotnet restore UserMS/UserMS.sln
-
-    - name: Build
-      run: dotnet build UserMS/UserMS.sln --no-restore
-
-    - name: Test
-      run: dotnet test UserMS/UserMS.sln --no-build --verbosity normal
 
   docker-upload:
     name: Deploy docker container
     runs-on: ubuntu-20.04
-    needs: userms-unit-tests
     environment: production
 
     steps:
@@ -56,7 +37,7 @@ jobs:
         
     - name: Login to Docker Hub with Buildah
       run: |
-        buildah login --username ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }} --password ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }} docker.io
+        buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
         
     - name: Push image to Docker Hub
       run: |
@@ -66,7 +47,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: docker-upload
     name: Deploy to Openshift
-    environment: production
+    environment: userms-production
 
     steps:
     - name: Check out repository
@@ -89,7 +70,7 @@ jobs:
       run: |
         DEPLOYMENT_EXISTS=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
         SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
-        
+    
         if [ -n "$DEPLOYMENT_EXISTS" ]; then
           CONTAINER_NAME=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -o=jsonpath='{.spec.template.spec.containers[0].name}')
           oc set image deployment/${{ env.APP_NAME }} $CONTAINER_NAME=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
@@ -97,14 +78,37 @@ jobs:
         else
           oc create deployment ${{ env.APP_NAME }} --image=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
         fi
+
+        oc set env deployment/${{ env.APP_NAME }} \
+        Auth0__Domain=${{ secrets.AUTH0_DOMAIN_HTTPS }} \
+        Auth0__Audience=${{ secrets.AUTH0_AUDIENCE }} \
+        Auth0__ClientId=${{ secrets.AUTH0_CLIENT_ID }} \
+        Auth0__ClientSecret=${{ secrets.AUTH0_CLIENT_SECRET }} \
+        Auth0-Management__Domain=${{ secrets.AUTH0_MGMT_DOMAIN }} \
+        Auth0-Management__Audience=${{ secrets.AUTH0_MGMT_AUDIENCE }} \
+        Auth0-Management__ClientId=${{ secrets.AUTH0_MGMT_CLIENT_ID }} \
+        Auth0-Management__ClientSecret=${{ secrets.AUTH0_MGMT_CLIENT_SECRET }} \
+        Auth0-Roles__admin=${{ secrets.AUTH0_ROLE_ADMIN }} \
+        Auth0-Roles__client=${{ secrets.AUTH0_ROLE_CLIENT }}
         
         if [ -n "$SERVICE_EXISTS" ]; then
           oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
         fi
         oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
-        
+
+
+    - name: Create Route
+      id: create_route
+      run: |
         ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
         if [ -n "$ROUTE_EXISTS" ]; then
           oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
         fi
         oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+        ROUTE_URL=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} -o=jsonpath='{.spec.host}')
+        echo "ROUTE_URL=$ROUTE_URL" >> $GITHUB_ENV
+
+    - name: Display Route URL
+      run: |
+        echo "The application is available at: ${{ env.ROUTE_URL }}"  

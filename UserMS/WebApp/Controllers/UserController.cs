@@ -1,11 +1,9 @@
 using System.Security.Claims;
-using System.Text;
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
 
 namespace WebApp.Controllers;
@@ -25,26 +23,22 @@ public class UserController : ControllerBase
 
     // GET: /customers/5
     [HttpGet("{id}")]
+    [Authorize("All")]
     public async Task<ActionResult<User>> GetUserById(string id)
     {
         try
         {
-            // Extract the user's ID and roles/permissions from the JWT token
-            /*var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var hasAdminPermission = User.HasClaim(c => c.Type == "permissions" && c.Value == "manage:users\t");
-            var hasClientPermission = User.HasClaim(c => c.Type == "permissions" && c.Value == "manage:own-users\t");
+            var userIdClaim = GetUserId();
+            var hasAdminPermission = HasPermission("admin");
+            var hasClientPermission = HasPermission("client");
 
             // Check if the user has the right permissions
-            if (hasAdminPermission || (hasClientPermission && userIdClaim == id.ToString()))
-            {*/
-            var userDTO = await _auth0Service.GetUser(id);
-            if (userDTO == null)
-            {
-                return NotFound();
-            }
-            /*}*/
+            if (!hasAdminPermission && (!hasClientPermission || userIdClaim != id)) return Unauthorized();
+            
+            var userDto = await _auth0Service.GetUser(id);
+                
+            return Ok(userDto);
 
-        return Ok(userDTO);
         }
         catch (Auth0Service.UserNotFoundException ex)
         {
@@ -59,6 +53,7 @@ public class UserController : ControllerBase
 
     // GET: /customers
     [HttpGet]
+    [Authorize("Admin")]
     public async Task<ActionResult<IEnumerable<UserResponseDTO>>> GetAllUsers()
     {
         try
@@ -74,10 +69,18 @@ public class UserController : ControllerBase
 
     // PUT: /userss
     [HttpPut("{id}")]
+    [Authorize("All")]
     public async Task<ActionResult> UpdateUser(string id, [FromBody] UpdateUserDTO updateUserDto)
     {
         try
         {
+            var userIdClaim = GetUserId();
+            var hasAdminPermission = HasPermission("admin");
+            var hasClientPermission = HasPermission("client");
+
+            // Check if the user has the right permissions
+            if (!hasAdminPermission && (!hasClientPermission || userIdClaim != id)) return Unauthorized();
+            
             var updatedUser = await _auth0Service.UpdateUserAsync(id, updateUserDto);
             return Ok(updatedUser);
         }
@@ -96,6 +99,7 @@ public class UserController : ControllerBase
     }    
     // DELETE: /users/{id}
     [HttpDelete("{id}")]
+    [Authorize("Admin")]
     public async Task<IActionResult> DeleteUser(string id)
     {
         try
@@ -116,11 +120,12 @@ public class UserController : ControllerBase
     
     
     [HttpPost]
-    public async Task<ActionResult<User>> CreateUser([FromBody] CreateUserDTO createUserDTO)
+    [Authorize("Admin")]
+    public async Task<ActionResult<User>> CreateUser([FromBody] CreateUserDTO createUserDto)
     {
         try
         {
-            var result = await _auth0Service.CreateAuth0UserAsync(createUserDTO);
+            var result = await _auth0Service.CreateAuth0UserAsync(createUserDto);
             return Ok(result);
         }
         catch (Auth0Service.UserCreationException ex)
@@ -133,5 +138,15 @@ public class UserController : ControllerBase
         }
     }
 
+
+    private string? GetUserId()
+    {
+        return User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    }
+
+    private bool HasPermission(string permission)
+    {
+        return User.HasClaim(c => c.Type == "permissions" && c.Value == permission);
+    }
 
 }

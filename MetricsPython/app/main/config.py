@@ -1,27 +1,20 @@
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 class Config:
-    SECRET_KEY = os.getenv('SECRET_KEY')
+    SECRET_KEY = os.environ.get('SECRET_KEY')
     DEBUG = False
-    # Swagger
+    # Swagger UI 1
     RESTX_MASK_SWAGGER = False
-    MSSQL_USER=os.getenv('MSSQL_USER')
-    MSSQL_DB=os.getenv('MSSQL_DB')
-    MSSQL_DRIVER=os.getenv('MSSQL_DRIVER')
-    SQLALCHEMY_DATABASE_URI=f"mssql://{MSSQL_USER}/{MSSQL_DB}?driver={MSSQL_DRIVER}"
-    FLASK_ENV=os.getenv('FLASK_ENV')
-    ERROR_404_HELP = False
+    # LOCAL CONNECTION
+    #SQLALCHEMY_DATABASE_URI=f"mssql://{os.getenv('MSSQL_USER')}/{os.getenv('MSSQL_DB')}?driver={os.getenv('MSSQL_DRIVER')}" 
+    SQLALCHEMY_DATABASE_URI = f"mssql+pyodbc://{os.environ.get('METRICS_DB_CONNECTION_STRING_SQLALCHEMY')}"
+    FLASK_ENV=os.environ.get('FLASK_ENV')
+    RESTX_ERROR_404_HELP = False
 
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PYTHONDONTWRITEBYTECODE = True
-    ERROR_404_HELP = False
-    PORT=os.getenv('FLASK_RUN_PORT_DEV')
-
 
 class TestingConfig(Config):
     DEBUG = True
@@ -29,15 +22,9 @@ class TestingConfig(Config):
     PRESERVE_CONTEXT_ON_EXCEPTION = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PYTHONDONTWRITEBYTECODE = True
-    ERROR_404_HELP = False
-    PORT=os.getenv('FLASK_RUN_PORT_TEST')
-
 
 class ProductionConfig(Config):
     DEBUG = False
-    PORT = os.getenv('FLASK_RUN_PORT_PROD')
-    ERROR_404_HELP = False
-
 
 config_by_name = dict(
     dev=DevelopmentConfig,
