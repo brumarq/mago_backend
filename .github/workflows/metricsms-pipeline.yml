@@ -100,7 +100,7 @@ jobs:
           fi
 
           oc set env deployment/${{ env.APP_NAME }} \
-          METRICS_DB_CONNECTION_STRING=${{ secrets.METRICS_DB_CONNECTION_STRING }} \
+          METRICS_DB_CONNECTION_STRING_SQLALCHEMY=${{ secrets.METRICS_DB_CONNECTION_STRING_SQLALCHEMY }} \
           AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }} \
           AUTH0_AUDIENCE=${{ secrets.AUTH0_AUDIENCE }}
           
