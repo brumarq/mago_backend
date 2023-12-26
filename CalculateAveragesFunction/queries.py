@@ -10,20 +10,20 @@ def calculate_and_save_aggregates() -> None:
         for field_data in fields_data:
 
             weekly_result = __calculate_average_for_last_interval('Weekly', field_data[0], connection)
-            monthly_result = __calculate_average_for_last_interval('Monthly', field_data[0], connection)
-            yearly_result = __calculate_average_for_last_interval('Yearly', field_data[0], connection)
+            # monthly_result = __calculate_average_for_last_interval('Monthly', field_data[0], connection)
+            # yearly_result = __calculate_average_for_last_interval('Yearly', field_data[0], connection)
 
             if weekly_result is not None:
                 average_value, min_value, max_value, device_id = weekly_result
                 __save_averages('WeeklyAverage', field_data[0], average_value, min_value, max_value, device_id, connection)
 
-            if monthly_result is not None:
-                average_value, min_value, max_value, device_id = monthly_result
-                __save_averages('MonthlyAverage', field_data[0], average_value, min_value, max_value, device_id, connection, is_first_of_month=True)
+            # if monthly_result is not None:
+            #     average_value, min_value, max_value, device_id = monthly_result
+            #     __save_averages('MonthlyAverage', field_data[0], average_value, min_value, max_value, device_id, connection, is_first_of_month=True)
 
-            if yearly_result is not None:
-                average_value, min_value, max_value, device_id = yearly_result
-                __save_averages('YearlyAverage', field_data[0], average_value, min_value, max_value, device_id, connection, is_first_of_year=True)
+            # if yearly_result is not None:
+            #     average_value, min_value, max_value, device_id = yearly_result
+            #     __save_averages('YearlyAverage', field_data[0], average_value, min_value, max_value, device_id, connection, is_first_of_year=True)
 
     finally:
         connection.close()
