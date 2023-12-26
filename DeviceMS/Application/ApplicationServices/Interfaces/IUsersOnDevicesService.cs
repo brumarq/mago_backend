@@ -11,4 +11,5 @@ namespace Application.ApplicationServices.Interfaces
     {
         Task<UserOnDeviceResponseDTO> CreateUserOnDeviceAsync(CreateUserOnDeviceDTO createUserOnDeviceDTO);
         Task<bool> DeleteUserOnDeviceAsync(int userOnDeviceId);
+    }
 }
