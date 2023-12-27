@@ -1,4 +1,4 @@
-name: User Service CI/CD
+name: Notifications Service CI/CD
 
 on:
   workflow_dispatch:
