@@ -32,8 +32,8 @@ jobs:
       with:
         image: ${{ env.APP_NAME }}
         tags: latest
-        dockerfiles: ./UserMS/Dockerfile
-        context: ./UserMS/
+        dockerfiles: ./NotificationMS/Dockerfile
+        context: ./NotificationMS/
         
     - name: Login to Docker Hub with Buildah
       run: |
