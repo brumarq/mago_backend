@@ -1,6 +1,6 @@
 # Define your variables
 #$resourceGroupName = "mago-backend"
-$resourceGroupName = "test-mago-backend"
+$resourceGroupName = "mago-backend"
 $location = 'westeurope'
 $functionAppName = "CalculateAveragesFunction"
 $subscriptionId = '8e7c7eb8-572a-4e7b-9a57-9efbf2706e4a'
@@ -10,7 +10,7 @@ $serverFarmName = 'mago-server-farm'
 $bicepTemplatePath = './template.bicep'
 
 # Database details
-$databaseServerName = 'test-mago-database-server'
+$databaseServerName = 'mago-database-server'
 $administratorLogin = 'MagoAdminDB'
 $administratorLoginPassword = 'Test123*'
 $metricsDBName = 'MetricsDB'

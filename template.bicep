@@ -136,7 +136,7 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
       'ApplicationInsightsAgent_EXTENSION_VERSION': '~2'
       'InstrumentationEngine_EXTENSION_VERSION': '~1'
       'METRICS_DB_CONNECTION_STRING_PYODBC': 'Driver={ODBC Driver 17 for SQL Server};Server=tcp:mago-database-server.database.windows.net,1433;Database=MetricsDB;Uid=MagoDBAdmin;Pwd=Test123*;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;'
-      'WEBSITE_RUN_FROM_PACKAGE': 1 // For Python, use package deployment
+      'WEBSITE_RUN_FROM_PACKAGE': '1' // For Python, use package deployment
     }
   }
 }
