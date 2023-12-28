@@ -3,28 +3,32 @@ using Application.ApplicationServices.Interfaces;
 using Application.DTOs.Firmware;
 using Application.Exceptions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Application.ApplicationServices;
 
 public class FirmwareService : IFirmwareService
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger<FirmwareService> _logger;
     private readonly HttpClient _httpClient;
     private readonly IDeviceService _deviceService;
     private readonly string? _baseUri;
 
     public FirmwareService(IConfiguration configuration, IHttpClientFactory httpClientFactory,
-        IDeviceService deviceService)
+        IDeviceService deviceService, ILogger<FirmwareService> logger)
     {
         _httpClientFactory = httpClientFactory;
         _httpClient = httpClientFactory.CreateClient();
         _deviceService = deviceService;
         _baseUri = configuration["ApiRequestUris:FirmwareBaseUri"];
+        _logger = logger;
     }
 
     public async Task<FileSendResponseDTO> CreateFileSendAsync(CreateFileSendDTO newFileSendDto)
     {
         await _deviceService.EnsureDeviceExists(newFileSendDto.DeviceId);
+        
 
         var response = await _httpClient.PostAsJsonAsync(_baseUri, newFileSendDto);
         response.EnsureSuccessStatusCode();
@@ -35,6 +39,7 @@ public class FirmwareService : IFirmwareService
 
     public async Task<IEnumerable<FileSendResponseDTO>> GetFirmwareHistoryForDeviceAsync(int deviceId)
     {
+        _logger.LogError($" The given FirmwareURL: {_baseUri}");
         await _deviceService.EnsureDeviceExists(deviceId);
 
         var response = await _httpClient.GetAsync($"{_baseUri}devices/{deviceId}");

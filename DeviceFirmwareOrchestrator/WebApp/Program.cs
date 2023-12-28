@@ -22,7 +22,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - User Service", Version = "v1.0.0" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - Device Firmware Orchestrator Service", Version = "v1.0.0" });
 
     // Security schema for Swagger UI
     var securitySchema = new OpenApiSecurityScheme
@@ -85,6 +85,7 @@ builder.Services.AddSwaggerGen();
 // builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 builder.Services.AddScoped<IDeviceService, DeviceService>();
+
 builder.Services.AddScoped<IFirmwareService, FirmwareService>();
 // builder.Services.AddScoped<IDeviceTypeService, DeviceTypeService>();
 // builder.Services.AddScoped<IDeviceSettingsService, DeviceSettingsService>();
@@ -92,14 +93,16 @@ builder.Services.AddScoped<IFirmwareService, FirmwareService>();
 // Add services for dependency injection
 //...
 
+builder.Services.AddHttpClient();
+
+var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8383";
+builder.WebHost.UseUrls($"http://*:{httpPort}");
+builder.Configuration.AddEnvironmentVariables();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
