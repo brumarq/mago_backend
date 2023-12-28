@@ -101,8 +101,6 @@ jobs:
         fi
 
         oc set env deployment/${{ env.APP_NAME }} \
-        ApiRequestUris__FirmwareBaseUri=${{ secrets.FIRMWARE_BASE_URI}} \
-        ApiRequestUris__DeviceBaseUri=${{ secrets.DEVICE_BASE_URI }} \
         Auth0__Domain=${{ secrets.AUTH0_DOMAIN }} \
         Auth0__Audience=${{ secrets.AUTH0_AUDIENCE }} \
         Auth0__ClientId=${{ secrets.AUTH0_CLIENT_ID }} \
