@@ -83,18 +83,15 @@ builder.Services.AddAuthorization(options =>
 // Authorization handler registration
 builder.Services.AddSingleton<IAuthorizationHandler, HasPermissionHandler>();
 
+builder.Configuration.AddEnvironmentVariables();
+var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8282";
+builder.WebHost.UseUrls($"http://*:{httpPort}");
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
