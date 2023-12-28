@@ -8,7 +8,6 @@ from app.main.domain.entities.field import Field
 from flask import abort
 from app.main.webapp.middleware.authentication import has_required_permission
 
-
 class AggregatedLogsService(BaseAggregatedLogsService):
     def __init__(self, field_respository: Repository(Field), weekly_average_repository: Repository(WeeklyAverage), monthly_average_repository: Repository(MonthlyAverage), yearly_average_repository: Repository(YearlyAverage)):
         self.field_repository = field_respository
@@ -31,7 +30,7 @@ class AggregatedLogsService(BaseAggregatedLogsService):
 
         if field_id <= 0:
             abort(400, "Field id cannot be 0 or negative.")
-
+        
         field_exists = self.field_repository.exists_by_id(field_id)
 
         if not field_exists:

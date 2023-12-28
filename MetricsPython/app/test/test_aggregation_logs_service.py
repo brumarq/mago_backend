@@ -28,13 +28,14 @@ def test_get_aggregated_logs_field_id_0(app, aggregated_logs_service, date_type)
             aggregated_logs_service.get_aggregated_logs(date_type, device_id=1, field_id=0)
         assert "400 Bad Request: Field id cannot be 0 or negative." in str(excinfo.value)
 
-# @patch('app.main.application.service.aggregated_logs_service.has_required_permission', return_value=True)
-# def test_get_aggregated_logs_non_existent_field(app, aggregated_logs_service):
-#     with app.test_request_context():
-#         with pytest.raises(Exception) as excinfo:
-#             aggregated_logs_service.get_aggregated_logs('Weekly', device_id=1, field_id=999)
+@patch('app.main.application.service.aggregated_logs_service.has_required_permission', return_value=True)
+@pytest.mark.parametrize("date_type", ["Weekly", "Monthly", "Yearly"])
+def test_get_aggregated_logs_non_existent_field(app, aggregated_logs_service, date_type):
+    with app.test_request_context():
+        with pytest.raises(Exception) as excinfo:
+            aggregated_logs_service.get_aggregated_logs(date_type, device_id=1, field_id=999)
 
-#         assert "404 Not Found: Field with id 999 does not exist." in str(excinfo.value)
+        assert "404 Not Found: Field with id 999 does not exist." in str(excinfo.value)
 
 # Perform correct test using all 3 tables
 @pytest.mark.parametrize("date_type, entity_type", [
