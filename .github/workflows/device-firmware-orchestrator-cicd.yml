@@ -1,4 +1,4 @@
-name: D CI/CD
+name: Device Firmware Orchestrator CI/CD
 
 on:
   workflow_dispatch:
