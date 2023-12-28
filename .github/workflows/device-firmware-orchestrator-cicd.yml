@@ -1,4 +1,4 @@
-name: Device Service CI/CD
+name: D CI/CD
 
 on:
   workflow_dispatch:
