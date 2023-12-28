@@ -1,4 +1,5 @@
 from flask import request, _request_ctx_stack, abort
+from flask.globals import request_ctx
 from six.moves.urllib.request import urlopen
 from functools import wraps
 from jose import jwt
@@ -27,8 +28,6 @@ def get_token_from_auth_header():
 def requires_auth(f):
     """Determines if the Access Token is valid
     """
-    ALGORITHMS = ['RS256']
-
     @wraps(f)
     def decorated(*args, **kwargs):
         token = get_token_from_auth_header()
@@ -50,7 +49,7 @@ def requires_auth(f):
                 payload = jwt.decode(
                     token,
                     rsa_key,
-                    algorithms=ALGORITHMS,
+                    algorithms=['RS256'],
                     audience=os.environ.get('AUTH0_AUDIENCE'),
                     issuer=f"https://{os.environ.get('AUTH0_DOMAIN')}/"
                 )

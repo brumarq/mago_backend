@@ -23,10 +23,3 @@ class AggregatedLogsDto:
         'deviceId': fields.Integer(required=True, description="Device ifentifier", attribute="device_id"),
         'field': fields.Nested(field, required=True, description="Field object (object)", attribute="field"),
     })
-
-    export_aggregated_logs_csv_dto = api.model('ExportAggregatedLogsCsvDto', {
-        'fileName': fields.String(required=True, description="File name (without extension)", attribute="file_name"),
-        'aggregatedLogDateType': fields.String(required=True, description="Aggregated log date type (Weekly, Monthly, Yearly)", attribute="aggregated_log_date_type"),
-        'deviceId': fields.Integer(required=True, description="Device identifier", attribute="device_id"),
-        'fieldId': fields.Integer(required=True, description="Device identifier", attribute="field_id")
-    })

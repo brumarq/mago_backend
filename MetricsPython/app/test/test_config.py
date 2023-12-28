@@ -1,44 +1,22 @@
-import unittest
-
 from flask import current_app
-from flask_testing import TestCase
 import os
+from manage import create_app
 
-from manage import app
+def test_app_should_be_development():
+    app = create_app('dev')
 
-class TestDevelopmentConfig(TestCase):
-    def create_app(self):
-        app.config.from_object('app.main.config.DevelopmentConfig')
-        return app
+    assert app.config['SECRET_KEY'] != 'my_precious'
+    assert app.config['DEBUG'] is True
+    assert current_app is not None
+    assert app.config['SQLALCHEMY_DATABASE_URI'] == f"mssql+pyodbc://{os.environ.get('METRICS_DB_CONNECTION_STRING_SQLALCHEMY')}"
 
-    def test_app_should_be_development(self):
-        self.assertFalse(app.config['SECRET_KEY'] == 'my_precious')
-        self.assertTrue(app.config['DEBUG'] is True)
-        self.assertFalse(current_app is None)
-        self.assertTrue(
-            app.config['SQLALCHEMY_DATABASE_URI'] == f"mssql+pyodbc://{os.environ.get('METRICS_DB_CONNECTION_STRING_SQLALCHEMY')}"
-        )
+def test_app_should_be_testing():
+    app = create_app('test')
 
-class TestTestingConfig(TestCase):
-    def create_app(self):
-        app.config.from_object('app.main.config.TestingConfig')
-        return app
+    assert app.config['SECRET_KEY'] != 'my_precious'
+    assert app.config['DEBUG'] is True
+    assert app.config['SQLALCHEMY_DATABASE_URI'] == "sqlite://"
 
-    def test_app_should_be_testing(self):
-        self.assertFalse(app.config['SECRET_KEY'] == 'my_precious')
-        self.assertTrue(app.config['DEBUG'])
-        self.assertTrue(
-            app.config['SQLALCHEMY_DATABASE_URI'] == f"mssql+pyodbc://{os.environ.get('METRICS_DB_CONNECTION_STRING_SQLALCHEMY')}"
-        )
-
-class TestProductionConfig(TestCase):
-    def create_app(self):
-        app.config.from_object('app.main.config.ProductionConfig')
-        return app
-
-    def test_app_should_be_production(self):
-        self.assertTrue(app.config['DEBUG'] is False)
-
-
-if __name__ == '__main__':
-    unittest.main()
+def test_app_should_be_production():
+    app = create_app('prod')
+    assert app.config['DEBUG'] is False
