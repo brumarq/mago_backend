@@ -1,7 +1,5 @@
 import sys
 sys.dont_write_bytecode = True
-
-import unittest
 import pytest
 from flask_migrate import Migrate
 from app import blueprint

@@ -26,7 +26,15 @@ class AggregatedLogsService(BaseAggregatedLogsService):
         if not any(aggregated_log_date_type == item.value.upper() for item in AggregatedLogDateType):
             abort(400, "Invalid date type entered (must be 'Weekly', 'Monthly' or 'Yearly').")
 
-        if not self.field_repository.exists_by_id(field_id):
+        if device_id <= 0:
+            abort(400, "Device id cannot be 0 or negative.")
+
+        if field_id <= 0:
+            abort(400, "Field id cannot be 0 or negative.")
+
+        field_exists = self.field_repository.exists_by_id(field_id)
+
+        if not field_exists:
             abort(404, f"Field with id {field_id} does not exist.")
 
         if aggregated_log_date_type == AggregatedLogDateType.WEEKLY.value.upper():
@@ -41,10 +49,3 @@ class AggregatedLogsService(BaseAggregatedLogsService):
         aggregated_logs = repository.get_all_by_condition(condition)
 
         return aggregated_logs
-    
-
-
-
-
-        
-        
