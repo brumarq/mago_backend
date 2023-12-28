@@ -8,8 +8,8 @@ on:
       - 'DeviceFirmwareOrchestrator/**/*'
 
 env:
-  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER_SANDER }}
-  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_SANDER }}
+  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
   DOCKER_HUB_USERNAME : ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }}
   DOCKER_HUB_ACCESS_TOKEN : ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }}
   OPENSHIFT_NAMESPACE: sander-harks-dev
