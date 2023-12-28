@@ -54,11 +54,11 @@ jobs:
         image: ${{ env.APP_NAME }}
         tags: latest
         dockerfiles: ./DeviceFirmwareOrchestrator/Dockerfile
-        context: ./DeviceMS/
+        context: ./DeviceFirmwareOrchestrator/
         
     - name: Login to Docker Hub with Buildah
       run: |
-        buildah login --username ${{ env.DOCKER_HUB_USERNAME_BRUNO }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN_BRUNO }} docker.io
+        buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
         
     - name: Push image to Docker Hub
       run: |
