@@ -13,7 +13,7 @@ env:
   DOCKER_HUB_USERNAME : ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }}
   DOCKER_HUB_ACCESS_TOKEN : ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }}
   OPENSHIFT_NAMESPACE: sander-harks-dev
-  APP_NAME: device-firmware-orchestrator-microservice
+  APP_NAME: device-firmware-orchestrator
   APP_PORT: 8383
 
 jobs:
