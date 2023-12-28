@@ -26,7 +26,7 @@ class Repository(BaseRepository):
 
     def update(self, entity):
         try:
-            existing_entity = self.model.query.get(entity.id)
+            existing_entity = db.session.get(self.model, entity.id)
             if existing_entity is None:
                 return False
             db.session.merge(entity)
@@ -38,7 +38,7 @@ class Repository(BaseRepository):
 
     def delete(self, entity_id):
         try:
-            entity = self.model.query.get(entity_id)
+            entity = db.session.get(self.model, entity_id)
             if entity is None:
                 return False
             db.session.delete(entity)
@@ -50,7 +50,7 @@ class Repository(BaseRepository):
         
     def exists_by_id(self, record_id):
         try:
-            return self.model.query.get(record_id) is not None
+            return db.session.get(self.model, record_id) is not None
         except SQLAlchemyError as e:
             # Handle the exception according to your application's requirements
             # For now, re-raise the exception

@@ -16,4 +16,4 @@ class LogValue(db.Model):
     field = db.relationship('Field', back_populates='log_values') #needed for relationship
 
     log_collection_id = db.Column(db.Integer, db.ForeignKey(LogCollection.id))
-    log_collection = db.relationship('LogCollection', back_populates='log_values') #needed for relatipnship
+    log_collection = db.relationship('LogCollection', back_populates='log_values') #needed for relationship

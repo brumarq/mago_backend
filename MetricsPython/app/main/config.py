@@ -3,9 +3,7 @@ import os
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
     DEBUG = False
-    # Swagger UI 1
     RESTX_MASK_SWAGGER = False
-    # LOCAL CONNECTION
     #SQLALCHEMY_DATABASE_URI=f"mssql://{os.getenv('MSSQL_USER')}/{os.getenv('MSSQL_DB')}?driver={os.getenv('MSSQL_DRIVER')}" 
     SQLALCHEMY_DATABASE_URI = f"mssql+pyodbc://{os.environ.get('METRICS_DB_CONNECTION_STRING_SQLALCHEMY')}"
     FLASK_ENV=os.environ.get('FLASK_ENV')
@@ -22,6 +20,7 @@ class TestingConfig(Config):
     PRESERVE_CONTEXT_ON_EXCEPTION = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PYTHONDONTWRITEBYTECODE = True
+    SQLALCHEMY_DATABASE_URI = "sqlite://"
 
 class ProductionConfig(Config):
     DEBUG = False
