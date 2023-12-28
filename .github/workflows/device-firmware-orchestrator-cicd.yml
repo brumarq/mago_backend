@@ -10,6 +10,8 @@ on:
 env:
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER_SANDER }}
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_SANDER }}
+  DOCKER_HUB_USERNAME : ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }}
+  DOCKER_HUB_ACCESS_TOKEN : ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }}
   OPENSHIFT_NAMESPACE: sander-harks-dev
   APP_NAME: device-firmware-orchestrator-microservice
   APP_PORT: 8383
@@ -56,7 +58,7 @@ jobs:
         
     - name: Login to Docker Hub with Buildah
       run: |
-        buildah login --username ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }} --password ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }} docker.io
+        buildah login --username ${{ env.DOCKER_HUB_USERNAME_BRUNO }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN_BRUNO }} docker.io
         
     - name: Push image to Docker Hub
       run: |
