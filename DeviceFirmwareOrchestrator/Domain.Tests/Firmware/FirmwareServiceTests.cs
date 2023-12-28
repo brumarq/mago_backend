@@ -4,8 +4,10 @@ using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs.Firmware;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
+using ILogger = NUnit.Framework.Internal.ILogger;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Domain.Tests.Firmware;
@@ -16,6 +18,7 @@ public class FirmwareServiceTests
     private Mock<IHttpClientFactory> _mockHttpClientFactory;
     private Mock<IDeviceService> _mockDeviceService;
     private Mock<IConfiguration> _mockConfiguration;
+    private Mock<ILogger<FirmwareService>> _mockLogger; 
     private HttpClient _httpClient;
     private FirmwareService _firmwareService;
     private MockHttpMessageHandler _fakeHttpMessageHandler;
@@ -35,7 +38,7 @@ public class FirmwareServiceTests
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_httpClient);
 
         // Create instance of FirmwareService
-        _firmwareService = new FirmwareService(_mockConfiguration.Object, _mockHttpClientFactory.Object, _mockDeviceService.Object);
+        _firmwareService = new FirmwareService(_mockConfiguration.Object, _mockHttpClientFactory.Object, _mockDeviceService.Object, _mockLogger.Object);
     }
 
     [Test]
