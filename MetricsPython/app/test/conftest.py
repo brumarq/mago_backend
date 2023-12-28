@@ -10,15 +10,12 @@ from app.main.application.service.aggregated_logs_service import AggregatedLogsS
 from app.main.application.service.metrics_service import MetricsService
 from app.main.domain.entities.log_value import LogValue
 
-
 @pytest.fixture()
 def app():
     app = create_app('test')
-    
+
     with app.app_context():
         db.create_all()
-
-    print("CREATING DATABASE")
 
     yield app
 
@@ -35,13 +32,20 @@ def repository(request, app):
         yield repository
 
 @pytest.fixture
-def aggregated_logs_service():
-    field_repository = Repository(Field)
-    weekly_average_repository = Repository(WeeklyAverage)
-    monthly_average_repository = Repository(MonthlyAverage)
-    yearly_average_repository = Repository(YearlyAverage)
-    return AggregatedLogsService(field_repository, weekly_average_repository, monthly_average_repository, yearly_average_repository)
+def aggregated_logs_service(app):
+    with app.app_context():
+        field_repository = Repository(Field)
+        weekly_average_repository = Repository(WeeklyAverage)
+        monthly_average_repository = Repository(MonthlyAverage)
+        yearly_average_repository = Repository(YearlyAverage)
+        yield  AggregatedLogsService(
+            field_repository, 
+            weekly_average_repository, 
+            monthly_average_repository, 
+            yearly_average_repository
+        )
 
 @pytest.fixture
-def metrics_service():
-    return MetricsService(Repository(LogValue))
+def metrics_service(app):
+    with app.app_context():
+        yield MetricsService(Repository(LogValue))
