@@ -85,6 +85,7 @@ builder.Services.AddSwaggerGen();
 // builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 builder.Services.AddScoped<IDeviceService, DeviceService>();
+
 builder.Services.AddScoped<IFirmwareService, FirmwareService>();
 // builder.Services.AddScoped<IDeviceTypeService, DeviceTypeService>();
 // builder.Services.AddScoped<IDeviceSettingsService, DeviceSettingsService>();
