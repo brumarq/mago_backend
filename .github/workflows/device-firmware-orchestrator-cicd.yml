@@ -12,6 +12,10 @@ env:
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
   DOCKER_HUB_USERNAME : ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }}
   DOCKER_HUB_ACCESS_TOKEN : ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }}
+  AUTH0_DOMAIN: ${{secrets.AUTH0_DOMAIN}}
+  AUTH0_AUDIENCE: ${{secrets.AUTH0_AUDIENCE}}
+  Auth0_ClientId: ${{ secrets.AUTH0_CLIENT_ID }} 
+  Auth0_ClientSecret: ${{ secrets.AUTH0_CLIENT_SECRET }} 
   OPENSHIFT_NAMESPACE: sander-harks-dev
   APP_NAME: device-firmware-orchestrator
   APP_PORT: 8383
@@ -101,10 +105,10 @@ jobs:
         fi
 
         oc set env deployment/${{ env.APP_NAME }} \
-        Auth0__Domain=${{ secrets.AUTH0_DOMAIN }} \
-        Auth0__Audience=${{ secrets.AUTH0_AUDIENCE }} \
-        Auth0__ClientId=${{ secrets.AUTH0_CLIENT_ID }} \
-        Auth0__ClientSecret=${{ secrets.AUTH0_CLIENT_SECRET }}
+        Auth0__Domain=${{ env.AUTH0_DOMAIN }} \
+        Auth0__Audience=${{ env.AUTH0_AUDIENCE }} \
+        Auth0__ClientId=${{ env.AUTH0_CLIENT_ID }} \
+        Auth0__ClientSecret=${{ env.AUTH0_CLIENT_SECRET }}
         
         if [ -n "$SERVICE_EXISTS" ]; then
           oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
