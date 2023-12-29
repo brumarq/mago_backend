@@ -72,7 +72,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: docker-upload
     name: Deploy to Openshift
-    environment: production
+    environment: devicems-production
 
     steps:
     - name: Check out repository
