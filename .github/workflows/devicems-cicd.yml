@@ -8,8 +8,14 @@ on:
       - 'DeviceMS/**/*'
 
 env:
-  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER_SANDER }}
-  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_SANDER }}
+  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+  DOCKER_HUB_USERNAME : ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }}
+  DOCKER_HUB_ACCESS_TOKEN : ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }}
+  AUTH0_DOMAIN: ${{secrets.AUTH0_DOMAIN}}
+  AUTH0_AUDIENCE: ${{secrets.AUTH0_AUDIENCE}}
+  Auth0_ClientId: ${{ secrets.AUTH0_CLIENT_ID }} 
+  Auth0_ClientSecret: ${{ secrets.AUTH0_CLIENT_SECRET }} 
   OPENSHIFT_NAMESPACE: sander-harks-dev
   APP_NAME: device-microservice
   APP_PORT: 8181
@@ -56,7 +62,7 @@ jobs:
         
     - name: Login to Docker Hub with Buildah
       run: |
-        buildah login --username ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }} --password ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }} docker.io
+        buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
         
     - name: Push image to Docker Hub
       run: |
@@ -66,7 +72,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: docker-upload
     name: Deploy to Openshift
-    environment: production
+    environment: devicems-production
 
     steps:
     - name: Check out repository
@@ -100,10 +106,10 @@ jobs:
 
         oc set env deployment/${{ env.APP_NAME }} \
         ConnectionStrings__DevicesDb=${{ secrets.DEVICE_DB_CONNECTION_STRING }} \
-        Auth0__Domain=${{ secrets.AUTH0_DOMAIN_HTTPS }} \
-        Auth0__Audience=${{ secrets.AUTH0_AUDIENCE }} \
-        Auth0__ClientId=${{ secrets.AUTH0_CLIENT_ID }} \
-        Auth0__ClientSecret=${{ secrets.AUTH0_CLIENT_SECRET }}
+        Auth0__Domain=${{ env.AUTH0_DOMAIN_HTTPS }} \
+        Auth0__Audience=${{ env.AUTH0_AUDIENCE }} \
+        Auth0__ClientId=${{ env.AUTH0_CLIENT_ID }} \
+        Auth0__ClientSecret=${{ env.AUTH0_CLIENT_SECRET }}
         
         if [ -n "$SERVICE_EXISTS" ]; then
           oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
