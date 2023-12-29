@@ -73,7 +73,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: docker-upload
     name: Deploy to OpenShift
-    environment: production
+    environment: metricsms-production
 
     steps:
       - name: Check out repository
