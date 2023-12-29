@@ -1,6 +1,5 @@
 from flask_restx import Api
 from flask import Blueprint
-
 from app.main.webapp.controller.metrics_controller import api as metrics_ns
 from app.main.webapp.controller.aggregated_logs_controller import api as aggregated_logs_ns
 
@@ -16,7 +15,7 @@ authorizations = {
 api = Api(
     blueprint,
     title='Metrics microservice',
-    version='3.0',
+    version='1.0',
     description='Swagger UI and documentation for the metrics microservice',
     authorizations=authorizations,
     security='apikey'

@@ -89,7 +89,7 @@ def test_update(repository):
     # Create an entity
     entity_to_create = repository.model(name='TestName', unit_id=1, device_type_id=1, loggable=True)
     created_entity = repository.create(entity_to_create)
-    print(f"BEFORE: {created_entity.name}")
+
     # Update the entity's name
     created_entity.name = 'UpdatedName'
 

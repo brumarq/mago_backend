@@ -9,10 +9,13 @@ from app.main.domain.entities.yearly_average import YearlyAverage
 from app.main.application.service.aggregated_logs_service import AggregatedLogsService
 from app.main.application.service.metrics_service import MetricsService
 from app.main.domain.entities.log_value import LogValue
+from app import blueprint
 
 @pytest.fixture()
 def app():
     app = create_app('test')
+
+    app.register_blueprint(blueprint)
 
     with app.app_context():
         db.create_all()
