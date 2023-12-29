@@ -33,5 +33,3 @@ config_by_name = dict(
 
 key = Config.SECRET_KEY
 env = Config.FLASK_ENV
-
-
