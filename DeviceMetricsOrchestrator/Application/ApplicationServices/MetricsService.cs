@@ -19,7 +19,7 @@ namespace Application.ApplicationServices
             _httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient();
             _deviceService = deviceService;
-            _baseUri = configuration["ApiRequestUris:MetricsBaseUri"];
+            _baseUri = configuration["ApiRequestUris:MetricsBaseUri"]!;
         }
 
         public async Task<IEnumerable<MetricsResponseDTO>> GetMetricsForDeviceAsync(int deviceId)

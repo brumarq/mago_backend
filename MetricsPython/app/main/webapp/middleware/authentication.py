@@ -43,7 +43,7 @@ def requires_auth(f):
                     "use": key["use"],
                     "n": key["n"],
                     "e": key["e"]
-                }
+                }      
         if rsa_key:
             try:
                 payload = jwt.decode(
@@ -84,3 +84,12 @@ def has_required_permission(required_permission):
             return True
     
     return False
+
+def get_user_id():
+    try:
+        token = get_token_from_auth_header()
+        unverified_claims = jwt.get_unverified_claims(token)
+        user_id = unverified_claims.get('sub')
+        return user_id
+    except Exception:
+        abort(401, "No user could be extracted from the provided token.")

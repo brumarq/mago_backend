@@ -6,7 +6,7 @@ from app.main.domain.entities.monthly_average import MonthlyAverage
 from app.main.domain.entities.yearly_average import YearlyAverage
 from app.main.domain.entities.field import Field
 from flask import abort
-from app.main.webapp.middleware.authentication import has_required_permission
+from app.main.webapp.middleware.authentication import has_required_permission, get_user_id
 
 class AggregatedLogsService(BaseAggregatedLogsService):
     def __init__(self, field_respository: Repository(Field), weekly_average_repository: Repository(WeeklyAverage), monthly_average_repository: Repository(MonthlyAverage), yearly_average_repository: Repository(YearlyAverage)):
@@ -16,13 +16,11 @@ class AggregatedLogsService(BaseAggregatedLogsService):
         self.yearly_average_repository = yearly_average_repository
 
     def get_aggregated_logs(self, aggregated_log_date_type: str, device_id: int, field_id: int):
-
+        
         if not (has_required_permission("client") or has_required_permission("admin")):
             abort(401, "This user does not have sufficient permissions")
 
-        aggregated_log_date_type = aggregated_log_date_type.upper()  # to avoid case problems
-
-        if not any(aggregated_log_date_type == item.value.upper() for item in AggregatedLogDateType):
+        if not any(aggregated_log_date_type.upper() == item.value.upper() for item in AggregatedLogDateType): #to avoid caps issues
             abort(400, "Invalid date type entered (must be 'Weekly', 'Monthly' or 'Yearly').")
 
         if device_id <= 0:
@@ -34,7 +32,9 @@ class AggregatedLogsService(BaseAggregatedLogsService):
         field_exists = self.field_repository.exists_by_id(field_id)
 
         if not field_exists:
-            abort(404, f"Field with id {field_id} does not exist.")
+            abort(404, f"Field with id {field_id} does not exist.")      
+
+        aggregated_log_date_type = aggregated_log_date_type.upper()
 
         if aggregated_log_date_type == AggregatedLogDateType.WEEKLY.value.upper():
             repository = self.weekly_average_repository

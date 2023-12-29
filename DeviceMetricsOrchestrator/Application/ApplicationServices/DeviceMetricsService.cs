@@ -4,7 +4,7 @@ using Application.DTOs.Metrics;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Domain.Enums;
-using System.Formats.Asn1;
+using Microsoft.AspNetCore.Http;
 using System.Globalization;
 
 namespace Application.ApplicationServices
@@ -24,7 +24,7 @@ namespace Application.ApplicationServices
         }
 
         public async Task<IEnumerable<DeviceAggregatedLogsResponseDTO>> GetDeviceAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId)
-        {
+        {          
             var device = await _deviceService.GetDeviceByIdAsync(deviceId);
             var aggregatedLogs = await _aggregatedLogsService.GetAggregatedLogsAsync(aggregatedLogDateType, deviceId, fieldId);
 

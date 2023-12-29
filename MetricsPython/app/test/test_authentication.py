@@ -1,4 +1,4 @@
-from app.main.webapp.middleware.authentication import get_token_from_auth_header, has_required_permission, requires_auth
+from app.main.webapp.middleware.authentication import get_token_from_auth_header, has_required_permission, get_user_id
 import pytest
 from unittest.mock import patch
 from jose import jwt
@@ -54,3 +54,34 @@ def test_has_required_permission_expired_token(app):
         with patch('jose.jwt.get_unverified_claims', side_effect=jwt.ExpiredSignatureError):
             with pytest.raises(jwt.ExpiredSignatureError):
                 assert has_required_permission('client')
+
+# User ID extraction tests
+def test_get_user_id_valid_user_(app):
+    valid_token = 'VALID_TOKEN'
+    user_id = 'auth0|656a13f60300966ad3b88e23'
+
+    with patch('app.main.webapp.middleware.authentication.get_token_from_auth_header') as mock_get_token:
+        mock_get_token.return_value = valid_token
+
+        with patch('jose.jwt.get_unverified_claims') as mock_get_unverified_claims:
+
+            mock_get_unverified_claims.return_value = {'sub': 'auth0|656a13f60300966ad3b88e23', 'permissions': ['admin']}
+
+            with app.test_request_context(headers={'Authorization': f'Bearer {valid_token}'}):
+                user_id = get_user_id()
+                assert user_id is 'auth0|656a13f60300966ad3b88e23'
+
+def test_get_user_id_invalid_user(app):
+    valid_token = 'VALID_TOKEN'
+
+    with patch('app.main.webapp.middleware.authentication.get_token_from_auth_header') as mock_get_token:
+        mock_get_token.return_value = valid_token
+
+        with patch('jose.jwt.get_unverified_claims') as mock_get_unverified_claims:
+            mock_get_unverified_claims.return_value = {'sub': 'auth0|656a13f60300966ad3b88f91', 'permissions': ['client']}
+
+            with app.test_request_context(headers={'Authorization': f'Bearer {valid_token}'}):
+                user_id = get_user_id()
+                assert user_id is not 'auth0|656a13f60300966ad3b88e23'
+
+

@@ -20,7 +20,7 @@ public class DeviceService : IDeviceService
         _configuration = configuration;
         _httpClientFactory = httpClientFactory;
         _httpClient = httpClientFactory.CreateClient();
-        _baseUri = _configuration["ApiRequestUris:DeviceBaseUri"];
+        _baseUri = _configuration["ApiRequestUris:DeviceBaseUri"]!;
     }
 
     public async Task<bool> DeviceExistsAsync(int deviceId)
