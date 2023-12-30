@@ -49,14 +49,14 @@ func main() {
 	router := gin.Default()
 
 	// Register swagger endpoint
-	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
+	url := ginSwagger.URL("http://localhost::6969/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	// Register routes
 	firmwareController.RegisterRoutes(router)
 
 	// Start the server
-	if err := router.Run(); err != nil {
+	if err := router.Run(":6969"); err != nil {
 		log.Fatal("Failed to run server: ", err)
 	}
 }
