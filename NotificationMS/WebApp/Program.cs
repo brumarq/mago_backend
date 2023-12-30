@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebApp.Middleware.Authentication;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,6 +90,7 @@ builder.WebHost.UseUrls($"http://*:{httpPort}");
 
 var app = builder.Build();
 
+app.UseMetricServer(url: "/metrics");
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
