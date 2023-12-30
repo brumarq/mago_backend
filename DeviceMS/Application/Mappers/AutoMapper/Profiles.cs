@@ -68,8 +68,11 @@ public class Profiles : Profile
         CreateMap<UsersOnDevices, UsersOnDevicesResponseDTO>();
         CreateMap<UsersOnDevicesResponseDTO, UsersOnDevices>();
 
-        CreateMap<UsersOnDevices, CreateUserOnDeviceDTO>();
-        CreateMap<CreateUserOnDeviceDTO, UsersOnDevices>();
+        CreateMap<UsersOnDevices, CreateUserOnDeviceDTO>()
+            .ForMember(dest => dest.DeviceId, opt => opt.MapFrom(src => src.Device.Id));
+
+        CreateMap<CreateUserOnDeviceDTO, UsersOnDevices>()
+            .ForMember(dest => dest.Device, opt => opt.Ignore()); // Assuming you don't want to map back to the Device property
         #endregion
     }
 }

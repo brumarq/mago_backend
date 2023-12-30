@@ -36,11 +36,11 @@ namespace WebApp.Controllers
         {
             try
             {
-                var newDeviceType = await _usersOnDevicesService.CreateUserOnDeviceAsync(createUserOnDeviceDTO);
+                var newUserOnDeviceEntry = await _usersOnDevicesService.CreateUserOnDeviceAsync(createUserOnDeviceDTO);
 
-                return (newDeviceType == null)
-                    ? StatusCode(500, "The UserOnDevicy entry could not be created.")
-                    : Ok(newDeviceType);
+                return (newUserOnDeviceEntry == null)
+                    ? StatusCode(500, "The UserOnDevice entry could not be created.")
+                    : Ok(newUserOnDeviceEntry);
             }
             catch (Exception e)
             {
@@ -49,18 +49,18 @@ namespace WebApp.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int userOnDeviceId)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                var deleteResult = await _usersOnDevicesService.DeleteUserOnDeviceAsync(userOnDeviceId);
+                var deleteResult = await _usersOnDevicesService.DeleteUserOnDeviceAsync(id);
                 if (deleteResult)
                 {
                     return NoContent(); 
                 }
                 else
                 {
-                    return NotFound($"UserOnDevice with ID {userOnDeviceId} was not found."); 
+                    return NotFound($"UserOnDevice with ID {id} was not found."); 
                 }
             }
             catch (Exception e)

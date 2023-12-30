@@ -1,6 +1,8 @@
-﻿namespace Application.DTOs.UsersOnDevices
+﻿using Application.DTOs.Device;
+
+namespace Application.DTOs.UsersOnDevices
 {
-    public class UsersOnDevicesResponseDTO
+    public class UsersOnDevicesResponseDTO : BaseDTO
     {
         public string? UserId { get; set; }
         public int DeviceId { get; set; }
