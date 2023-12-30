@@ -64,7 +64,7 @@ namespace Application.ApplicationServices
 
                 return body!;
             }
-            catch(Exception ex)
+            catch(Exception e)
             {
                 throw;
             }
