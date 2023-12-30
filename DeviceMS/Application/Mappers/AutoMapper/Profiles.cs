@@ -67,6 +67,9 @@ public class Profiles : Profile
         #region UserOnDevices
         CreateMap<UsersOnDevices, UsersOnDevicesResponseDTO>();
         CreateMap<UsersOnDevicesResponseDTO, UsersOnDevices>();
+
+        CreateMap<UsersOnDevices, CreateUserOnDeviceDTO>();
+        CreateMap<CreateUserOnDeviceDTO, UsersOnDevices>();
         #endregion
     }
 }
