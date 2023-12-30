@@ -1,16 +1,15 @@
-using System.Security.Claims;
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
 using Infrastructure.Data.Context;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Security.Claims;
 using WebApp.Middleware.Authentication;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +32,7 @@ builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<IDeviceTypeService, DeviceTypeService>();
 builder.Services.AddScoped<IDeviceSettingsService, DeviceSettingsService>();
 builder.Services.AddScoped<IUnitService, UnitService>();
+builder.Services.AddScoped<IUsersOnDevicesService, UsersOnDevicesService>();
 
 // Swagger/OpenAPI configuration
 builder.Services.AddEndpointsApiExplorer();

@@ -38,7 +38,8 @@ builder.Services.AddScoped<IMetricsService, MetricsService>();
 builder.Services.AddScoped<IAggregatedLogsService, AggregatedLogsService>();
 builder.Services.AddScoped<IDeviceMetricsService, DeviceMetricsService>();
 builder.Services.AddScoped<IUnitService, UnitService>();
-// builder.Services.AddScoped<IDeviceSettingsService, DeviceSettingsService>();
+builder.Services.AddScoped<IUsersOnDevicesService, UsersOnDevicesService>();
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - Device Metrics Orchestrator", Version = "v1.0.0" });
