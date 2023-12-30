@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Security.Claims;
 
 namespace Application.ApplicationServices;
 
@@ -16,49 +17,64 @@ public class DeviceService : IDeviceService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly HttpClient _httpClient;
     private readonly string _baseUri;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly string _token;
+    private readonly IAuthenticationService _authenticationService;
 
-    public DeviceService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
+    public DeviceService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IAuthenticationService authenticationService)
     {
         _configuration = configuration;
         _httpClientFactory = httpClientFactory;
         _httpClient = httpClientFactory.CreateClient();
         _baseUri = _configuration["ApiRequestUris:DeviceBaseUri"]!;
-        _httpContextAccessor = httpContextAccessor;
-        _token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Split(" ")[1];
+        _authenticationService = authenticationService;
     }
 
     public async Task<bool> DeviceExistsAsync(int deviceId)
     {
         try
         {
+            var loggedInUserId = _authenticationService.GetUserId();
+
+            if (!(_authenticationService.HasPermission("client") || _authenticationService.HasPermission("admin")))
+                throw new UnauthorizedException($"The user with id {loggedInUserId} does not have sufficient permissions!");
+
             var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{deviceId}");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
             var response = await _httpClient.SendAsync(request);
 
             return response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound;
         }
-        catch (HttpRequestException e)
+        catch (Exception ex)
         {
-            Console.WriteLine($"Error checking device existence: {e.Message}");
-            return false;
+            throw;
         }
     }
 
     public async Task<DeviceResponseDTO> GetDeviceByIdAsync(int deviceId)
     {
-        if (!await DeviceExistsAsync(deviceId))
-            throw new NotFoundException($"Device with id {deviceId} does not exist!");
+        try
+        {
+            var loggedInUserId = _authenticationService.GetUserId();
 
-        var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{deviceId}");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-        var response = await _httpClient.SendAsync(request);
+            if (!(_authenticationService.HasPermission("client") || _authenticationService.HasPermission("admin")))
+                throw new UnauthorizedException($"The user with id {loggedInUserId} does not have sufficient permissions!");
 
-        response.EnsureSuccessStatusCode();
+            if (!await DeviceExistsAsync(deviceId))
+                throw new NotFoundException($"Device with id {deviceId} does not exist!");
 
-        var body = await response.Content.ReadFromJsonAsync<DeviceResponseDTO>();
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{deviceId}");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+            var response = await _httpClient.SendAsync(request);
 
-        return body!;
+            response.EnsureSuccessStatusCode();
+
+            var body = await response.Content.ReadFromJsonAsync<DeviceResponseDTO>();
+
+            return body!;
+        }
+        catch(Exception ex)
+        {
+            throw;
+        }
+        
     }
 }

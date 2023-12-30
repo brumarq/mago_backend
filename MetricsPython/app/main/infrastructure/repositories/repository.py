@@ -16,13 +16,25 @@ class Repository(BaseRepository):
             raise e
 
     def get_all(self):
-        return self.model.query.all()
+        try:
+            return self.model.query.all()
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            raise e
 
     def get_by_condition(self, condition):
-        return self.model.query.filter(condition).first()
+        try:
+            return self.model.query.filter(condition).first()
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            raise e
     
     def get_all_by_condition(self, condition):
-        return self.model.query.filter(condition).all()
+        try:
+            return self.model.query.filter(condition).all()
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            raise e
 
     def update(self, entity):
         try:
@@ -52,6 +64,5 @@ class Repository(BaseRepository):
         try:
             return db.session.get(self.model, record_id) is not None
         except SQLAlchemyError as e:
-            # Handle the exception according to your application's requirements
-            # For now, re-raise the exception
+            db.session.rollback()
             raise e

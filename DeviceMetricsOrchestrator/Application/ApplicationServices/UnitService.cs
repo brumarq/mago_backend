@@ -13,42 +13,60 @@ namespace Application.ApplicationServices
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly HttpClient _httpClient;
         private readonly string _baseUri;
+        private readonly IAuthenticationService _authenticationService;
 
-        public UnitService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService)
+        public UnitService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService, IAuthenticationService authenticationService)
         {
             _httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient();
             _baseUri = configuration["ApiRequestUris:UnitBaseUri"]!;
+            _authenticationService = authenticationService;
         }
 
         public async Task<bool> UnitExistsAsync(int unitId)
         {
             try
             {
+                var loggedInUserId = _authenticationService.GetUserId();
+
+                if (!(_authenticationService.HasPermission("client") || _authenticationService.HasPermission("admin")))
+                    throw new UnauthorizedException($"The user with id {loggedInUserId} does not have sufficient permissions!");
+
                 var response = await _httpClient.GetAsync($"{_baseUri}{unitId}");
 
                 return response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound;
             }
-            catch (HttpRequestException e)
+            catch(Exception ex)
             {
-                Console.WriteLine($"Error checking unit existence: {e.Message}");
-                return false;
+                throw;
             }
+            
         }
 
         public async Task<UnitDTO> GetUnitByIdAsync(int unitId)
         {
-            if (!await UnitExistsAsync(unitId))
-                throw new NotFoundException($"Unit with id {unitId} does not exist!");
+            try
+            {
+                var loggedInUserId = _authenticationService.GetUserId();
 
-            var response = await _httpClient.GetAsync($"{_baseUri}{unitId}");
-            response.EnsureSuccessStatusCode();
+                if (!(_authenticationService.HasPermission("client") || _authenticationService.HasPermission("admin")))
+                    throw new UnauthorizedException($"The user with id {loggedInUserId} does not have sufficient permissions!");
 
-            var body = await response.Content.ReadFromJsonAsync<UnitDTO>();
+                if (!await UnitExistsAsync(unitId))
+                    throw new NotFoundException($"Unit with id {unitId} does not exist!");
 
-            return body!;
+                var response = await _httpClient.GetAsync($"{_baseUri}{unitId}");
+                response.EnsureSuccessStatusCode();
+
+                var body = await response.Content.ReadFromJsonAsync<UnitDTO>();
+
+                return body!;
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
+            
         }
-
-
     }
 }

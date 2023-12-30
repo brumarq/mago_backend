@@ -18,10 +18,9 @@ namespace Application.ApplicationServices
         private readonly IUsersOnDevicesService _usersOnDevicesService;
         private readonly HttpClient _httpClient;
         private readonly string _baseUri;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly string _token;
+        private readonly IAuthenticationService _authenticationService;
 
-        public AggregatedLogsService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService, IUsersOnDevicesService usersOnDevicesService, IHttpContextAccessor httpContextAccessor)
+        public AggregatedLogsService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService, IUsersOnDevicesService usersOnDevicesService, IAuthenticationService authenticationService)
         {
             _configuration = configuration;
             _httpClientFactory = httpClientFactory;
@@ -29,50 +28,49 @@ namespace Application.ApplicationServices
             _baseUri = _configuration["ApiRequestUris:AggregatedLogsBaseUri"]!;
             _deviceService = deviceService;
             _usersOnDevicesService = usersOnDevicesService;
-            _httpContextAccessor = httpContextAccessor;
-            _token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Split(" ")[1];
+            _authenticationService = authenticationService;
         }
 
         public async Task<IEnumerable<AggregatedLogsResponseDTO>> GetAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId)
         {
-            if (!await _deviceService.DeviceExistsAsync(deviceId))
-                throw new NotFoundException($"Device with id {deviceId} does not exist!");
+            try
+            {
+                if (!await _deviceService.DeviceExistsAsync(deviceId))
+                    throw new NotFoundException($"Device with id {deviceId} does not exist!");
 
-            var loggedInUserId = GetUserId();
-            var isAdmin = HasPermission("admin");
+                var loggedInUserId = _authenticationService.GetUserId();
+                var isAdmin = _authenticationService.HasPermission("admin");
 
-            if (!(HasPermission("client") || HasPermission("admin")))
-                throw new UnauthorizedException($"The user with id {loggedInUserId} does not have sufficient permissions!");
+                // Check if user actually has permissions
+                if (!(_authenticationService.HasPermission("client") || _authenticationService.HasPermission("admin")))
+                    throw new UnauthorizedException($"The user with id {loggedInUserId} does not have sufficient permissions!");
 
-            var usersOnDevices = await _usersOnDevicesService.GetUsersOnDevicesByUserIdAsync(loggedInUserId!);
+                // Check if the loggedin user is actually assigned to the device that they are trying to request for (criteria: either they are assigned to it OR the user is admin and can still view it)
+                var usersDevices = await _usersOnDevicesService.GetUsersOnDevicesByUserIdAsync(loggedInUserId!);
+                var isAuthorized = usersDevices.Any(uod => uod.DeviceId == deviceId) || isAdmin;
 
-            var isAuthorized = usersOnDevices.Any(uod => uod.DeviceId == deviceId) || isAdmin;
+                if (!isAuthorized)
+                    throw new ForbiddenException($"The user with id {loggedInUserId} does not have permission to access device with id {deviceId}");
 
-            if (!isAuthorized)
-                throw new ForbiddenException($"The user with id {loggedInUserId} does not have permission to access device with id {deviceId}");
+                // Send request along with a token to the MetricsMS
+                var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{aggregatedLogDateType.ToString()}/{deviceId}/{fieldId}");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+                var response = await _httpClient.SendAsync(request);
 
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{aggregatedLogDateType.ToString()}/{deviceId}/{fieldId}");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-            var response = await _httpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
 
-            response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadFromJsonAsync<IEnumerable<AggregatedLogsResponseDTO>>();
 
-            var body = await response.Content.ReadFromJsonAsync<IEnumerable<AggregatedLogsResponseDTO>>();
+                if (body == null)
+                    throw new NotFoundException($"Aggregated logs failed to get retrieved.");
 
-            if (body == null)
-                throw new NotFoundException($"Aggregated logs failed to get retrieved.");
+                return body!;
+            }
+            catch(Exception e)
+            {
+                throw;
+            }
 
-            return body!;
-        }
-
-        private string? GetUserId()
-        {
-            return _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        }
-
-        private bool HasPermission(string permission)
-        {
-            return _httpContextAccessor.HttpContext.User.HasClaim(c => c.Type == "permissions" && c.Value == permission);
         }
     }
 }
