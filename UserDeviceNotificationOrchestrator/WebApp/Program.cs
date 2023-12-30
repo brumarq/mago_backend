@@ -1,5 +1,6 @@
 using Application.ApplicationServices.Interfaces;
 using Application.ApplicationServices;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,9 @@ builder.Services.AddSwaggerGen();
 
 // Add services for dependency injection
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IDeviceService, DeviceService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
@@ -23,6 +27,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMetricServer(url: "/metrics");
 
 app.UseHttpsRedirection();
 
