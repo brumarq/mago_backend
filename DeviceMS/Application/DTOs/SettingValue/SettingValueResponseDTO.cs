@@ -8,5 +8,5 @@ public class SettingValueResponseDTO : BaseDTO
     public SettingResponseDTO? Setting { get; set; }
     public string? UpdateStatus { get; set; }
     public int DeviceId { get; set; }
-    public int? UserId { get; set; }
+    public string? UserId { get; set; }
 }

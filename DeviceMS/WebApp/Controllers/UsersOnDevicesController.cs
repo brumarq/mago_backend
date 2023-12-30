@@ -1,5 +1,4 @@
 ﻿using Application.ApplicationServices.Interfaces;
-using Application.DTOs.DeviceType;
 using Application.DTOs.UsersOnDevices;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.Controllers
 {
-    [Route("deviceMS/users-on-devices")]
+    [Route("deviceMS/[controller]")]
     [ApiController]
     public class UsersOnDevicesController : ControllerBase
     {
@@ -18,8 +17,22 @@ namespace WebApp.Controllers
             _usersOnDevicesService = usersOnDevicesService;
         }
 
+        [HttpGet("{userId}")]
+        public async Task<ActionResult<IEnumerable<UsersOnDevicesResponseDTO>>> GetUsersOnDevicesByUserId(string userId)
+        {
+            try
+            {
+                var usersOnDevices = await _usersOnDevicesService.GetUsersOnDevicesByUserIdAsync(userId);
+                return Ok(usersOnDevices);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, $"Internal server error: {e.Message}");
+            }
+        }
+
         [HttpPost]
-        public async Task<ActionResult<UserOnDeviceResponseDTO>> CreateUsersOnDevicesEntry([FromBody] CreateUserOnDeviceDTO createUserOnDeviceDTO)
+        public async Task<ActionResult<UsersOnDevicesResponseDTO>> CreateUsersOnDevicesEntry([FromBody] CreateUserOnDeviceDTO createUserOnDeviceDTO)
         {
             try
             {

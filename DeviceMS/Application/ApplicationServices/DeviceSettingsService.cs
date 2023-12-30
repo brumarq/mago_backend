@@ -49,30 +49,42 @@ namespace Application.ApplicationServices
             return await _repository.DeleteAsync(id);
         }
 
+
         private void ValidateSettingValue(SettingValueRequestDTO newSettingValue)
         {
-            switch (newSettingValue)
+            if (newSettingValue.Value <= 0)
             {
-                case { Value: <= 0 }:
-                    throw new BadRequestException("Value cannot be negative or 0"); // TODO: adjust check to requirement
+                throw new BadRequestException("Value cannot be negative or 0"); // TODO: adjust check to requirement
+            }
 
-                case { DeviceId: <= 0 }:
-                    throw new BadRequestException("Device id cannot be negative or 0");
+            if (newSettingValue.DeviceId <= 0)
+            {
+                throw new BadRequestException("Device id cannot be negative or 0");
+            }
 
-                case { UserId: <= 0 }:
-                    throw new BadRequestException("User id cannot be negative or 0");
+            if (string.IsNullOrEmpty(newSettingValue.UserId))
+            {
+                throw new BadRequestException("User id cannot be negative or 0");
+            }
 
-                case { Setting: null }:
-                    throw new BadRequestException("Setting cannot be null");
+            if (newSettingValue.Setting == null)
+            {
+                throw new BadRequestException("Setting cannot be null");
+            }
 
-                case { Setting.Name.Length: <= 0 }:
-                    throw new BadRequestException("Setting Error: Name not specified");
+            if (string.IsNullOrEmpty(newSettingValue.Setting.Name))
+            {
+                throw new BadRequestException("Setting Error: Name not specified");
+            }
 
-                case { Setting.DefaultValue: <= 0 }:
-                    throw new BadRequestException("Setting Error: DefaultValue not specified");
+            if (newSettingValue.Setting.DefaultValue <= 0)
+            {
+                throw new BadRequestException("Setting Error: DefaultValue not specified");
+            }
 
-                case { Setting.UnitId: <= 0 }:
-                    throw new BadRequestException("Setting Error: UnitId not specified");
+            if (newSettingValue.Setting.UnitId <= 0)
+            {
+                throw new BadRequestException("Setting Error: UnitId not specified");
             }
         }
     }

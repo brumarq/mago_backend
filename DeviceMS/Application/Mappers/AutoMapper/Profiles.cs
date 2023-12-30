@@ -4,6 +4,7 @@ using Application.DTOs.DeviceType;
 using Application.DTOs.Misc;
 using Application.DTOs.Setting;
 using Application.DTOs.SettingValue;
+using Application.DTOs.UsersOnDevices;
 using AutoMapper;
 using Domain.Entities;
 
@@ -61,6 +62,11 @@ public class Profiles : Profile
             .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Label, opt => opt.MapFrom(src => src.Name));
 
+        #endregion
+
+        #region UserOnDevices
+        CreateMap<UsersOnDevices, UsersOnDevicesResponseDTO>();
+        CreateMap<UsersOnDevicesResponseDTO, UsersOnDevices>();
         #endregion
     }
 }
