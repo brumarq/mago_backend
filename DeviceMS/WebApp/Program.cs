@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
+using Prometheus;
 using WebApp.Middleware.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -98,6 +99,7 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseMetricServer();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
