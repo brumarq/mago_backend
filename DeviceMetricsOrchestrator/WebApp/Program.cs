@@ -99,15 +99,14 @@ builder.Services
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters
     .Add(new JsonStringEnumConverter()));
 
+var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8585";
+builder.WebHost.UseUrls($"http://*:{httpPort}");
+builder.Configuration.AddEnvironmentVariables();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
