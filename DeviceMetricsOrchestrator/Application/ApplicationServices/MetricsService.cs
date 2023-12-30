@@ -19,14 +19,16 @@ namespace Application.ApplicationServices
         private readonly IDeviceService _deviceService;
         private readonly string _baseUri;
         private IAuthenticationService _authenticationService;
+        private readonly IUsersOnDevicesService _usersOnDevicesService;
 
-        public MetricsService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService, IAuthenticationService authenticationService)
+        public MetricsService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService, IAuthenticationService authenticationService, IUsersOnDevicesService usersOnDevicesService)
         {
             _httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient();
             _deviceService = deviceService;
             _baseUri = configuration["ApiRequestUris:MetricsBaseUri"]!;
             _authenticationService = authenticationService;
+            _usersOnDevicesService = usersOnDevicesService;
         }
 
         public async Task<IEnumerable<MetricsResponseDTO>> GetMetricsForDeviceAsync(int deviceId)
@@ -42,6 +44,13 @@ namespace Application.ApplicationServices
 
                 if (!(isClient || isAdmin))
                     throw new UnauthorizedException($"The user with id {loggedInUserId} does not have sufficient permissions!");
+
+
+                var usersDevices = await _usersOnDevicesService.GetUsersOnDevicesByUserIdAsync(loggedInUserId!);
+                var isAuthorized = usersDevices.Any(uod => uod.DeviceId == deviceId) || isAdmin;
+
+                if (!isAuthorized)
+                    throw new ForbiddenException($"The user with id {loggedInUserId} does not have permission to access device with id {deviceId}");
 
                 using var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}devices/{deviceId}");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
