@@ -87,23 +87,18 @@ builder.Services.AddAuthorization(options =>
 // Authorization handler registration
 builder.Services.AddSingleton<IAuthorizationHandler, HasPermissionHandler>();
 
-/*builder.Configuration.AddEnvironmentVariables();
+builder.Configuration.AddEnvironmentVariables();
 var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8181";
-builder.WebHost.UseUrls($"http://*:{httpPort}");*/
+builder.WebHost.UseUrls($"http://*:{httpPort}");
 
 // Add services for dependency injection
 //...
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-/*app.UseSwagger();
-app.UseSwaggerUI();*/
-//app.UseHttpsRedirection();
+app.UseSwagger();
+app.UseSwaggerUI();
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
