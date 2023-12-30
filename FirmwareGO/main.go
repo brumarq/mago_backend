@@ -49,7 +49,7 @@ func main() {
 	router := gin.Default()
 
 	// Register swagger endpoint
-	url := ginSwagger.URL("http://localhost::6969/swagger/doc.json")
+	url := ginSwagger.URL("http://localhost:6969/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
 	// Register routes
