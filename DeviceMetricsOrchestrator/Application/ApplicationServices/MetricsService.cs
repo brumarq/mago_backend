@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Security.Claims;
 
 namespace Application.ApplicationServices
 {
@@ -17,36 +18,48 @@ namespace Application.ApplicationServices
         private readonly HttpClient _httpClient;
         private readonly IDeviceService _deviceService;
         private readonly string _baseUri;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly string _token;
+        private IAuthenticationService _authenticationService;
 
-        public MetricsService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService, IHttpContextAccessor httpContextAccessor)
+        public MetricsService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService, IAuthenticationService authenticationService)
         {
             _httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient();
             _deviceService = deviceService;
             _baseUri = configuration["ApiRequestUris:MetricsBaseUri"]!;
-            _httpContextAccessor = httpContextAccessor;
-            _token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Split(" ")[1];
+            _authenticationService = authenticationService;
         }
 
         public async Task<IEnumerable<MetricsResponseDTO>> GetMetricsForDeviceAsync(int deviceId)
         {
-            if (!await _deviceService.DeviceExistsAsync(deviceId))
-                throw new NotFoundException($"Device with id {deviceId} does not exist!");
+            try
+            {
+                if (!await _deviceService.DeviceExistsAsync(deviceId))
+                    throw new NotFoundException($"Device with id {deviceId} does not exist!");
 
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}devices/{deviceId}");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-            var response = await _httpClient.SendAsync(request);
+                var loggedInUserId = _authenticationService.GetUserId();
+                var isClient = _authenticationService.HasPermission("client");
+                var isAdmin = _authenticationService.HasPermission("admin");
 
-            response.EnsureSuccessStatusCode();
+                if (!(isClient || isAdmin))
+                    throw new UnauthorizedException($"The user with id {loggedInUserId} does not have sufficient permissions!");
 
-            var body = await response.Content.ReadFromJsonAsync<IEnumerable<MetricsResponseDTO>>();
+                using var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}devices/{deviceId}");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
 
-            if (body == null)
-                throw new NotFoundException("Metrics failed to get retrieved.");
+                using var response = await _httpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
 
-            return body!;
+                var body = await response.Content.ReadFromJsonAsync<IEnumerable<MetricsResponseDTO>>();
+
+                if (body == null)
+                    throw new NotFoundException("Metrics failed to get retrieved.");
+
+                return body!;
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
         }
     }
 }

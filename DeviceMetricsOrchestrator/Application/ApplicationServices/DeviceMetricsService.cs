@@ -24,86 +24,100 @@ namespace Application.ApplicationServices
         }
 
         public async Task<IEnumerable<DeviceAggregatedLogsResponseDTO>> GetDeviceAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId)
-        {          
-            var device = await _deviceService.GetDeviceByIdAsync(deviceId);
-            var aggregatedLogs = await _aggregatedLogsService.GetAggregatedLogsAsync(aggregatedLogDateType, deviceId, fieldId);
-
-            var responseList = new List<DeviceAggregatedLogsResponseDTO>();
-
-            foreach (var aggregatedLog in aggregatedLogs)
+        {
+            try
             {
-                var field = aggregatedLog.Field!;
-                var unit = await _unitService.GetUnitByIdAsync(field.UnitId);
+                var device = await _deviceService.GetDeviceByIdAsync(deviceId);
+                var aggregatedLogs = await _aggregatedLogsService.GetAggregatedLogsAsync(aggregatedLogDateType, deviceId, fieldId);
 
-                var deviceAggregatedLogsResponse = new DeviceAggregatedLogsResponseDTO
+                var responseList = new List<DeviceAggregatedLogsResponseDTO>();
+
+                foreach (var aggregatedLog in aggregatedLogs)
                 {
-                    Id = aggregatedLog.Id,
-                    CreatedAt = aggregatedLog.CreatedAt,
-                    UpdatedAt = aggregatedLog.UpdatedAt,
-                    AverageValue = aggregatedLog.AverageValue,
-                    MinValue = aggregatedLog.MinValue,
-                    MaxValue = aggregatedLog.MaxValue,
-                    Device = device,
-                    Field = new FieldDTONew
+                    var field = aggregatedLog.Field!;
+                    var unit = await _unitService.GetUnitByIdAsync(field.UnitId);
+
+                    var deviceAggregatedLogsResponse = new DeviceAggregatedLogsResponseDTO
                     {
-                        Id = field.Id,
-                        CreatedAt = field.CreatedAt,
-                        UpdatedAt = field.UpdatedAt,
-                        Name = field.Name,
-                        Unit = unit, // Use the unit retrieved above
-                        DeviceType = device.DeviceType,
-                        Loggable = field.Loggable,
-                    }
-                };
+                        Id = aggregatedLog.Id,
+                        CreatedAt = aggregatedLog.CreatedAt,
+                        UpdatedAt = aggregatedLog.UpdatedAt,
+                        AverageValue = aggregatedLog.AverageValue,
+                        MinValue = aggregatedLog.MinValue,
+                        MaxValue = aggregatedLog.MaxValue,
+                        Device = device,
+                        Field = new FieldDTONew
+                        {
+                            Id = field.Id,
+                            CreatedAt = field.CreatedAt,
+                            UpdatedAt = field.UpdatedAt,
+                            Name = field.Name,
+                            Unit = unit, // Use the unit retrieved above
+                            DeviceType = device.DeviceType,
+                            Loggable = field.Loggable,
+                        }
+                    };
 
-                responseList.Add(deviceAggregatedLogsResponse);
+                    responseList.Add(deviceAggregatedLogsResponse);
+                }
+
+                return responseList;
             }
-
-            return responseList;
+            catch(Exception ex)
+            {
+                throw;
+            }    
         }
 
         public async Task<IEnumerable<DeviceMetricsResponseDTO>> GetDeviceMetricsAsync(int deviceId)
         {
-            var device = await _deviceService.GetDeviceByIdAsync(deviceId);
-            var metrics = await _metricsService.GetMetricsForDeviceAsync(deviceId);
-
-            var responseList = new List<DeviceMetricsResponseDTO>();
-
-            foreach (var metric in metrics)
+            try
             {
-                var field = metric.Field!;
-                var unit = await _unitService.GetUnitByIdAsync(field.UnitId);
+                var device = await _deviceService.GetDeviceByIdAsync(deviceId);
+                var metrics = await _metricsService.GetMetricsForDeviceAsync(deviceId);
 
-                var deviceMetricsResponse = new DeviceMetricsResponseDTO
+                var responseList = new List<DeviceMetricsResponseDTO>();
+
+                foreach (var metric in metrics)
                 {
-                    Id = metric.Id,
-                    CreatedAt = metric.CreatedAt,
-                    UpdatedAt = metric.UpdatedAt,
-                    Value = metric.Value,
-                    Field = new FieldDTONew
-                    {
-                        Id = field.Id,
-                        CreatedAt = field.CreatedAt,
-                        UpdatedAt = field.UpdatedAt,
-                        Name = field.Name,
-                        Unit = unit, // Use the unit retrieved above
-                        DeviceType = device.DeviceType,
-                        Loggable = field.Loggable,
-                    },
-                    LogCollection = new LogCollectionDTONew
-                    {
-                        Id = metric.LogCollection!.Id,
-                        CreatedAt = metric.LogCollection.CreatedAt,
-                        UpdatedAt = metric.LogCollection.UpdatedAt,
-                        Device = device,
-                        LogCollectionType = metric.LogCollection.LogCollectionType
-                    }
-                };
+                    var field = metric.Field!;
+                    var unit = await _unitService.GetUnitByIdAsync(field.UnitId);
 
-                responseList.Add(deviceMetricsResponse);
+                    var deviceMetricsResponse = new DeviceMetricsResponseDTO
+                    {
+                        Id = metric.Id,
+                        CreatedAt = metric.CreatedAt,
+                        UpdatedAt = metric.UpdatedAt,
+                        Value = metric.Value,
+                        Field = new FieldDTONew
+                        {
+                            Id = field.Id,
+                            CreatedAt = field.CreatedAt,
+                            UpdatedAt = field.UpdatedAt,
+                            Name = field.Name,
+                            Unit = unit, // Use the unit retrieved above
+                            DeviceType = device.DeviceType,
+                            Loggable = field.Loggable,
+                        },
+                        LogCollection = new LogCollectionDTONew
+                        {
+                            Id = metric.LogCollection!.Id,
+                            CreatedAt = metric.LogCollection.CreatedAt,
+                            UpdatedAt = metric.LogCollection.UpdatedAt,
+                            Device = device,
+                            LogCollectionType = metric.LogCollection.LogCollectionType
+                        }
+                    };
+
+                    responseList.Add(deviceMetricsResponse);
+                }
+
+                return responseList;
             }
-
-            return responseList;
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         public async Task<string> ExportDeviceAggregatedLogsAsnc(ExportAggregatedLogsCsvDTO exportAggregatedLogsCsvDTO)
