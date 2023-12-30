@@ -1,5 +1,6 @@
 using Application.ApplicationServices.Interfaces;
 using Application.ApplicationServices;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMetricServer(url: "/metrics");
 
 app.UseHttpsRedirection();
 
