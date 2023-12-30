@@ -2,6 +2,7 @@ from flask_restx import Api
 from flask import Blueprint
 from app.main.webapp.controller.metrics_controller import api as metrics_ns
 from app.main.webapp.controller.aggregated_logs_controller import api as aggregated_logs_ns
+from prometheus_flask_exporter import PrometheusMetrics
 
 blueprint = Blueprint('api', __name__)
 authorizations = {
@@ -11,6 +12,8 @@ authorizations = {
         'name': 'Authorization'
     }
 }
+
+metrics = PrometheusMetrics(blueprint, path="/metrics") # For metrics performance tracking
 
 api = Api(
     blueprint,

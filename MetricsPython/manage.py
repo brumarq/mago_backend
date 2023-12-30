@@ -8,8 +8,8 @@ from app.main.domain.entities import field, log_value, log_collection, log_colle
 from app.main.config import env
 
 app = create_app(env or 'dev')
-app.register_blueprint(blueprint)
 
+app.register_blueprint(blueprint)
 app.app_context().push()
 
 migrate = Migrate(app, db)
