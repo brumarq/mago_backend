@@ -19,11 +19,11 @@ namespace WebApp.Controllers
 
 
         [HttpGet("users/{userId}")]
-        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationForUserOnStatusTypeAsync(int userId)
+        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForUserOnStatusTypeByUserIdAsync(int userId)
         {
             try
             {
-                var notificationResponseDTO = await _notificationService.GetNotificationsByDeviceIdAsync(userId);
+                var notificationResponseDTO = await _notificationService.GetNotificationsForUserOnStatusTypeByUserIdAsync(userId);
                 return Ok(notificationResponseDTO);
             }
             catch (Exception ex)

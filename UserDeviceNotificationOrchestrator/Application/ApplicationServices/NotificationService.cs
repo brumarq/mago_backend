@@ -30,7 +30,7 @@ namespace Application.ApplicationServices
             HttpResponseMessage userResponseStatus = await _userService.GetUserExistenceStatus(userId);
             if (!userResponseStatus.IsSuccessStatusCode)
             {
-                throw new Exception($"Device check failed: {userResponseStatus.StatusCode}: {userResponseStatus.ReasonPhrase}");
+                throw new Exception($"User check failed: {userResponseStatus.StatusCode}: {userResponseStatus.ReasonPhrase}");
             }
 
             try
