@@ -57,8 +57,8 @@ jobs:
       with:
         image: ${{ env.APP_NAME }}
         tags: latest
-        dockerfiles: ./DeviceFirmwareOrchestrator/Dockerfile
-        context: ./DeviceFirmwareOrchestrator/
+        dockerfiles: ./UserDeviceNotificationOrchestrator/Dockerfile
+        context: ./UserDeviceNotificationOrchestrator/
         
     - name: Login to Docker Hub with Buildah
       run: |
