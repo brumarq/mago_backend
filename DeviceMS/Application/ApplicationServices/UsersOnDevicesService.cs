@@ -31,10 +31,14 @@ namespace Application.ApplicationServices
             if (selectedDevice == null)
                 throw new NotFoundException("The selected device does not exist.");
 
+            var existingUserOnDevice = await _userOnDeviceRepository.GetByConditionAsync(uod => uod.UserId == createUserOnDeviceDTO.UserId && uod.Device.Id == createUserOnDeviceDTO.DeviceId);
+
+            if (existingUserOnDevice != null)
+                throw new BadRequestException($"The user {createUserOnDeviceDTO.UserId} is already assigned to device {createUserOnDeviceDTO.DeviceId}");
+
             var newUserOnDevice = await _userOnDeviceRepository.CreateAsync(_mapper.Map<UsersOnDevices>(createUserOnDeviceDTO));
 
             return _mapper.Map<CreateUserOnDeviceDTO>(newUserOnDevice);
-
         }
 
         public async Task<bool> DeleteUserOnDeviceAsync(int id)
