@@ -14,6 +14,9 @@ builder.Services.AddSwaggerGen();
 
 // Add services for dependency injection
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IDeviceService, DeviceService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
