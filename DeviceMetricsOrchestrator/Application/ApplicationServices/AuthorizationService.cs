@@ -25,7 +25,7 @@ namespace Application.ApplicationServices
         {
             var isAdmin = _authenticationService.HasPermission("admin");
 
-            return loggedInUserId == userId || isAdmin;
+            return loggedInUserId.Equals(userId) || isAdmin;
         }
     }
 }
