@@ -50,17 +50,15 @@ func main() {
 
 	// Register swagger endpoint
 	router.GET("/swagger/*any", func(c *gin.Context) {
-		scheme := c.Request.Header.Get("X-Forwarded-Proto")
-		if scheme == "" {
-			scheme = "http" // Default to HTTP if the header is not set
+		scheme := "http"
+		if c.Request.TLS != nil {
+			scheme = "https"
 		}
-		host := c.Request.Header.Get("X-Forwarded-Host")
-		if host == "" {
-			host = c.Request.Host // Fallback to the Host header or host from the request
-		}
+		host := c.Request.Host
 		swaggerURL := ginSwagger.URL(fmt.Sprintf("%s://%s/swagger/doc.json", scheme, host))
 		ginSwagger.WrapHandler(swaggerFiles.Handler, swaggerURL)(c)
 	})
+	
 	
 	
 	// Register routes
