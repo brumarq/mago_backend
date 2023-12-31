@@ -15,19 +15,17 @@ namespace Application.ApplicationServices
     {
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IDeviceService _deviceService;
         private readonly HttpClient _httpClient;
         private readonly string _baseUri;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _token;
 
-        public UsersOnDevicesService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService, IHttpContextAccessor httpContextAccessor)
+        public UsersOnDevicesService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
         {
             _configuration = configuration;
             _httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient();
             _baseUri = _configuration["ApiRequestUris:UsersOnDevicesBaseUri"]!;
-            _deviceService = deviceService;
             _httpContextAccessor = httpContextAccessor;
             _token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Split(" ")[1];
         }

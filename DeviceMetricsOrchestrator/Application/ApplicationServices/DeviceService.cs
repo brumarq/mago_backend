@@ -17,15 +17,17 @@ public class DeviceService : IDeviceService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly HttpClient _httpClient;
     private readonly string _baseUri;
+    private IUsersOnDevicesService _usersOnDevicesService;
     private readonly IAuthenticationService _authenticationService;
 
-    public DeviceService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IAuthenticationService authenticationService)
+    public DeviceService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IUsersOnDevicesService usersOnDevicesService, IAuthenticationService authenticationService)
     {
         _configuration = configuration;
         _httpClientFactory = httpClientFactory;
         _httpClient = httpClientFactory.CreateClient();
         _baseUri = _configuration["ApiRequestUris:DeviceBaseUri"]!;
         _authenticationService = authenticationService;
+        _usersOnDevicesService = usersOnDevicesService;
     }
 
     public async Task<bool> DeviceExistsAsync(int deviceId)
@@ -54,12 +56,20 @@ public class DeviceService : IDeviceService
         try
         {
             var loggedInUserId = _authenticationService.GetUserId();
+            var isAdmin = _authenticationService.HasPermission("admin");
 
             if (!(_authenticationService.HasPermission("client") || _authenticationService.HasPermission("admin")))
                 throw new UnauthorizedException($"The user with id {loggedInUserId} does not have sufficient permissions!");
 
+            var usersDevices = await _usersOnDevicesService.GetUsersOnDevicesByUserIdAsync(loggedInUserId!);
+            var isAuthorized = usersDevices.Any(uod => uod.DeviceId == deviceId) || isAdmin;
+
+            if (!isAuthorized)
+                throw new ForbiddenException($"The user with id {loggedInUserId} does not have permission to access device with id {deviceId}");
+
             if (!await DeviceExistsAsync(deviceId))
                 throw new NotFoundException($"Device with id {deviceId} does not exist!");
+
 
             var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{deviceId}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
