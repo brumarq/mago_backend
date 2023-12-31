@@ -46,7 +46,7 @@ namespace Application.ApplicationServices
                         MinValue = aggregatedLog.MinValue,
                         MaxValue = aggregatedLog.MaxValue,
                         Device = device,
-                        Field = new FieldDTONew
+                        Field = new FieldResponseDTO
                         {
                             Id = field.Id,
                             CreatedAt = field.CreatedAt,
@@ -89,7 +89,7 @@ namespace Application.ApplicationServices
                         CreatedAt = metric.CreatedAt,
                         UpdatedAt = metric.UpdatedAt,
                         Value = metric.Value,
-                        Field = new FieldDTONew
+                        Field = new FieldResponseDTO
                         {
                             Id = field.Id,
                             CreatedAt = field.CreatedAt,
@@ -99,7 +99,7 @@ namespace Application.ApplicationServices
                             DeviceType = device.DeviceType,
                             Loggable = field.Loggable,
                         },
-                        LogCollection = new LogCollectionDTONew
+                        LogCollection = new LogCollectionResponseDTO
                         {
                             Id = metric.LogCollection!.Id,
                             CreatedAt = metric.LogCollection.CreatedAt,

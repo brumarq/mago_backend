@@ -33,14 +33,13 @@ builder.Services.AddHttpContextAccessor();
 // Add repositories for dependency injection
 // builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<Application.ApplicationServices.Interfaces.IAuthorizationService, Application.ApplicationServices.AuthorizationService>();
 builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<IMetricsService, MetricsService>();
 builder.Services.AddScoped<IAggregatedLogsService, AggregatedLogsService>();
 builder.Services.AddScoped<IUnitService, UnitService>();
 builder.Services.AddScoped<IUsersOnDevicesService, UsersOnDevicesService>();
 builder.Services.AddScoped<IDeviceMetricsService, DeviceMetricsService>();
-
-
 
 builder.Services.AddSwaggerGen(c =>
 {

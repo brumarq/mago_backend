@@ -18,37 +18,32 @@ namespace Application.ApplicationServices
         private readonly HttpClient _httpClient;
         private readonly IDeviceService _deviceService;
         private readonly string _baseUri;
-        private IAuthenticationService _authenticationService;
-        private readonly IUsersOnDevicesService _usersOnDevicesService;
+        private readonly IAuthenticationService _authenticationService;
+        private readonly IAuthorizationService _authorizationService;
 
-        public MetricsService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService, IAuthenticationService authenticationService, IUsersOnDevicesService usersOnDevicesService)
+        public MetricsService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService, IAuthenticationService authenticationService, IAuthorizationService authorizationService)
         {
             _httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient();
             _deviceService = deviceService;
             _baseUri = configuration["ApiRequestUris:MetricsBaseUri"]!;
             _authenticationService = authenticationService;
-            _usersOnDevicesService = usersOnDevicesService;
+            _authorizationService = authorizationService;
         }
 
         public async Task<IEnumerable<MetricsResponseDTO>> GetMetricsForDeviceAsync(int deviceId)
         {
             try
             {
+                if (!_authenticationService.IsLoggedInUser())
+                    throw new UnauthorizedException($"The user is not logged in. Please login first.");
+
+                var loggedInUserId = _authenticationService.GetUserId();
+
                 if (!await _deviceService.DeviceExistsAsync(deviceId))
                     throw new NotFoundException($"Device with id {deviceId} does not exist!");
 
-                var loggedInUserId = _authenticationService.GetUserId();
-                var isClient = _authenticationService.HasPermission("client");
-                var isAdmin = _authenticationService.HasPermission("admin");
-
-                if (!(isClient || isAdmin))
-                    throw new UnauthorizedException($"The user with id {loggedInUserId} does not have sufficient permissions!");
-
-                var usersDevices = await _usersOnDevicesService.GetUsersOnDevicesByUserIdAsync(loggedInUserId!);
-                var isAuthorized = usersDevices.Any(uod => uod.DeviceId == deviceId) || isAdmin;
-
-                if (!isAuthorized)
+                if (!await _authorizationService.IsDeviceAccessibleToUser(loggedInUserId!, deviceId))
                     throw new ForbiddenException($"The user with id {loggedInUserId} does not have permission to access device with id {deviceId}");
 
                 using var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}devices/{deviceId}");

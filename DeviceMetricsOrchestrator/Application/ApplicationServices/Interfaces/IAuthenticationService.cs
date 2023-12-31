@@ -5,5 +5,6 @@
         string? GetUserId();
         bool HasPermission(string permission);
         string GetToken();
+        bool IsLoggedInUser();
     }
 }

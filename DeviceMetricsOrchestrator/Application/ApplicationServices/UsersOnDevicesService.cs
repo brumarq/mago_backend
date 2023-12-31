@@ -17,25 +17,30 @@ namespace Application.ApplicationServices
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly HttpClient _httpClient;
         private readonly string _baseUri;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly string _token;
+        private readonly IAuthenticationService _authenticationService;
 
-        public UsersOnDevicesService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
+        public UsersOnDevicesService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IAuthenticationService authenticationService)
         {
             _configuration = configuration;
             _httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient();
             _baseUri = _configuration["ApiRequestUris:UsersOnDevicesBaseUri"]!;
-            _httpContextAccessor = httpContextAccessor;
-            _token = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Split(" ")[1];
+            _authenticationService = authenticationService;
         }
 
         public async Task<IEnumerable<UsersOnDevicesResponseDTO>> GetUsersOnDevicesByUserIdAsync(string userId)
-        {
-            //TODO: add a check here...
+        {           
+            if (!_authenticationService.IsLoggedInUser())
+                throw new UnauthorizedException($"The user is not logged in. Please login first.");
+
+            var loggedInUserId = _authenticationService.GetUserId();
+            var isAdmin = _authenticationService.HasPermission("admin");
+
+            if (loggedInUserId != userId || !isAdmin)
+                throw new ForbiddenException($"The user with id {loggedInUserId} does not have permission to access user {userId}'s information");
 
             var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{userId}");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
             var response = await _httpClient.SendAsync(request);
 
             response.EnsureSuccessStatusCode();

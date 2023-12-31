@@ -3,7 +3,7 @@
     public class DeviceMetricsResponseDTO : BaseDTO
     {
         public float? Value { get; set; }
-        public FieldDTONew? Field { get; set; }
-        public LogCollectionDTONew? LogCollection { get; set; }
+        public FieldResponseDTO? Field { get; set; }
+        public LogCollectionResponseDTO? LogCollection { get; set; }
     }
 }

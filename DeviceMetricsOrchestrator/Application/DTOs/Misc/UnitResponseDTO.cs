@@ -1,6 +1,6 @@
 namespace Application.DTOs.Misc;
 
-public class UnitDTO : BaseDTO
+public class UnitResponseDTO : BaseDTO
 {
     public string? Name { get; set; }
     public string? Symbol { get; set; }

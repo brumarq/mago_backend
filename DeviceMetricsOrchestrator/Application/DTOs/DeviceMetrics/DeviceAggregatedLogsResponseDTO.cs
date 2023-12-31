@@ -8,6 +8,6 @@ namespace Application.DTOs.DeviceMetrics
         public float MinValue { get; set; }
         public float MaxValue { get; set; }
         public DeviceResponseDTO? Device { get; set; }
-        public FieldDTONew? Field { get; set; }
+        public FieldResponseDTO? Field { get; set; }
     }
 }

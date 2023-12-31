@@ -15,41 +15,37 @@ namespace Application.ApplicationServices
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IDeviceService _deviceService;
-        private readonly IUsersOnDevicesService _usersOnDevicesService;
         private readonly HttpClient _httpClient;
         private readonly string _baseUri;
         private readonly IAuthenticationService _authenticationService;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly IUsersOnDevicesService _usersOnDevicesService;
 
-        public AggregatedLogsService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService, IUsersOnDevicesService usersOnDevicesService, IAuthenticationService authenticationService)
+        public AggregatedLogsService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService, IUsersOnDevicesService usersOnDevicesService, IAuthenticationService authenticationService, IAuthorizationService authorizationService)
         {
             _configuration = configuration;
             _httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient();
             _baseUri = _configuration["ApiRequestUris:AggregatedLogsBaseUri"]!;
             _deviceService = deviceService;
-            _usersOnDevicesService = usersOnDevicesService;
             _authenticationService = authenticationService;
+            _authorizationService = authorizationService;
+            _usersOnDevicesService = usersOnDevicesService;
         }
 
         public async Task<IEnumerable<AggregatedLogsResponseDTO>> GetAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId)
         {
             try
             {
+                if (!_authenticationService.IsLoggedInUser())
+                    throw new UnauthorizedException($"The user is not logged in. Please login first.");
+
                 if (!await _deviceService.DeviceExistsAsync(deviceId))
                     throw new NotFoundException($"Device with id {deviceId} does not exist!");
 
                 var loggedInUserId = _authenticationService.GetUserId();
-                var isAdmin = _authenticationService.HasPermission("admin");
 
-                // Check if user actually has permissions
-                if (!(_authenticationService.HasPermission("client") || _authenticationService.HasPermission("admin")))
-                    throw new UnauthorizedException($"The user with id {loggedInUserId} does not have sufficient permissions!");
-
-                // Check if the loggedin user is actually assigned to the device that they are trying to request for (criteria: either they are assigned to it OR the user is admin and can still view it)
-                var usersDevices = await _usersOnDevicesService.GetUsersOnDevicesByUserIdAsync(loggedInUserId!);
-                var isAuthorized = usersDevices.Any(uod => uod.DeviceId == deviceId) || isAdmin;
-
-                if (!isAuthorized)
+                if (!await _authorizationService.IsDeviceAccessibleToUser(loggedInUserId!, deviceId))
                     throw new ForbiddenException($"The user with id {loggedInUserId} does not have permission to access device with id {deviceId}");
 
                 // Send request along with a token to the MetricsMS

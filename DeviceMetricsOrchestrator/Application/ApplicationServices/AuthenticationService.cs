@@ -1,4 +1,5 @@
 ﻿using Application.ApplicationServices.Interfaces;
+using Application.Exceptions;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
@@ -24,6 +25,11 @@ namespace Application.ApplicationServices
         public string GetToken()
         {
             return _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Split(" ")[1];
+        }
+
+        public bool IsLoggedInUser()
+        {
+            return HasPermission("client") || HasPermission("admin");         
         }
     }
 }

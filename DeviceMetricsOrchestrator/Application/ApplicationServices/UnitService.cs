@@ -15,7 +15,7 @@ namespace Application.ApplicationServices
         private readonly string _baseUri;
         private readonly IAuthenticationService _authenticationService;
 
-        public UnitService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService, IAuthenticationService authenticationService)
+        public UnitService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IAuthenticationService authenticationService)
         {
             _httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient();
@@ -27,10 +27,8 @@ namespace Application.ApplicationServices
         {
             try
             {
-                var loggedInUserId = _authenticationService.GetUserId();
-
-                if (!(_authenticationService.HasPermission("client") || _authenticationService.HasPermission("admin")))
-                    throw new UnauthorizedException($"The user with id {loggedInUserId} does not have sufficient permissions!");
+                if (!_authenticationService.IsLoggedInUser())
+                    throw new UnauthorizedException($"The user is not logged in. Please login first.");
 
                 var response = await _httpClient.GetAsync($"{_baseUri}{unitId}");
 
@@ -43,14 +41,12 @@ namespace Application.ApplicationServices
             
         }
 
-        public async Task<UnitDTO> GetUnitByIdAsync(int unitId)
+        public async Task<UnitResponseDTO> GetUnitByIdAsync(int unitId)
         {
             try
             {
-                var loggedInUserId = _authenticationService.GetUserId();
-
-                if (!(_authenticationService.HasPermission("client") || _authenticationService.HasPermission("admin")))
-                    throw new UnauthorizedException($"The user with id {loggedInUserId} does not have sufficient permissions!");
+                if (!_authenticationService.IsLoggedInUser())
+                    throw new UnauthorizedException($"The user is not logged in. Please login first.");
 
                 if (!await UnitExistsAsync(unitId))
                     throw new NotFoundException($"Unit with id {unitId} does not exist!");
@@ -58,7 +54,7 @@ namespace Application.ApplicationServices
                 var response = await _httpClient.GetAsync($"{_baseUri}{unitId}");
                 response.EnsureSuccessStatusCode();
 
-                var body = await response.Content.ReadFromJsonAsync<UnitDTO>();
+                var body = await response.Content.ReadFromJsonAsync<UnitResponseDTO>();
 
                 return body!;
             }
