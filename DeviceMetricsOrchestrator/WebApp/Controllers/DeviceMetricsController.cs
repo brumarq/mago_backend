@@ -4,7 +4,6 @@ using Application.Exceptions;
 using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace WebApp.Controllers;
 

@@ -45,7 +45,6 @@ namespace Application.ApplicationServices
                 if (!(isClient || isAdmin))
                     throw new UnauthorizedException($"The user with id {loggedInUserId} does not have sufficient permissions!");
 
-
                 var usersDevices = await _usersOnDevicesService.GetUsersOnDevicesByUserIdAsync(loggedInUserId!);
                 var isAuthorized = usersDevices.Any(uod => uod.DeviceId == deviceId) || isAdmin;
 
@@ -65,7 +64,7 @@ namespace Application.ApplicationServices
 
                 return body!;
             }
-            catch(Exception ex)
+            catch(Exception e)
             {
                 throw;
             }
