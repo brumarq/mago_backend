@@ -50,9 +50,18 @@ func main() {
 
 	// Register swagger endpoint
 	router.GET("/swagger/*any", func(c *gin.Context) {
-		ginSwagger.WrapHandler(swaggerFiles.Handler,
-			ginSwagger.URL(fmt.Sprintf("%s://%s/swagger/doc.json", c.Request.URL.Scheme, c.Request.Host)))(c)
+		scheme := c.Request.Header.Get("X-Forwarded-Proto")
+		if scheme == "" {
+			scheme = "http" // Default to HTTP if the header is not set
+		}
+		host := c.Request.Header.Get("X-Forwarded-Host")
+		if host == "" {
+			host = c.Request.Host // Fallback to the Host header or host from the request
+		}
+		swaggerURL := ginSwagger.URL(fmt.Sprintf("%s://%s/swagger/doc.json", scheme, host))
+		ginSwagger.WrapHandler(swaggerFiles.Handler, swaggerURL)(c)
 	})
+	
 	
 	// Register routes
 	firmwareController.RegisterRoutes(router)
