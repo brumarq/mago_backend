@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Application.ApplicationServices.Interfaces
+﻿namespace Application.ApplicationServices.Interfaces
 {
     public interface IUserService
     {
-        Task<HttpResponseMessage> GetUserExistenceStatus(int userId);
+        Task<HttpResponseMessage> GetUserExistenceStatus(string userId);
     }
 }

@@ -87,7 +87,7 @@ namespace Application.ApplicationServices
         {
             try
             {
-                HttpResponseMessage userResponseStatus = await _userService.GetUserExistenceStatus(deleteUserOnDeviceDTO.UserId);
+                HttpResponseMessage userResponseStatus = await _userService.GetUserExistenceStatus(deleteUserOnDeviceDTO.UserId!);
                 if (!userResponseStatus.IsSuccessStatusCode)
                 {
                     throw new Exception($"User check failed: {userResponseStatus.StatusCode}: {userResponseStatus.ReasonPhrase}");
