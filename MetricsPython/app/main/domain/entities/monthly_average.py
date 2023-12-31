@@ -18,3 +18,5 @@ class MonthlyAverage(db.Model):
 
     field_id = db.Column(db.Integer, db.ForeignKey(Field.id))
     field = db.relationship('Field', back_populates='monthly_averages') #needed for relationship
+
+    reference_date = db.Column(db.Date, nullable=False)

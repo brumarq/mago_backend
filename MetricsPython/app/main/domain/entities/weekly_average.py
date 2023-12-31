@@ -18,3 +18,5 @@ class WeeklyAverage(db.Model):
 
     field_id = db.Column(db.Integer, db.ForeignKey(Field.id))
     field = db.relationship('Field', back_populates='weekly_averages') #needed for relationship
+
+    reference_date = db.Column(db.Date, nullable=False)
