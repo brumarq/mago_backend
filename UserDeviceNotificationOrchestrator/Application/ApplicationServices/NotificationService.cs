@@ -25,7 +25,7 @@ namespace Application.ApplicationServices
 
         }
 
-        public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsForUserOnStatusTypeByUserIdAsync(int userId)
+        public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsForUserOnStatusTypeByUserIdAsync(string userId)
         {
             HttpResponseMessage userResponseStatus = await _userService.GetUserExistenceStatus(userId);
             if (!userResponseStatus.IsSuccessStatusCode)

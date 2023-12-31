@@ -22,7 +22,7 @@ namespace Application.ApplicationServices
             _baseUri = configuration["ApiRequestUris:UserBaseUri"];
         }
 
-        public async Task<HttpResponseMessage> GetUserExistenceStatus(int userId)
+        public async Task<HttpResponseMessage> GetUserExistenceStatus(string userId)
         {
             string requestUrl = $"{_baseUri}{userId}";
 

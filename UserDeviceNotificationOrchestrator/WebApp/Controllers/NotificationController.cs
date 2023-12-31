@@ -19,7 +19,7 @@ namespace WebApp.Controllers
 
 
         [HttpGet("users/{userId}")]
-        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForUserOnStatusTypeByUserIdAsync(int userId)
+        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForUserOnStatusTypeByUserIdAsync(string userId)
         {
             try
             {
