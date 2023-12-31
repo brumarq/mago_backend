@@ -2,6 +2,7 @@ using Application.ApplicationServices.Interfaces;
 using Application.DTOs.Setting;
 using Application.DTOs.SettingValue;
 using Application.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.Controllers
@@ -11,16 +12,29 @@ namespace WebApp.Controllers
     public class DeviceSettingsController : ControllerBase
     {
         private readonly IDeviceSettingsService _deviceSettingsService;
+        private readonly IAuthenticationService _authenticationService;
+        private readonly IAuthorizationsService _authorizationService;
 
-        public DeviceSettingsController(IDeviceSettingsService deviceSettingsService)
+        public DeviceSettingsController(IDeviceSettingsService deviceSettingsService, IAuthenticationService authenticationService, IAuthorizationsService authorizationService)
         {
             _deviceSettingsService = deviceSettingsService;
+            _authenticationService = authenticationService;
+            _authorizationService = authorizationService;
         }
 
         [HttpPost]
+        [Authorize("All")]
         public async Task<ActionResult<SettingValueResponseDTO>> AddSettingToDeviceAsync(
             CreateSettingValueDTO newSettingDto)
         {
+            
+            var loggedUserId = _authenticationService.GetUserId();
+
+            if (!await _authorizationService.IsDeviceAccessibleToUser(loggedUserId, newSettingDto.DeviceId))
+            {
+                return Unauthorized($"The logged user cannot access this device.");
+            }
+            
             try
             {
                 var newSetting = await _deviceSettingsService.AddSettingToDevice(newSettingDto);
@@ -38,8 +52,17 @@ namespace WebApp.Controllers
         }
 
         [HttpGet("{deviceId}")]
+        [Authorize("All")]
         public async Task<ActionResult<IEnumerable<SettingValueResponseDTO>>> GetDeviceSettingsAsync(int deviceId)
         {
+            
+            var loggedUserId = _authenticationService.GetUserId();
+
+            if (!await _authorizationService.IsDeviceAccessibleToUser(loggedUserId, deviceId))
+            {
+                return Unauthorized($"The logged user cannot access this device.");
+            }
+            
             if (deviceId <= 0)
                 throw new BadRequestException("Invalid ID");
 

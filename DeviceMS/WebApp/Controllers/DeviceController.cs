@@ -5,6 +5,7 @@ using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Application.Exceptions;
 
 namespace WebApp.Controllers
 {
@@ -13,13 +14,19 @@ namespace WebApp.Controllers
     public class DeviceController : ControllerBase
     {
         private readonly IDeviceService _deviceService;
+        private readonly IAuthenticationService _authenticationService;
+        private readonly IAuthorizationsService _authorizationService;
 
-        public DeviceController(IDeviceService deviceService)
+
+        public DeviceController(IDeviceService deviceService, IAuthenticationService authenticationService, IAuthorizationsService authorizationService)
         {
             _deviceService = deviceService;
+            _authenticationService = authenticationService;
+            _authorizationService = authorizationService;
         }
 
         [HttpPost]
+        [Authorize("Admin")]
         public async Task<ActionResult<DeviceResponseDTO>> CreateDeviceAsync([FromBody] CreateDeviceDTO createDeviceDto)
         {
             try
@@ -38,6 +45,7 @@ namespace WebApp.Controllers
         }
 
         [HttpGet]
+        [Authorize("Admin")]
         public async Task<ActionResult<IEnumerable<DeviceResponseDTO>>> GetDevicesAsync()
         {
             try
@@ -52,10 +60,15 @@ namespace WebApp.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize("All")]
         public async Task<ActionResult<DeviceResponseDTO>> GetDeviceByIdAsync(int id)
         {
-            // if (id <= 0)
-            //     return BadRequest();
+            var loggedUserId = _authenticationService.GetUserId();
+
+            if (!await _authorizationService.IsDeviceAccessibleToUser(loggedUserId, id))
+            {
+                return Unauthorized($"The logged user cannot access this device.");
+            }
             
             try
             {
@@ -83,6 +96,7 @@ namespace WebApp.Controllers
         // }
 
         [HttpPut("{id}")]
+        [Authorize("Admin")]
         public async Task<ActionResult<UpdateDeviceDTO>> UpdateDeviceAsync(int id,
             [FromBody] UpdateDeviceDTO updateDeviceDto)
         {

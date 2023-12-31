@@ -1,6 +1,7 @@
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
 using Application.DTOs.DeviceType;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.Controllers
@@ -10,13 +11,18 @@ namespace WebApp.Controllers
     public class DeviceTypeController : ControllerBase
     {
         private readonly IDeviceTypeService _deviceTypeService;
+        private readonly IAuthenticationService _authenticationService;
+        private readonly IAuthorizationsService _authorizationService;
 
-        public DeviceTypeController(IDeviceTypeService deviceTypeService)
+        public DeviceTypeController(IDeviceTypeService deviceTypeService, IAuthenticationService authenticationService, IAuthorizationsService authorizationService)
         {
             _deviceTypeService = deviceTypeService;
+            _authenticationService = authenticationService;
+            _authorizationService = authorizationService;
         }
 
         [HttpPost]
+        [Authorize("Admin")]
         public async Task<ActionResult<DeviceTypeResponseDTO>> CreateDeviceTypeAsync([FromBody] CreateDeviceTypeDTO createDeviceTypeDto)
         {
             try
@@ -35,6 +41,7 @@ namespace WebApp.Controllers
         }
         
         [HttpGet]
+        [Authorize("Admin")]
         public async Task<ActionResult<IEnumerable<DeviceTypeResponseDTO>>> GetDeviceTypesAsync()
         {
             try
@@ -49,6 +56,7 @@ namespace WebApp.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize("Admin")]
         public async Task<ActionResult<DeviceTypeResponseDTO>> GetDeviceTypeByIdAsync(int id)
         {
             // if (id <= 0)
@@ -66,6 +74,7 @@ namespace WebApp.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize("admin")]
         public async Task<ActionResult<UpdateDeviceTypeDTO>> UpdateDeviceTypeAsync(int id, [FromBody] UpdateDeviceTypeDTO updateDeviceTypeDto)
         {
             if (id <= 0)

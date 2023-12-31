@@ -14,15 +14,19 @@ namespace WebApp.Controllers
     public class UnitController : ControllerBase
     {
         private readonly IUnitService _unitService;
+        private readonly IAuthenticationService _authenticationService;
+        private readonly IAuthorizationsService _authorizationService;
 
-        public UnitController(IUnitService unitService)
+        public UnitController(IUnitService unitService, IAuthenticationService authenticationService, IAuthorizationsService authorizationService)
         {
             _unitService = unitService;
+            _authenticationService = authenticationService;
+            _authorizationService = authorizationService;
         }
 
 
         [HttpGet("{unitId}")]
-        public async Task<ActionResult<UnitDTO>> GetDeviceByIdAsync(int unitId)
+        public async Task<ActionResult<UnitDTO>> GetUnitById(int unitId)
         {      
             try
             {
@@ -33,16 +37,6 @@ namespace WebApp.Controllers
             {
                 return StatusCode(500, $"Internal server error: {e.Message}");
             }
-        }
-        
-        private string? GetUserId()
-        {
-            return User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        }
-
-        private bool HasPermission(string permission)
-        {
-            return User.HasClaim(c => c.Type == "permissions" && c.Value == permission);
         }
     }
     

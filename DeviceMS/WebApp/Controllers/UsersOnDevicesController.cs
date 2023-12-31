@@ -1,5 +1,6 @@
 ﻿using Application.ApplicationServices.Interfaces;
 using Application.DTOs.UsersOnDevices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -11,15 +12,27 @@ namespace WebApp.Controllers
     public class UsersOnDevicesController : ControllerBase
     {
         private readonly IUsersOnDevicesService _usersOnDevicesService;
+        private readonly IAuthenticationService _authenticationService;
+        private readonly IAuthorizationsService _authorizationService;
 
-        public UsersOnDevicesController(IUsersOnDevicesService usersOnDevicesService)
+        public UsersOnDevicesController(IUsersOnDevicesService usersOnDevicesService, IAuthenticationService authenticationService, IAuthorizationsService authorizationService)
         {
             _usersOnDevicesService = usersOnDevicesService;
+            _authenticationService = authenticationService;
+            _authorizationService = authorizationService;
         }
 
         [HttpGet("{userId}")]
+        [Authorize("All")]
         public async Task<ActionResult<IEnumerable<UsersOnDevicesResponseDTO>>> GetUsersOnDevicesByUserId(string userId)
         {
+            var loggedUserId = _authenticationService.GetUserId();
+
+            if (!loggedUserId.Equals(userId))
+            {
+                return Unauthorized($"The logged user cannot access this device.");
+            }
+            
             try
             {
                 var usersOnDevices = await _usersOnDevicesService.GetUsersOnDevicesByUserIdAsync(userId);
@@ -32,6 +45,7 @@ namespace WebApp.Controllers
         }
 
         [HttpPost]
+        [Authorize("Admin")]
         public async Task<ActionResult<UsersOnDevicesResponseDTO>> CreateUsersOnDevicesEntry([FromBody] CreateUserOnDeviceDTO createUserOnDeviceDTO)
         {
             try
@@ -49,6 +63,7 @@ namespace WebApp.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize("admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try
