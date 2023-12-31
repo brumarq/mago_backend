@@ -1,9 +1,7 @@
 // @title FirmwareGO API
 // @description This is a Microservice for managing Mago Bio Solutions Composter Firmware
 // @version 1.0
-// @host localhost:8080
 // @BasePath /
-// @schemes http
 // @securityDefinitions.apikey JWTAuth
 // @in header
 // @name Authorization
@@ -50,18 +48,9 @@ func main() {
 
 	// Register swagger endpoint
 	router.GET("/swagger/*any", func(c *gin.Context) {
-		scheme := c.Request.Header.Get("X-Forwarded-Proto")
-		if scheme == "" {
-			scheme = "http" // Default to HTTP if the header is not set
-		}
-		host := c.Request.Header.Get("X-Forwarded-Host")
-		if host == "" {
-			host = c.Request.Host // Fallback to the Host header or host from the request
-		}
-		swaggerURL := ginSwagger.URL(fmt.Sprintf("%s://%s/swagger/doc.json", scheme, host))
-		ginSwagger.WrapHandler(swaggerFiles.Handler, swaggerURL)(c)
+		ginSwagger.WrapHandler(swaggerFiles.Handler,
+			ginSwagger.URL(fmt.Sprintf("%s://%s/swagger/doc.json", c.Request.URL.Scheme, c.Request.Host)))(c)
 	})
-	
 	
 	// Register routes
 	firmwareController.RegisterRoutes(router)
