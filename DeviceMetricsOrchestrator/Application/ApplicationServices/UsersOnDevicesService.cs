@@ -36,7 +36,7 @@ namespace Application.ApplicationServices
             var loggedInUserId = _authenticationService.GetUserId();
             var isAdmin = _authenticationService.HasPermission("admin");
 
-            if (loggedInUserId != userId || !isAdmin)
+            if (loggedInUserId != userId && !isAdmin)
                 throw new ForbiddenException($"The user with id {loggedInUserId} does not have permission to access user {userId}'s information");
 
             var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{userId}");
