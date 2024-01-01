@@ -18,49 +18,19 @@ func NewFirmwareController(firmwareService *FirmwareService) *FirmwareController
 	return &FirmwareController{FirmwareService: firmwareService}
 }
 
-func jwtMiddlewareHandler(jwtMiddleware func(http.Handler) http.Handler) gin.HandlerFunc {
+func jwtMiddlewareHandler(jwtMiddleware func(next http.Handler) http.Handler) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		handler := jwtMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			c.Request = r
 			c.Next()
 		}))
 		handler.ServeHTTP(c.Writer, c.Request)
+
 		if c.Writer.Status() == http.StatusUnauthorized {
-			c.Abort()
-		}
-	}
-}
-
-func jwtPermissionMiddlewareHandler(requiredPermission string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		user, exists := c.Get("user")
-		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			// If unauthorized, abort the Gin context to prevent further processing
 			c.Abort()
 			return
 		}
-
-		claims, ok := user.(*authentication.CustomClaims)
-		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid claims"})
-			c.Abort()
-			return
-		}
-
-		hasPermission := false
-		for _, perm := range claims.Permissions {
-			if perm == requiredPermission {
-				hasPermission = true
-				break
-			}
-		}
-
-		if !hasPermission {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden - insufficient permissions"})
-			c.Abort()
-			return
-		}
-
 		c.Next()
 	}
 }
@@ -68,13 +38,11 @@ func jwtPermissionMiddlewareHandler(requiredPermission string) gin.HandlerFunc {
 func (controller *FirmwareController) RegisterRoutes(router *gin.Engine) {
 	ginJWTMiddleware := jwtMiddlewareHandler(authentication.EnsureValidToken())
 
-	// Group for routes that require admin permissions
-	adminGroup := router.Group("/firmware")
-	adminGroup.Use(ginJWTMiddleware, jwtPermissionMiddlewareHandler("admin"))
+	secureGroup := router.Group("/firmware")
+	secureGroup.Use(ginJWTMiddleware)
 
-	// Only admins can access these routes
-	adminGroup.POST("", controller.CreateFirmwareFileSend)
-	adminGroup.GET("/devices/:deviceId", controller.GetFirmwareHistoryForDevice)
+	secureGroup.POST("", controller.CreateFirmwareFileSend)
+	secureGroup.GET("/devices/:deviceId", controller.GetFirmwareHistoryForDevice)
 }
 
 // CreateFirmwareFileSend godoc

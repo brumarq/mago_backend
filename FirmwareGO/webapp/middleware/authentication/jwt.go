@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
@@ -14,7 +15,7 @@ import (
 )
 
 type CustomClaims struct {
-	Permissions []string `json:"permissions"`
+	Scope string `json:"scope"`
 }
 
 func (c CustomClaims) Validate(ctx context.Context) error {
@@ -24,28 +25,54 @@ func (c CustomClaims) Validate(ctx context.Context) error {
 func EnsureValidToken() func(next http.Handler) http.Handler {
 	issuerURL, err := url.Parse("https://" + os.Getenv("AUTH0_DOMAIN") + "/")
 	if err != nil {
-		log.Fatalf("Failed to parse the issuer URL: %v", err)
+		log.Fatalf("Failed to parse the issuer url: %v", err)
 	}
 
 	provider := jwks.NewCachingProvider(issuerURL, 5*time.Minute)
+
+	log.Printf("Expected: %v", os.Getenv("AUTH0_AUDIENCE"))
+
 	jwtValidator, err := validator.New(
 		provider.KeyFunc,
 		validator.RS256,
 		issuerURL.String(),
 		[]string{os.Getenv("AUTH0_AUDIENCE")},
-		validator.WithCustomClaims(func() validator.CustomClaims { return &CustomClaims{} }),
+		validator.WithCustomClaims(
+			func() validator.CustomClaims {
+				return &CustomClaims{}
+			},
+		),
 		validator.WithAllowedClockSkew(time.Minute),
 	)
 	if err != nil {
-		log.Fatalf("Failed to set up the JWT validator: %v", err)
+		log.Fatalf("Failed to set up the jwt validator")
 	}
 
 	errorHandler := func(w http.ResponseWriter, r *http.Request, err error) {
 		log.Printf("Encountered error while validating JWT: %v", err)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte(`{"message":"Failed to validate JWT."}`))
 	}
 
-	return jwtmiddleware.New(jwtValidator.ValidateToken, jwtmiddleware.WithErrorHandler(errorHandler)).CheckJWT
+	middleware := jwtmiddleware.New(
+		jwtValidator.ValidateToken,
+		jwtmiddleware.WithErrorHandler(errorHandler),
+	)
+
+	return func(next http.Handler) http.Handler {
+		return middleware.CheckJWT(next)
+	}
+}
+
+func (c CustomClaims) HasScope(expectedScope string) bool {
+	result := strings.Split(c.Scope, " ")
+	for i := range result {
+		if result[i] == expectedScope {
+			return true
+		}
+	}
+
+	return false
 }
