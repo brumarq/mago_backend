@@ -31,5 +31,19 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
+        
+        [HttpDelete("user/{deviceId}")]
+        public async Task<ActionResult<UserOnDeviceResponseDTO>> DeleteUser([FromBody] CreateUserOnDeviceDTO createUserOnDeviceDTO)
+        {
+            try
+            {
+                var notificationResponseDTO = await _deviceService.CreateNotificationAsync(createUserOnDeviceDTO);
+                return Ok(notificationResponseDTO);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, $"Internal server error: {e.Message}");
+            }
+        }
     }
 }

@@ -11,5 +11,6 @@ namespace Application.ApplicationServices.Interfaces
     {
         Task<HttpResponseMessage> GetDeviceExistenceStatus(int deviceId);
         Task<UserOnDeviceResponseDTO> CreateNotificationAsync(CreateUserOnDeviceDTO createUserOnDeviceDTO);
+        Task<HttpResponseMessage> GetUserOnDevice(string userId);
     }
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Application.ApplicationServices
 {
@@ -14,12 +15,15 @@ namespace Application.ApplicationServices
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly HttpClient _httpClient;
         private readonly string? _baseUri;
+        private readonly IDeviceService _deviceService;
 
-        public UserService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+
+        public UserService(IHttpClientFactory httpClientFactory, IConfiguration configuration,  IDeviceService deviceService)
         {
             _httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient();
             _baseUri = configuration["ApiRequestUris:UserBaseUri"];
+            _deviceService = deviceService;
         }
 
         public async Task<HttpResponseMessage> GetUserExistenceStatus(string userId)
@@ -39,5 +43,48 @@ namespace Application.ApplicationServices
                 };
             }
         }
+        
+        public async Task<HttpResponseMessage> DeleteUser(string userId)
+        {
+            var userDevicesResponse = await _deviceService.GetUserOnDevice(userId);
+
+            // Check if the response is successful
+            if (userDevicesResponse.IsSuccessStatusCode)
+            {
+                var content = await userDevicesResponse.Content.ReadAsStringAsync();
+
+                if (!string.IsNullOrWhiteSpace(content) && content != "[]")
+                {
+                    return new HttpResponseMessage(HttpStatusCode.BadRequest)
+                    {
+                        Content = new StringContent($"User {userId} has devices assigned and cannot be deleted.")
+                    };
+                }
+            }
+            else
+            {
+                return new HttpResponseMessage(userDevicesResponse.StatusCode)
+                {
+                    Content = new StringContent($"Unable to retrieve devices for user {userId}.")
+                };
+            }
+
+            string requestUrl = $"{_baseUri}{userId}";
+
+            try
+            {
+                var deleteResponse = await _httpClient.DeleteAsync(requestUrl);
+                return deleteResponse;
+            }
+            catch (HttpRequestException e)
+            {
+                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+                {
+                    ReasonPhrase = $"Exception occurred when deleting user: {e.Message}"
+                };
+            }
+        }
+
+
     }
 }
