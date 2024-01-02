@@ -1,9 +1,12 @@
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs.Firmware;
 using Application.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Application.ApplicationServices;
 
@@ -14,24 +17,32 @@ public class FirmwareService : IFirmwareService
     private readonly HttpClient _httpClient;
     private readonly IDeviceService _deviceService;
     private readonly string? _baseUri;
+    private readonly IAuthenticationService _authenticationService;
 
     public FirmwareService(IConfiguration configuration, IHttpClientFactory httpClientFactory,
-        IDeviceService deviceService, ILogger<FirmwareService> logger)
+        IDeviceService deviceService, ILogger<FirmwareService> logger, IAuthenticationService authenticationService)
     {
         _httpClientFactory = httpClientFactory;
         _httpClient = httpClientFactory.CreateClient();
         _deviceService = deviceService;
         _baseUri = configuration["ApiRequestUris:FirmwareBaseUri"];
         _logger = logger;
+        _authenticationService = authenticationService;
+
     }
 
     public async Task<FileSendResponseDTO> CreateFileSendAsync(CreateFileSendDTO newFileSendDto)
     {
         await _deviceService.EnsureDeviceExists(newFileSendDto.DeviceId);
         
+        
+        var request = new HttpRequestMessage(HttpMethod.Post, _baseUri);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+        
+        var json = JsonConvert.SerializeObject(newFileSendDto);
+        request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var response = await _httpClient.PostAsJsonAsync(_baseUri, newFileSendDto);
-        response.EnsureSuccessStatusCode();
+        var response = await _httpClient.SendAsync(request);
 
         var body = await response.Content.ReadFromJsonAsync<FileSendResponseDTO>();
         return body!;
@@ -42,7 +53,10 @@ public class FirmwareService : IFirmwareService
         _logger.LogError($" The given FirmwareURL: {_baseUri}");
         await _deviceService.EnsureDeviceExists(deviceId);
 
-        var response = await _httpClient.GetAsync($"{_baseUri}devices/{deviceId}");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}devices/{deviceId}");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+        var response = await _httpClient.SendAsync(request);
+        
         response.EnsureSuccessStatusCode();
 
         var body = await response.Content.ReadFromJsonAsync<IEnumerable<FileSendResponseDTO>>();

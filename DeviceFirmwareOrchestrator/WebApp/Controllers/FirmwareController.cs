@@ -1,6 +1,7 @@
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs.Firmware;
 using Application.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.Controllers;
@@ -17,6 +18,7 @@ public class FirmwareController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize("Admin")]
     public async Task<ActionResult<FileSendResponseDTO>> CreateFirmwareFileSend(
         [FromBody] CreateFileSendDTO newFileSendDto)
     {
@@ -40,6 +42,7 @@ public class FirmwareController : ControllerBase
     }
 
     [HttpGet("{deviceId}")]
+    [Authorize("Admin")]
     public async Task<ActionResult<IEnumerable<FileSendResponseDTO>>> GetFirmwareHistoryForDevice(int deviceId)
     {
         try

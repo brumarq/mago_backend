@@ -19,6 +19,8 @@ public class FirmwareServiceTests
     private Mock<IDeviceService> _mockDeviceService;
     private Mock<IConfiguration> _mockConfiguration;
     private Mock<ILogger<FirmwareService>> _mockLogger; 
+    private Mock<IAuthenticationService> _authenticationService;
+
     private HttpClient _httpClient;
     private FirmwareService _firmwareService;
     private MockHttpMessageHandler _fakeHttpMessageHandler;
@@ -29,7 +31,7 @@ public class FirmwareServiceTests
         _mockHttpClientFactory = new Mock<IHttpClientFactory>();
         _mockDeviceService = new Mock<IDeviceService>();
         _mockConfiguration = new Mock<IConfiguration>();
-        
+        _authenticationService = new Mock<IAuthenticationService>();
         _mockConfiguration.Setup(config => config["ApiRequestUris:FirmwareBaseUri"]).Returns("http://localhost:8080/firmware/");
 
         // Set up HttpClient and HttpClientFactory
@@ -38,7 +40,7 @@ public class FirmwareServiceTests
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_httpClient);
 
         // Create instance of FirmwareService
-        _firmwareService = new FirmwareService(_mockConfiguration.Object, _mockHttpClientFactory.Object, _mockDeviceService.Object, _mockLogger.Object);
+        _firmwareService = new FirmwareService(_mockConfiguration.Object, _mockHttpClientFactory.Object, _mockDeviceService.Object, _mockLogger.Object, _authenticationService.Object);
     }
 
     [Test]

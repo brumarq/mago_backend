@@ -87,6 +87,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IDeviceService, DeviceService>();
 
 builder.Services.AddScoped<IFirmwareService, FirmwareService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddHttpContextAccessor();
 // builder.Services.AddScoped<IDeviceTypeService, DeviceTypeService>();
 // builder.Services.AddScoped<IDeviceSettingsService, DeviceSettingsService>();
 

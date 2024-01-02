@@ -4,9 +4,10 @@ import (
 	. "FirmwareGO/application/dtos"
 	. "FirmwareGO/application/services"
 	"FirmwareGO/webapp/middleware/authentication"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 type FirmwareController struct {
