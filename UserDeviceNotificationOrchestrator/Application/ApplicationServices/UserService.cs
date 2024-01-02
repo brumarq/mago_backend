@@ -15,16 +15,14 @@ namespace Application.ApplicationServices
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly HttpClient _httpClient;
         private readonly string? _baseUri;
-        private readonly IDeviceService _deviceService;
         private readonly string? _baseUriUsersOnDevice;
 
 
-        public UserService(IHttpClientFactory httpClientFactory, IConfiguration configuration,  IDeviceService deviceService)
+        public UserService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient();
             _baseUri = configuration["ApiRequestUris:UserBaseUri"];
-            _deviceService = deviceService;
             _baseUriUsersOnDevice = configuration["ApiRequestUris:UsersOnDeviceUri"];
 
         }
