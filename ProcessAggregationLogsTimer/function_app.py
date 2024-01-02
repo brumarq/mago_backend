@@ -4,10 +4,10 @@ from service import AggregatedLogsProcessor
 
 app = func.FunctionApp()
 
-@app.function_name(name="process_aggregation_logs_timer")
-@app.schedule(schedule="0 5 * * *", arg_name="myTimer", run_on_startup=True,
+@app.function_name(name="ProcessAggregationLogsTimer")
+@app.schedule(schedule="* * * * *", arg_name="myTimer", run_on_startup=True, #0 5 * * * 
               use_monitor=False) 
-def process_aggregation_logs_timer(myTimer: func.TimerRequest) -> None:
+def ProcessAggregationLogsTimer(myTimer: func.TimerRequest) -> None:
     if myTimer.past_due:
         logging.info('The timer is past due!')
 
