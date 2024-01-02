@@ -100,6 +100,7 @@ public class UserController : ControllerBase
     // DELETE: /users/{id}
     [HttpDelete("{id}")]
     [Authorize("Admin")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<IActionResult> DeleteUser(string id)
     {
         try
