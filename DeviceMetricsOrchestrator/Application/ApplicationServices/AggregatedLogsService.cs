@@ -47,7 +47,7 @@ namespace Application.ApplicationServices
                 // Send request along with a token to the MetricsMS
                 HttpRequestMessage request = null;
                 if (!string.IsNullOrEmpty(startDate) || !string.IsNullOrEmpty(endDate))
-                    request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{aggregatedLogDateType.ToString()}/{deviceId}/{fieldId}?start_date={Uri.EscapeDataString(startDate)}&end_date={Uri.EscapeDataString(endDate)}");
+                    request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{aggregatedLogDateType.ToString()}/{deviceId}/{fieldId}?start_date={startDate}&end_date={endDate}");
                 else
                     request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{aggregatedLogDateType.ToString()}/{deviceId}/{fieldId}");
 
@@ -65,7 +65,7 @@ namespace Application.ApplicationServices
             }
             catch(HttpRequestException ex)
             {
-                throw;         
+                throw new CustomException(ex.Message, ex.StatusCode.Value);
             }
 
         }
