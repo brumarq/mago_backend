@@ -53,7 +53,7 @@ class AggregatedLogsProcessor:
                     start_date -= timedelta(days=1)
                 start_date += timedelta(days=7) # move to next week's Monday
                 end_date = start_date + timedelta(days=7) 
-                current_date = datetime.now().date() + relativedelta(years=1) #remove later (relativedelta part)
+                current_date = datetime.now().date() #+ relativedelta(years=1) #remove later (relativedelta part)
 
                 if end_date > current_date: # no unhandled records for any previous completed weeks
                     return
@@ -70,7 +70,7 @@ class AggregatedLogsProcessor:
             while True:
                 start_date = datetime(last_record_date.year, last_record_date.month, 1).date() + relativedelta(months=1)
                 end_date = start_date + relativedelta(months=1)
-                current_date = datetime.now().date() + relativedelta(years=1) #remove later
+                current_date = datetime.now().date() #+ relativedelta(years=1) #remove later
 
                 if end_date > current_date:
                     return
@@ -88,7 +88,7 @@ class AggregatedLogsProcessor:
             while True:
                 start_date = datetime(last_record_date.year, 1, 1).date() + relativedelta(years=1)
                 end_date = start_date + relativedelta(years=1)
-                current_date = datetime.now().date() + relativedelta(years=1) #remove later
+                current_date = datetime.now().date() #+ relativedelta(years=1) #remove later
 
                 if end_date > current_date:
                     return

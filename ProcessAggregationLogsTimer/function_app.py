@@ -2,12 +2,12 @@ import logging
 import azure.functions as func
 from service import AggregatedLogsProcessor
 
-app = func.FunctionApp()
+app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
-@app.function_name(name="ProcessAggregationLogsTimer")
-@app.schedule(schedule="* * * * *", arg_name="myTimer", run_on_startup=True, #0 5 * * * 
+@app.function_name(name="process_aggregation_logs_timer")
+@app.schedule(schedule="5 0 * * *", arg_name="myTimer", run_on_startup=True, # Daily timer at 12:05AM (00:05) // another test v2
               use_monitor=False) 
-def ProcessAggregationLogsTimer(myTimer: func.TimerRequest) -> None:
+def process_aggregation_logs_timer(myTimer: func.TimerRequest) -> None:
     if myTimer.past_due:
         logging.info('The timer is past due!')
 
