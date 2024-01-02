@@ -15,7 +15,6 @@ namespace Application.ApplicationServices
         private readonly HttpClient _httpClient;
         private readonly IUserService _userService;
         private readonly string? _baseUri;
-        private readonly string? _baseUriUsersOnDevice;
 
         public DeviceService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IUserService userService)
         {
@@ -23,7 +22,6 @@ namespace Application.ApplicationServices
             _httpClient = httpClientFactory.CreateClient();
             _userService = userService;
             _baseUri = configuration["ApiRequestUris:DeviceBaseUri"];
-            _baseUriUsersOnDevice = configuration["ApiRequestUris:UsersOnDeviceUri"];
         }
 
         public async Task<HttpResponseMessage> GetDeviceExistenceStatus(int deviceId)
@@ -44,23 +42,7 @@ namespace Application.ApplicationServices
             }
         }
         
-        public async Task<HttpResponseMessage> GetUserOnDevice(string userId)
-        {
-            string requestUrl = $"{_baseUriUsersOnDevice}{userId}";
-
-            try
-            {
-                var response = await _httpClient.GetAsync(requestUrl);
-                return response;
-            }
-            catch (HttpRequestException e)
-            {
-                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
-                {
-                    ReasonPhrase = $"Exception occurred when checking device existence: {e.Message}"
-                };
-            }
-        }
+        
 
         public async Task<UserOnDeviceResponseDTO> CreateNotificationAsync(CreateUserOnDeviceDTO createUserOnDeviceDTO)
         {

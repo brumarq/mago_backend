@@ -16,6 +16,7 @@ namespace Application.ApplicationServices
         private readonly HttpClient _httpClient;
         private readonly string? _baseUri;
         private readonly IDeviceService _deviceService;
+        private readonly string? _baseUriUsersOnDevice;
 
 
         public UserService(IHttpClientFactory httpClientFactory, IConfiguration configuration,  IDeviceService deviceService)
@@ -24,6 +25,8 @@ namespace Application.ApplicationServices
             _httpClient = httpClientFactory.CreateClient();
             _baseUri = configuration["ApiRequestUris:UserBaseUri"];
             _deviceService = deviceService;
+            _baseUriUsersOnDevice = configuration["ApiRequestUris:UsersOnDeviceUri"];
+
         }
 
         public async Task<HttpResponseMessage> GetUserExistenceStatus(string userId)
@@ -46,7 +49,7 @@ namespace Application.ApplicationServices
         
         public async Task<HttpResponseMessage> DeleteUser(string userId)
         {
-            var userDevicesResponse = await _deviceService.GetUserOnDevice(userId);
+            var userDevicesResponse = await GetUserOnDevice(userId);
 
             // Check if the response is successful
             if (userDevicesResponse.IsSuccessStatusCode)
@@ -81,6 +84,24 @@ namespace Application.ApplicationServices
                 return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
                 {
                     ReasonPhrase = $"Exception occurred when deleting user: {e.Message}"
+                };
+            }
+        }
+
+        private async Task<HttpResponseMessage> GetUserOnDevice(string userId)
+        {
+            string requestUrl = $"{_baseUriUsersOnDevice}{userId}";
+
+            try
+            {
+                var response = await _httpClient.GetAsync(requestUrl);
+                return response;
+            }
+            catch (HttpRequestException e)
+            {
+                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+                {
+                    ReasonPhrase = $"Exception occurred when checking device existence: {e.Message}"
                 };
             }
         }
