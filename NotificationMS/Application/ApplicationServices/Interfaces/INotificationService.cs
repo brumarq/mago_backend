@@ -13,8 +13,8 @@ namespace Application.ApplicationServices.Interfaces
         Task<IEnumerable<NotificationResponseDTO>> GetAllNotificationsAsync();
         Task<NotificationResponseDTO> GetNotificationByIdAsync(int id);
         Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId);
-        Task<IEnumerable<NotificationResponseDTO>> GetNotificationsForUserOnStatusTypeByUserIdAsync(int userId);
-        Task<IEnumerable<int>> GetDeviceIdsFromUserOnStatusByUserId(int userId);
-
+        Task<StatusTypeDTO> CreateStatusTypeAsync(CreateStatusTypeDTO statusTypeDTO);
+        Task DeleteStatusTypeAsync(int id);
+        Task<StatusTypeDTO> UpdateStatusTypeAsync(int id, CreateStatusTypeDTO statusTypeDTO);
     }
 }

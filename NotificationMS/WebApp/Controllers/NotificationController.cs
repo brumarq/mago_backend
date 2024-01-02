@@ -50,26 +50,6 @@ namespace WebApp.Controllers
             }
         }
 
-        // GET /notifications/users/5
-        [HttpGet("users/{userId}")]
-        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationForUserOnStatusTypeAsync(int userId)
-        {
-            try
-            {
-                var notificationDTO = await _notificationService.GetNotificationsForUserOnStatusTypeByUserIdAsync(userId);
-                if (notificationDTO == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(notificationDTO);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
         // GET /notifications/device/5
         [HttpGet("device/{deviceId}")]
         public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId)
@@ -109,20 +89,53 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
-        // GET /user-on-statustype/user/5/device-ids
-        [HttpGet("/user-on-statustype/user/{userId}/device-ids")]
-        public async Task<ActionResult<IEnumerable<int>>> GetDeviceIdsFromUserOnStatusByUserId(int userId)
+        
+        // POST /notification/statusType
+        [HttpPost("statusType")]
+        public async Task<ActionResult<StatusTypeDTO>> CreateStatusTypeAsync([FromBody] CreateStatusTypeDTO statusTypeDTO)
         {
             try
             {
-                var notifications = await _notificationService.GetDeviceIdsFromUserOnStatusByUserId(userId);
-                return Ok(notifications);
+                await _notificationService.CreateStatusTypeAsync(statusTypeDTO);
+                return Ok();
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+        
+        // DELETE /notification/statusType/5
+        [HttpDelete("statusType/{id}")]
+        public async Task<IActionResult> DeleteStatusTypeAsync(int id)
+        {
+            try
+            {
+                await _notificationService.DeleteStatusTypeAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        
+        // PUT /notification/statusType
+        [HttpPut("statusType/{id}")]
+        public async Task<ActionResult<StatusTypeDTO>> UpdateStatusTypeAsync(int id, [FromBody] CreateStatusTypeDTO statusTypeDTO)
+        {
+            try
+            {
+                var result = await _notificationService.UpdateStatusTypeAsync(id, statusTypeDTO);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+
     }
 }
