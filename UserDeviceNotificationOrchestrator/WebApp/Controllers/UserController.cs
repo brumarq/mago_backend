@@ -25,8 +25,8 @@ namespace WebApp.Controllers
         {
             try
             {
-                var deletionResponse = await _userService.DeleteUser(userID);
-                return Ok(deletionResponse);
+                await _userService.DeleteUser(userID);
+                return Ok();
             }
             catch (CustomException ce)
             {

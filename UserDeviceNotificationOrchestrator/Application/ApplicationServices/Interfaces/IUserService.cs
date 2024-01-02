@@ -3,6 +3,6 @@
     public interface IUserService
     {
         Task<HttpResponseMessage> GetUserExistenceStatus(string userId);
-        Task<HttpResponseMessage> DeleteUser(string userId);
+        Task DeleteUser(string userId);
     }
 }

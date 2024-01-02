@@ -76,6 +76,8 @@ builder.Services.AddAuthorization(options =>
 // Authorization handler registration
 builder.Services.AddSingleton<IAuthorizationHandler, HasPermissionHandler>();
 
+builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
+builder.Services.AddHttpContextAccessor();
 
 
 var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8484";

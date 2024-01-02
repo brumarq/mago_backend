@@ -1,6 +1,7 @@
 ﻿using Application.ApplicationServices.Interfaces;
 using Microsoft.Extensions.Configuration;
 using System.Net;
+using System.Net.Http.Headers;
 using Application.Exceptions;
 
 namespace Application.ApplicationServices
@@ -10,23 +11,29 @@ namespace Application.ApplicationServices
         private readonly HttpClient _httpClient;
         private readonly string? _baseUri;
         private readonly string? _baseUriUsersOnDevice;
+        private readonly IAuthenticationService _authenticationService;
 
 
-        public UserService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public UserService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IAuthenticationService authenticationService)
         {
             _httpClient = httpClientFactory.CreateClient();
             _baseUri = configuration["ApiRequestUris:UserBaseUri"];
             _baseUriUsersOnDevice = configuration["ApiRequestUris:UsersOnDeviceUri"];
+            _authenticationService = authenticationService;
 
         }
 
         public async Task<HttpResponseMessage> GetUserExistenceStatus(string userId)
         {
-            string requestUrl = $"{_baseUri}{userId}";
 
             try
             {
-                var response = await _httpClient.GetAsync(requestUrl);
+                var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{userId}");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+                var response = await _httpClient.SendAsync(request);
+                
+                response.EnsureSuccessStatusCode();
+
                 return response;
             }
             catch (HttpRequestException e)
@@ -38,7 +45,7 @@ namespace Application.ApplicationServices
             }
         }
         
-        public async Task<HttpResponseMessage> DeleteUser(string userId)
+        public async Task DeleteUser(string userId)
         {
             var userDevicesResponse = await GetUserOnDevice(userId);
 
@@ -54,23 +61,31 @@ namespace Application.ApplicationServices
 
             try
             {
-                var deleteResponse = await _httpClient.DeleteAsync(requestUrl);
-                HandleHttpResponse(deleteResponse, userId);
-                return deleteResponse;
+                var request = new HttpRequestMessage(HttpMethod.Delete, $"{_baseUri}{userId}");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+                var response = await _httpClient.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+
+                HandleHttpResponse(response, userId);
             }
             catch (HttpRequestException e)
             {
-                throw new HttpRequestException($"Exception occurred when deleting user: {e.Message}");
+                Console.WriteLine(e);
+                throw;
+                
             }
         }
         
         public async Task<HttpResponseMessage> GetUserOnDevice(string userId)
         {
-            string requestUrl = $"{_baseUriUsersOnDevice}{userId}";
-
             try
             {
-                var response = await _httpClient.GetAsync(requestUrl);
+                var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUriUsersOnDevice}{userId}");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+                var response = await _httpClient.SendAsync(request);
+                
+                response.EnsureSuccessStatusCode();
+
                 return response;
             }
             catch (HttpRequestException e)
