@@ -3,11 +3,10 @@ package controllers
 import (
 	. "FirmwareGO/application/dtos"
 	. "FirmwareGO/application/services"
-	"FirmwareGO/webapp/middleware/authentication"
+	. "FirmwareGO/webapp/middleware/auth"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
 type FirmwareController struct {
@@ -18,28 +17,12 @@ func NewFirmwareController(firmwareService *FirmwareService) *FirmwareController
 	return &FirmwareController{FirmwareService: firmwareService}
 }
 
-func jwtMiddlewareHandler(jwtMiddleware func(next http.Handler) http.Handler) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		handler := jwtMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			c.Request = r
-			c.Next()
-		}))
-		handler.ServeHTTP(c.Writer, c.Request)
-
-		if c.Writer.Status() == http.StatusUnauthorized {
-			// If unauthorized, abort the Gin context to prevent further processing
-			c.Abort()
-			return
-		}
-		c.Next()
-	}
-}
-
 func (controller *FirmwareController) RegisterRoutes(router *gin.Engine) {
-	ginJWTMiddleware := jwtMiddlewareHandler(authentication.EnsureValidToken())
-
 	secureGroup := router.Group("/firmware")
-	secureGroup.Use(ginJWTMiddleware)
+	secureGroup.Use(
+		JwtMiddlewareHandler(EnsureValidJwt()),
+		JwtMiddlewareHandler(EnsureAdminPermission()),
+	)
 
 	secureGroup.POST("", controller.CreateFirmwareFileSend)
 	secureGroup.GET("/devices/:deviceId", controller.GetFirmwareHistoryForDevice)
