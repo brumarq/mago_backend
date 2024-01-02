@@ -1,0 +1,22 @@
+name: Azure Function CI/CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - 'ProcessAggregationLogsTimer/**/*'
+
+jobs:
+  run-deployment-script:
+    name: Run Azure Deployment Script
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Run Azure Deployment Script
+        run: |
+          cd ProcessAggregationLogsTimer
+          ./azure_function_deployment.ps1
