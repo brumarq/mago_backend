@@ -51,7 +51,7 @@ func main() {
 		ginSwagger.WrapHandler(swaggerFiles.Handler,
 			ginSwagger.URL(fmt.Sprintf("%s://%s/swagger/doc.json", c.Request.URL.Scheme, c.Request.Host)))(c)
 	})
-	
+
 	// Register routes
 	firmwareController.RegisterRoutes(router)
 

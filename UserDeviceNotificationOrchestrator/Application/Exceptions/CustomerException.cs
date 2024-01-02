@@ -4,7 +4,7 @@ namespace Application.Exceptions
 {
     public abstract class CustomException : Exception
     {
-        private readonly HttpStatusCode StatusCode;
+        public readonly HttpStatusCode StatusCode;
 
         protected CustomException(HttpStatusCode statusCode)
         {

@@ -41,6 +41,8 @@ namespace Application.ApplicationServices
                 };
             }
         }
+        
+        
 
         public async Task<UserOnDeviceResponseDTO> CreateNotificationAsync(CreateUserOnDeviceDTO createUserOnDeviceDTO)
         {
