@@ -2,6 +2,7 @@
 using Application.DTOs;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using System.Net;
 using System.Text;
 
 namespace Application.ApplicationServices
@@ -63,6 +64,12 @@ namespace Application.ApplicationServices
                 throw new Exception($"Device check failed: {deviceResponseStatus.StatusCode}: {deviceResponseStatus.ReasonPhrase}");
             }
 
+            HttpResponseMessage statusTypeResponseStatus = await GetStatusTypeExistenceStatus(createNotificationDTO.StatusTypeID);
+            if (!statusTypeResponseStatus.IsSuccessStatusCode)
+            {
+                throw new Exception($"Status type check failed: {statusTypeResponseStatus.StatusCode}: {statusTypeResponseStatus.ReasonPhrase}");
+            }
+
             var jsonNotificationDTO = JsonConvert.SerializeObject(createNotificationDTO);
             var content = new StringContent(jsonNotificationDTO, Encoding.UTF8, "application/json");
 
@@ -84,6 +91,22 @@ namespace Application.ApplicationServices
             catch (HttpRequestException e)
             {
                 throw new Exception($"Request failed: {e.Message}");
+            }
+        }
+
+        public async Task<HttpResponseMessage> GetStatusTypeExistenceStatus(int statusTypeId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUri}statusType/{statusTypeId}");
+                return response;
+            }
+            catch (HttpRequestException e)
+            {
+                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+                {
+                    ReasonPhrase = $"Exception occurred when status type existence: {e.Message}"
+                };
             }
         }
     }
