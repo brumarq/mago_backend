@@ -1,7 +1,8 @@
 namespace Domain.Entities;
 
-public class StatusType : BaseEntity
+public class StatusType: BaseEntity
 {
+    
+    public string Name { get; set; }
     public ICollection<Status>? Statuses { get; set; } = new List<Status>();
-    public ICollection<UserOnStatusType>? UserOnStatusTypes { get; set; } = new List<UserOnStatusType>();
 }

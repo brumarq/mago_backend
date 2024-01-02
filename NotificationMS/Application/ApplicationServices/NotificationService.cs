@@ -11,14 +11,16 @@ namespace Application.ApplicationServices
     {
         private readonly IMapper _mapper;
         private readonly IRepository<Status> _notificationRepository;
-        private readonly IRepository<UserOnStatusType> _userOnStatusTypeRepository;
+        private readonly IRepository<StatusType> _statusTypeRepository;
 
-        public NotificationService(IMapper mapper, IRepository<Status> notificationRepository, IRepository<UserOnStatusType> userOnStatusTypeRepository)
+
+        public NotificationService(IMapper mapper, IRepository<Status> notificationRepository,  IRepository<StatusType> statusTypeRepository)
         {
             _mapper = mapper;
             _notificationRepository = notificationRepository;
-            _userOnStatusTypeRepository = userOnStatusTypeRepository;
+            _statusTypeRepository = statusTypeRepository;
         }
+        
 
         public async Task<CreateNotificationDTO> CreateNotificationAsync(CreateNotificationDTO createNotificationDTO)
         {
@@ -27,7 +29,7 @@ namespace Application.ApplicationServices
                 Message = createNotificationDTO.Message,
                 DeviceId = createNotificationDTO.DeviceID,
                 Timestamp = DateTime.Now,
-                StatusType = new StatusType { Id = createNotificationDTO.StatusTypeID }
+                StatusTypeId = createNotificationDTO.StatusTypeID // Set the foreign key proper
             };
 
             await _notificationRepository.CreateAsync(newNotification);
@@ -62,34 +64,53 @@ namespace Application.ApplicationServices
 
             return _mapper.Map<IEnumerable<NotificationResponseDTO>>(notification);
         }
-
-        public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsForUserOnStatusTypeByUserIdAsync(int userId)
+        
+        public async Task<StatusTypeDTO> CreateStatusTypeAsync(CreateStatusTypeDTO statusTypeDTO)
         {
-            var userOnStatusTypes = await _userOnStatusTypeRepository.GetAllAsync();
-            var notifications = await _notificationRepository.GetAllAsync();
+            StatusType newStatusType = new StatusType
+            {
+                Name = statusTypeDTO.Name
+            };
 
-            var resultTuples = userOnStatusTypes
-                .Where(ust => ust.UserId == userId)
-                .Select(ust => Tuple.Create(ust.DeviceId, ust.StatusType.Id))
-                .ToList();
+            await _statusTypeRepository.CreateAsync(newStatusType);
 
-            var filteredNotifications = notifications
-                .Where(s => resultTuples.Any(tuple => tuple.Item1 == s.DeviceId && tuple.Item2 == s.StatusType.Id))
-                .ToList();
+            return _mapper.Map<StatusTypeDTO>(newStatusType);
+        }
+        
+        public async Task DeleteStatusTypeAsync(int id)
+        {
+            var statusType = await _statusTypeRepository.GetByConditionAsync(st => st.Id == id);
 
-            return _mapper.Map<IEnumerable<NotificationResponseDTO>>(filteredNotifications);
+            if (statusType == null)
+            {
+                throw new NotFoundException("StatusType not found.");
+            }
+
+            // Optional: Add logic here to handle if the StatusType is associated with any Statuses
+
+            await _statusTypeRepository.DeleteAsync(statusType.Id); // Adjust repository methods if needed
+        }
+        
+        public async Task<StatusTypeDTO> UpdateStatusTypeAsync(int id, CreateStatusTypeDTO statusTypeDTO)
+        {
+            var statusType = await _statusTypeRepository.GetByConditionAsync(st => st.Id == id);
+
+            if (statusType == null)
+            {
+                throw new NotFoundException("StatusType not found.");
+            }
+
+            // Update properties
+            statusType.Name = statusTypeDTO.Name;
+            // Add other property updates as necessary
+
+            await _statusTypeRepository.UpdateAsync(statusType); // Adjust repository methods if needed
+
+            return _mapper.Map<StatusTypeDTO>(statusType);
         }
 
-        public async Task<IEnumerable<int>> GetDeviceIdsFromUserOnStatusByUserId(int userId)
-        {
-            var userOnStatusTypes = await _userOnStatusTypeRepository.GetAllAsync();
 
-            var filteredUserOnStatusTypes = userOnStatusTypes.Where(x => x.UserId == userId);
 
-            var deviceIds = filteredUserOnStatusTypes.Select(x => x.DeviceId);
-
-            return deviceIds;
-        }
 
     }
 }
