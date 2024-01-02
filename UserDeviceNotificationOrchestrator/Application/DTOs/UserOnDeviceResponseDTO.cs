@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs.UsersOnDevices
 {
-    public class UserOnDeviceResponseDTO
+    public class UserOnDeviceResponseDTO : BaseDTO
     {
         public string? UserId { get; set; }
         public int DeviceId { get; set; }
