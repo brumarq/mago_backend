@@ -22,5 +22,5 @@ class AggregatedLogsDto:
         'maxValue': fields.Float(required=True, description="AggregatedLog Max value (float)", attribute="max_value"),
         'deviceId': fields.Integer(required=True, description="Device ifentifier", attribute="device_id"),
         'field': fields.Nested(field, required=True, description="Field object (object)", attribute="field"),
-        'referenceDate': fields.Date(required=True, description="Date of insertion of the aggregated log", attribute="reference_date")
+        'referenceDate': fields.Date(required=True, description="The start date from when the aggregated log was calculated", attribute="reference_date")
     })
