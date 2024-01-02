@@ -64,7 +64,19 @@ namespace Application.ApplicationServices
 
             return _mapper.Map<IEnumerable<NotificationResponseDTO>>(notification);
         }
-        
+
+        public async Task<StatusTypeDTO> GetStatusTypeByIdAsync(int id)
+        {
+            var statusTypes = await _statusTypeRepository.GetAllAsync();
+
+            var statusType = statusTypes.FirstOrDefault(n => n.Id == id);
+
+            if (statusType == null)
+                throw new BadRequestException("Status Type was not found...");
+
+            return _mapper.Map<StatusTypeDTO>(statusType);
+        }
+
         public async Task<StatusTypeDTO> CreateStatusTypeAsync(CreateStatusTypeDTO statusTypeDTO)
         {
             StatusType newStatusType = new StatusType

@@ -89,7 +89,26 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-        
+
+        [HttpGet("statusType/{id}")]
+        public async Task<ActionResult<StatusTypeDTO>> GetStatusTypeByIdAsync(int statusTypeId)
+        {
+            try
+            {
+                var statusTypeDTO = await _notificationService.GetStatusTypeByIdAsync(statusTypeId);
+                if (statusTypeDTO == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(statusTypeDTO);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
         // POST /notification/statusType
         [HttpPost("statusType")]
         public async Task<ActionResult<StatusTypeDTO>> CreateStatusTypeAsync([FromBody] CreateStatusTypeDTO statusTypeDTO)
