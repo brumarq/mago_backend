@@ -12,7 +12,6 @@ param serverFarmName string
 
 param tags object = {}
 param appInsightsRetention int = 30
-param numberOfWorkers int = 1
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageAccountName
@@ -46,7 +45,7 @@ resource serverFarm 'Microsoft.Web/serverfarms@2022-09-01' = {
   location: location
   tags: tags
   sku: {
-    name: 'S1'
+    name: 'Y1'
     tier: 'Standard'
   }
   properties: {
@@ -56,7 +55,7 @@ resource serverFarm 'Microsoft.Web/serverfarms@2022-09-01' = {
 }
 
 // Resources for azure function
-resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
+resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
   name: functionAppName
   location: location
   tags: tags
@@ -69,33 +68,9 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
     serverFarmId: resourceId('Microsoft.Web/serverfarms', serverFarm.name)
     siteConfig: {
       pythonVersion: '3.11'
-      autoHealEnabled: true
-      autoHealRules: {
-        triggers: {
-          privateBytesInKB: 0
-          statusCodes: [
-            {
-              status: 500
-              subStatus: 0
-              win32Status: 0
-              count: 25
-              timeInterval: '00:05:00'
-            }
-          ]
-        }
-        actions: {
-          actionType: 'Recycle'
-          minProcessExecutionTime: '00:01:00'
-        }
-      }
-      numberOfWorkers: numberOfWorkers
       linuxFxVersion: 'python|3.11'
-      alwaysOn: true
     }
-    clientAffinityEnabled: false
-    httpsOnly: true
-    containerSize: 1536
-    redundancyMode: 'None'
+    httpsOnly: false
   }
 
   resource functionAppConfig 'config@2021-03-01' = {
@@ -108,7 +83,8 @@ resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
       'WEBSITE_CONTENTSHARE': replace(toLower(functionApp.name), '-', '')
       'APPINSIGHTS_INSTRUMENTATIONKEY': reference('Microsoft.Insights/components/${appInsights.name}', '2015-05-01').InstrumentationKey
       'AzureWebJobsFeatureFlags': 'EnableWorkerIndexing'
-      'WEBSITE_RUN_FROM_PACKAGE': '1'
+      'ApplicationInsightsAgent_EXTENSION_VERSION': '~2'
+      'InstrumentationEngine_EXTENSION_VERSION': '~1'
     }
   }
 }
