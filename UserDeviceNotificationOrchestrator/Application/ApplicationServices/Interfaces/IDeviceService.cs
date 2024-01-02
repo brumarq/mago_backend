@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.UsersOnDevices;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,6 @@ namespace Application.ApplicationServices.Interfaces
     {
         Task<HttpResponseMessage> GetDeviceExistenceStatus(int deviceId);
         Task<UserOnDeviceResponseDTO> CreateNotificationAsync(CreateUserOnDeviceDTO createUserOnDeviceDTO);
+        Task<IActionResult> DeleteUserOnDeviceEntryAsync(string userId, int deviceId);
     }
 }

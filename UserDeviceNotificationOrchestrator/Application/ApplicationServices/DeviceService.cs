@@ -85,23 +85,42 @@ namespace Application.ApplicationServices
             }
         }
 
-        public async Task<IActionResult> DeleteUserOnDeviceEntryAsync(DeleteUserOnDeviceDTO deleteUserOnDeviceDTO)
+        public async Task<IActionResult> DeleteUserOnDeviceEntryAsync(string userId, int deviceId)
         {
             try
             {
-                HttpResponseMessage userResponseStatus = await _userService.GetUserExistenceStatus(deleteUserOnDeviceDTO.UserId!);
+                HttpResponseMessage userResponseStatus = await _userService.GetUserExistenceStatus(userId);
                 if (!userResponseStatus.IsSuccessStatusCode)
                 {
                     throw new Exception($"User check failed: {userResponseStatus.StatusCode}: {userResponseStatus.ReasonPhrase}");
                 }
 
-                HttpResponseMessage deviceResponseStatus = await GetDeviceExistenceStatus(deleteUserOnDeviceDTO.DeviceId);
+                HttpResponseMessage deviceResponseStatus = await GetDeviceExistenceStatus(deviceId);
                 if (!deviceResponseStatus.IsSuccessStatusCode)
                 {
                     throw new Exception($"Device check failed: {deviceResponseStatus.StatusCode}: {deviceResponseStatus.ReasonPhrase}");
                 }
 
-                var response = await _httpClient.DeleteAsync($"{_baseUri}users-on-devices/{deleteUserOnDeviceDTO.Id}");
+                UserOnDeviceResponseDTO matchingEntry;
+                var devicesFromUser = await _httpClient.GetAsync($"{_baseUri}users-on-devices/{userId}");
+                if (devicesFromUser.IsSuccessStatusCode)
+                {
+                    var responseContent = await devicesFromUser.Content.ReadAsStringAsync();
+                    var userOnDeviceResponseDTO = JsonConvert.DeserializeObject<List<UserOnDeviceResponseDTO>>(responseContent);
+
+                    matchingEntry = userOnDeviceResponseDTO.FirstOrDefault(dto => dto.DeviceId == deviceId);
+                    if(matchingEntry == null)
+                    {
+                        return new NotFoundResult();
+                    }
+                }
+                else
+                {
+                    throw new Exception($"UserOnDevice check failed: {userResponseStatus.StatusCode}: {userResponseStatus.ReasonPhrase}");
+                }
+
+
+                var response = await _httpClient.DeleteAsync($"{_baseUri}users-on-devices/{matchingEntry.Id}");
 
                 if (response.IsSuccessStatusCode)
                 {
