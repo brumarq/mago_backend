@@ -1,6 +1,6 @@
 import logging
 import azure.functions as func
-from queries import perform_daily_processing
+from service import AggregatedLogsProcessor
 
 app = func.FunctionApp()
 
@@ -11,6 +11,7 @@ def calc_averages_timer(myTimer: func.TimerRequest) -> None:
     if myTimer.past_due:
         logging.info('The timer is past due!')
 
-    perform_daily_processing()
+    aggregated_logs_processor = AggregatedLogsProcessor()
+    aggregated_logs_processor.perform_daily_processing()
 
     logging.info('Python timer trigger function executed.')

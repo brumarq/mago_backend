@@ -1,62 +1,98 @@
 import pyodbc
 from datetime import datetime, timedelta
-from db import connect_to_database
-from queries import get_all_field_ids, calculate_average_for_table, save_averages, get_aggregated_logs_by_table_name_and_timeframe
+from dateutil.relativedelta import relativedelta
+from db import Database
+from queries import QueryHandler
 
-def calculate_and_save_aggregates() -> None:
-    connection = connect_to_database()
-    try:
-        __aggregate_and_transfer('WeeklyAverage', connection)
+class AggregatedLogsProcessor:
+    def __init__(self):
+        self.database = Database()
+        self.queryhandler = QueryHandler(self.database)
 
-        # Check and execute monthly aggregation
-        if __is_new_month():
-            __aggregate_and_transfer('MonthlyAverage', connection)
+    def perform_daily_processing(self):
+        self.__process_logs("WeeklyAverage")
+        self.__process_logs("MonthlyAverage")
+        self.__process_logs("YearlyAverage")
 
-        # Check and execute yearly aggregation
-        if __is_new_year():
-            __aggregate_and_transfer('YearlyAverage', connection)
+    def __process_log_records(self, table_name: str, start_date: datetime.date, end_date: datetime.date):
+        field_ids = self.queryhandler.get_all_field_ids()
 
-    finally:
-        connection.close()
+        for field_id in field_ids:
+            result = self.queryhandler.get_aggregated_logs_by_date_time(field_id, start_date, end_date)
 
-def __aggregate_and_transfer(table_name: str, connection: pyodbc.Connection) -> None:
-    field_ids = get_all_field_ids(connection)
+            if result is not None:
+                average_value, min_value, max_value, device_id = result
+                self.queryhandler.save_averages(table_name, field_id, average_value, min_value, max_value, device_id, start_date) # start_date is the reference_date..
+        #TODO FINISH??
 
-    for field_id in field_ids:
-        
-        # this part is done for weekly and will always be done regardless
-        result = calculate_average_for_table(table_name, field_id, connection)
 
-        if result is not None:
-            average_value, min_value, max_value, device_id = result
-            save_averages(table_name, field_id, average_value, min_value, max_value, device_id, connection)
+    def __get_reference_date_or_log_date(self, table_name: str):
+        last_record_date = self.queryhandler.get_most_recent_reference_date(table_name) # Try fetching lastest record from WeeklyAverage (reference_date)
 
-        # TODO: check for dates because we do not want to insert records that are ALREADY in the table.
-        # this part is done for monthly (when a new month happens) and retrieves entries from WeeklyAverage table rather than LogValue and saves it in MonthlyAverage
-        if table_name == 'MonthlyAverage':
-            # Assuming start_date and end_date represent the first and last day of the last month
-            start_date = (datetime.utcnow() - timedelta(days=datetime.utcnow().day)).replace(day=1)
-            end_date = datetime.utcnow().replace(day=1) - timedelta(days=1)
+        if not last_record_date:
+            oldest_log_date = self.queryhandler.get_oldest_log_creation_date(table_name) # If nothing is found in the latest records (meaning that WeeklyAverage table is empty), try to fetch the MOST recent log from LogValue.
+
+            if not oldest_log_date: # If no oldest creat_at is found in LogValue, that means that LogValue is also empty, hence return nothing...
+                return None
             
-            result = get_aggregated_logs_by_table_name_and_timeframe('WeeklyAverage', connection, start_date, end_date)
-            average_value, min_value, max_value, device_id = result
-            save_averages(table_name, field_id, average_value, min_value, max_value, device_id, connection)
+            last_record_date = oldest_log_date # If something is found in oldest_log_date, then set it as the last_record date and return it.
 
-        if table_name == 'YearlyAverage':
-            # Assuming start_date and end_date represent the first and last day of the last 12 months
-            start_date = datetime.utcnow() - timedelta(days=365)
-            end_date = datetime.utcnow()
-
-            result = get_aggregated_logs_by_table_name_and_timeframe('MonthlyAverage', connection, start_date, end_date)
-            average_value, min_value, max_value, device_id = result
-            save_averages(table_name, field_id, average_value, min_value, max_value, device_id, connection)
+        return last_record_date
 
 
-def __is_new_week():
-    return datetime.utcnow().isoweekday() == 1  # Assuming the week starts on Monday
+    def __process_logs(self, table_name: str):
+        if table_name == "WeeklyAverage":
+            last_record_date = self.__get_reference_date_or_log_date(table_name)
 
-def __is_new_month():
-    return datetime.utcnow().day == 1
+            if not last_record_date:
+                return
 
-def __is_new_year():
-    return datetime.utcnow().date() == datetime.utcnow().replace(month=1, day=1).date()
+            while True:
+                start_date = last_record_date
+
+                while start_date.weekday() != 0: #need to make sure that we refer to first day of the week (Monday) (0 == Monday)
+                    start_date -= timedelta(days=1)
+                start_date += timedelta(days=7) # move to next week's Monday
+                end_date = start_date + timedelta(days=7) 
+                current_date = datetime.now().date() + relativedelta(years=1) #remove later (relativedelta part)
+
+                if end_date > current_date: # no unhandled records for any previous completed weeks
+                    return
+                
+                self.__process_log_records(table_name, start_date, end_date) #ADJUST LATER
+                last_record_date = start_date
+                
+        elif table_name == "MonthlyAverage":
+            last_record_date = self.__get_reference_date_or_log_date(table_name)
+
+            if not last_record_date:
+                return
+            
+            while True:
+                start_date = datetime(last_record_date.year, last_record_date.month, 1).date() + relativedelta(months=1)
+                end_date = start_date + relativedelta(months=1)
+                current_date = datetime.now().date() + relativedelta(years=1) #remove later
+
+                if end_date > current_date:
+                    return
+                
+                self.__process_log_records(table_name, start_date, end_date)
+                last_record_date = start_date
+
+
+        elif table_name == "YearlyAverage":
+            last_record_date = self.__get_reference_date_or_log_date(table_name)
+
+            if not last_record_date:
+                return
+            
+            while True:
+                start_date = datetime(last_record_date.year, 1, 1).date() + relativedelta(years=1)
+                end_date = start_date + relativedelta(years=1)
+                current_date = datetime.now().date() + relativedelta(years=1) #remove later
+
+                if end_date > current_date:
+                    return
+                
+                self.__process_log_records(table_name, start_date, end_date)
+                last_record_date = start_date

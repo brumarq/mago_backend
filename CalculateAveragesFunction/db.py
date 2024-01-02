@@ -1,86 +1,86 @@
 import os
 import pyodbc
-from datetime import datetime, timedelta
 from typing import List, Tuple
 from dotenv import load_dotenv
 
 load_dotenv()
 
-def connect_to_database() -> pyodbc.Connection:
-    return pyodbc.connect(os.environ.get('METRICS_DB_CONNECTION_STRING_PYODBC'))
+class Database:
+    def __init__(self):
+        self.connection = pyodbc.connect(os.environ.get('METRICS_DB_CONNECTION_STRING_PYODBC'))
 
-def execute_select_query(connection: pyodbc.Connection, query: str, parameters=None) -> List[Tuple]:
-    cursor = connection.cursor()
+    def execute_select_query(self, query: str, parameters=None) -> List[Tuple]:
+        cursor = self.connection.cursor()
 
-    try:
-        if __is_select_query(query):
-            if parameters:
-                cursor.execute(query, parameters)
+        try:
+            if self.__is_select_query(query):
+                if parameters:
+                    cursor.execute(query, parameters)
+                else:
+                    cursor.execute(query)
+
+                rows = cursor.fetchall()
+                return rows
+
             else:
-                cursor.execute(query)
+                raise ValueError("select_query function should only be used for SELECT queries.")
 
-            rows = cursor.fetchall()
-            return rows
+        except Exception as e:
+            print(f"Error executing query: {e}")
+            raise
 
-        else:
-            raise ValueError("select_query function should only be used for SELECT queries.")
+        finally:
+            cursor.close()
 
-    except Exception as e:
-        print(f"Error executing query: {e}")
-        raise
+    def execute_insert_query(self, query: str, parameters=None) -> None:
+        cursor = self.connection.cursor()
 
-    finally:
-        cursor.close()
+        try:
+            if self.__is_insert_query(query):
+                if parameters:
+                    cursor.execute(query, parameters)
+                else:
+                    cursor.execute(query)
 
-def execute_insert_query(connection: pyodbc.Connection, query: str, parameters=None) -> None:
-    cursor = connection.cursor()
+                self.connection.commit()
 
-    try:
-        if __is_insert_query(query):
-            if parameters:
-                cursor.execute(query, parameters)
             else:
-                cursor.execute(query)
+                raise ValueError("insert_query function should only be used for INSERT queries.")
 
-            connection.commit()
+        except Exception as e:
+            print(f"Error executing query: {e}")
+            raise
 
-        else:
-            raise ValueError("insert_query function should only be used for INSERT queries.")
+        finally:
+            cursor.close()
 
-    except Exception as e:
-        print(f"Error executing query: {e}")
-        raise
+    def execute_update_query(self, query: str, parameters=None) -> None:
+        cursor = self.connection.cursor()
 
-    finally:
-        cursor.close()
+        try:
+            if self.__is_update_query(query):
+                if parameters:
+                    cursor.execute(query, parameters)
+                else:
+                    cursor.execute(query)
 
-def execute_update_query(connection: pyodbc.Connection, query: str, parameters=None) -> None:
-    cursor = connection.cursor()
+                self.connection.commit()
 
-    try:
-        if __is_update_query(query):
-            if parameters:
-                cursor.execute(query, parameters)
             else:
-                cursor.execute(query)
+                raise ValueError("update_query function should only be used for UPDATE queries.")
 
-            connection.commit()
+        except Exception as e:
+            print(f"Error executing query: {e}")
+            raise
 
-        else:
-            raise ValueError("update_query function should only be used for UPDATE queries.")
+        finally:
+            cursor.close()
 
-    except Exception as e:
-        print(f"Error executing query: {e}")
-        raise
+    def __is_update_query(self, query: str) -> bool:
+        return query.strip().upper().startswith("UPDATE")
 
-    finally:
-        cursor.close()
+    def __is_insert_query(self, query: str) -> bool:
+        return query.strip().upper().startswith("INSERT")
 
-def __is_update_query(query: str) -> bool:
-    return query.strip().upper().startswith("UPDATE")
-
-def __is_insert_query(query: str) -> bool:
-    return query.strip().upper().startswith("INSERT")
-
-def __is_select_query(query: str) -> bool:
-    return query.strip().upper().startswith("SELECT")
+    def __is_select_query(self, query: str) -> bool:
+        return query.strip().upper().startswith("SELECT")
