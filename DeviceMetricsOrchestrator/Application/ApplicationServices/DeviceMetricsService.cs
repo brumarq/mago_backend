@@ -23,12 +23,12 @@ namespace Application.ApplicationServices
             _unitService = unitService;
         }
 
-        public async Task<IEnumerable<DeviceAggregatedLogsResponseDTO>> GetDeviceAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId)
+        public async Task<IEnumerable<DeviceAggregatedLogsResponseDTO>> GetDeviceAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId, string startDate, string endDate)
         {
             try
             {
                 var device = await _deviceService.GetDeviceByIdAsync(deviceId);
-                var aggregatedLogs = await _aggregatedLogsService.GetAggregatedLogsAsync(aggregatedLogDateType, deviceId, fieldId);
+                var aggregatedLogs = await _aggregatedLogsService.GetAggregatedLogsAsync(aggregatedLogDateType, deviceId, fieldId, startDate, endDate);
 
                 var responseList = new List<DeviceAggregatedLogsResponseDTO>();
 
@@ -120,7 +120,7 @@ namespace Application.ApplicationServices
             }
         }
 
-        public async Task<string> ExportDeviceAggregatedLogsAsnc(ExportAggregatedLogsCsvDTO exportAggregatedLogsCsvDTO)
+        /*public async Task<string> ExportDeviceAggregatedLogsAsnc(ExportAggregatedLogsCsvDTO exportAggregatedLogsCsvDTO)
         {
             var aggregatedLogs = await GetDeviceAggregatedLogsAsync(exportAggregatedLogsCsvDTO.AggregatedLogDateType, exportAggregatedLogsCsvDTO.DeviceId, exportAggregatedLogsCsvDTO.FieldId);
 
@@ -135,6 +135,6 @@ namespace Application.ApplicationServices
 
                 return writer.ToString();
             }
-        }
+        }*/
     }
 }

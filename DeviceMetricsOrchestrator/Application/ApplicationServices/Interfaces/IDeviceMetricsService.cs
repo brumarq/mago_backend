@@ -7,7 +7,6 @@ namespace Application.ApplicationServices.Interfaces
     public interface IDeviceMetricsService
     {
         Task<IEnumerable<DeviceMetricsResponseDTO>> GetDeviceMetricsAsync(int deviceId);
-        Task<IEnumerable<DeviceAggregatedLogsResponseDTO>> GetDeviceAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId);
-        Task<string> ExportDeviceAggregatedLogsAsnc(ExportAggregatedLogsCsvDTO exportAggregatedLogsCsvDTO);
+        Task<IEnumerable<DeviceAggregatedLogsResponseDTO>> GetDeviceAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId, string startDate, string endDate);
     }
 }

@@ -40,12 +40,12 @@ public class DeviceMetricsController : ControllerBase
 
 
     [HttpGet("{aggregatedLogDateType}/{deviceId}/{fieldId}")]
-    [Authorize("All")]
-    public async Task<ActionResult<IEnumerable<DeviceAggregatedLogsResponseDTO>>> GetDeviceAggregatedLogs(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId)
+    [Authorize("All")] 
+    public async Task<ActionResult<IEnumerable<DeviceAggregatedLogsResponseDTO>>> GetDeviceAggregatedLogs(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId, string? startDate, string? endDate)
     {
         try
         {
-            var deviceAggregatedLogs = await _service.GetDeviceAggregatedLogsAsync(aggregatedLogDateType, deviceId, fieldId);
+            var deviceAggregatedLogs = await _service.GetDeviceAggregatedLogsAsync(aggregatedLogDateType, deviceId, fieldId, startDate, endDate);
 
             return Ok(deviceAggregatedLogs);
         }

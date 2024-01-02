@@ -3,10 +3,8 @@ using Application.DTOs.Metrics;
 using Application.Exceptions;
 using Domain.Enums;
 using Microsoft.Extensions.Configuration;
-using System.Net.Http.Json;
 using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
+using System.Net.Http.Json;
 
 namespace Application.ApplicationServices
 {
@@ -19,9 +17,8 @@ namespace Application.ApplicationServices
         private readonly string _baseUri;
         private readonly IAuthenticationService _authenticationService;
         private readonly IAuthorizationService _authorizationService;
-        private readonly IUsersOnDevicesService _usersOnDevicesService;
 
-        public AggregatedLogsService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService, IUsersOnDevicesService usersOnDevicesService, IAuthenticationService authenticationService, IAuthorizationService authorizationService)
+        public AggregatedLogsService(IConfiguration configuration, IHttpClientFactory httpClientFactory, IDeviceService deviceService, IAuthenticationService authenticationService, IAuthorizationService authorizationService)
         {
             _configuration = configuration;
             _httpClientFactory = httpClientFactory;
@@ -30,10 +27,9 @@ namespace Application.ApplicationServices
             _deviceService = deviceService;
             _authenticationService = authenticationService;
             _authorizationService = authorizationService;
-            _usersOnDevicesService = usersOnDevicesService;
         }
 
-        public async Task<IEnumerable<AggregatedLogsResponseDTO>> GetAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId)
+        public async Task<IEnumerable<AggregatedLogsResponseDTO>> GetAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId, string startDate, string endDate)
         {
             try
             {
@@ -49,7 +45,12 @@ namespace Application.ApplicationServices
                     throw new ForbiddenException($"The user with id {loggedInUserId} does not have permission to access device with id {deviceId}");
 
                 // Send request along with a token to the MetricsMS
-                var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{aggregatedLogDateType.ToString()}/{deviceId}/{fieldId}");
+                HttpRequestMessage request = null;
+                if (!string.IsNullOrEmpty(startDate) || !string.IsNullOrEmpty(endDate))
+                    request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{aggregatedLogDateType.ToString()}/{deviceId}/{fieldId}?start_date={Uri.EscapeDataString(startDate)}&end_date={Uri.EscapeDataString(endDate)}");
+                else
+                    request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{aggregatedLogDateType.ToString()}/{deviceId}/{fieldId}");
+
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 var response = await _httpClient.SendAsync(request);
 
@@ -62,9 +63,9 @@ namespace Application.ApplicationServices
 
                 return body!;
             }
-            catch(Exception e)
+            catch(HttpRequestException ex)
             {
-                throw;
+                throw;         
             }
 
         }
