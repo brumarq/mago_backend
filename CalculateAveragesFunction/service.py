@@ -1,4 +1,3 @@
-import pyodbc
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from db import Database

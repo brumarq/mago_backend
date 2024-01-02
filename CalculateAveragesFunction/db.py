@@ -54,31 +54,6 @@ class Database:
         finally:
             cursor.close()
 
-    def execute_update_query(self, query: str, parameters=None) -> None:
-        cursor = self.connection.cursor()
-
-        try:
-            if self.__is_update_query(query):
-                if parameters:
-                    cursor.execute(query, parameters)
-                else:
-                    cursor.execute(query)
-
-                self.connection.commit()
-
-            else:
-                raise ValueError("update_query function should only be used for UPDATE queries.")
-
-        except Exception as e:
-            print(f"Error executing query: {e}")
-            raise
-
-        finally:
-            cursor.close()
-
-    def __is_update_query(self, query: str) -> bool:
-        return query.strip().upper().startswith("UPDATE")
-
     def __is_insert_query(self, query: str) -> bool:
         return query.strip().upper().startswith("INSERT")
 
