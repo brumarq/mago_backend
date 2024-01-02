@@ -4,6 +4,7 @@ using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(NotificationsDbContext))]
-    partial class NotificationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240102102755_removed user on status type")]
+    partial class removeduseronstatustype
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,7 +42,7 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Message")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("StatusTypeId")
+                    b.Property<int?>("StatusTypeId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Timestamp")
@@ -80,11 +83,11 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Status", b =>
                 {
-                    b.HasOne("Domain.Entities.StatusType", null)
+                    b.HasOne("Domain.Entities.StatusType", "StatusType")
                         .WithMany("Statuses")
-                        .HasForeignKey("StatusTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("StatusTypeId");
+
+                    b.Navigation("StatusType");
                 });
 
             modelBuilder.Entity("Domain.Entities.StatusType", b =>

@@ -18,21 +18,6 @@ namespace WebApp.Controllers
         }
 
 
-        [HttpGet("users/{userId}")]
-        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForUserOnStatusTypeByUserIdAsync(string userId)
-        {
-            try
-            {
-                var notificationResponseDTO = await _notificationService.GetNotificationsForUserOnStatusTypeByUserIdAsync(userId);
-                return Ok(notificationResponseDTO);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-
         [HttpGet("device/{deviceId}")]
         public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId)
         {

@@ -3,14 +3,15 @@ from app.main.domain.entities.weekly_average import WeeklyAverage
 from app.main.domain.entities.monthly_average import MonthlyAverage
 from app.main.domain.entities.yearly_average import YearlyAverage
 from app.test.conftest import db
+import datetime
 import pytest
 
-@pytest.mark.parametrize("average_value, min_value, max_value, device_id, field_id", [
-    (10.5, 8.0, 12.0, 1, 1),
-    (20.3, 15.0, 25.0, 2, 1),
-    (30.0, 25.0, 35.0, 3, 2),
+@pytest.mark.parametrize("average_value, min_value, max_value, device_id, field_id, reference_date", [
+    (10.5, 8.0, 12.0, 1, 1, datetime.date(2022, 1, 1)),
+    (20.3, 15.0, 25.0, 2, 1, datetime.date(2022, 1, 2)),
+    (30.0, 25.0, 35.0, 3, 2, datetime.date(2022, 1, 3)),
 ])
-def test_weekly_average_creation(app, average_value, min_value, max_value, device_id, field_id):
+def test_weekly_average_creation(app, average_value, min_value, max_value, device_id, field_id, reference_date):
     field = Field(name="TestField", unit_id=1, device_type_id=1, loggable=True)
 
     weekly_average = WeeklyAverage(
@@ -18,7 +19,8 @@ def test_weekly_average_creation(app, average_value, min_value, max_value, devic
         min_value=min_value,
         max_value=max_value,
         device_id=device_id,
-        field_id=field_id
+        field_id=field_id,
+        reference_date=reference_date
     )
 
     assert weekly_average.average_value == average_value
@@ -26,6 +28,7 @@ def test_weekly_average_creation(app, average_value, min_value, max_value, devic
     assert weekly_average.max_value == max_value
     assert weekly_average.device_id == device_id
     assert weekly_average.field_id == field_id
+    assert weekly_average.reference_date == reference_date
 
     with app.app_context():
         db.session.add(field)
@@ -40,12 +43,12 @@ def test_weekly_average_creation(app, average_value, min_value, max_value, devic
         assert WeeklyAverage.query.filter_by(average_value=average_value).first() == weekly_average
 
 
-@pytest.mark.parametrize("average_value, min_value, max_value, device_id, field_id", [
-    (100.5, 80.0, 120.0, 1, 1),
-    (200.3, 150.0, 250.0, 2, 1),
-    (300.0, 250.0, 350.0, 3, 2),
+@pytest.mark.parametrize("average_value, min_value, max_value, device_id, field_id, reference_date", [
+    (100.5, 80.0, 120.0, 1, 1, datetime.date(2022, 1, 1)),
+    (200.3, 150.0, 250.0, 2, 1, datetime.date(2022, 1, 2)),
+    (300.0, 250.0, 350.0, 3, 2, datetime.date(2022, 1, 3)),
 ])
-def test_monthly_average_creation(client, app, average_value, min_value, max_value, device_id, field_id):
+def test_monthly_average_creation(app, average_value, min_value, max_value, device_id, field_id, reference_date):
     field = Field(name="TestField", unit_id=1, device_type_id=1, loggable=True)
 
     monthly_average = MonthlyAverage(
@@ -53,7 +56,8 @@ def test_monthly_average_creation(client, app, average_value, min_value, max_val
         min_value=min_value,
         max_value=max_value,
         device_id=device_id,
-        field_id=field_id
+        field_id=field_id,
+        reference_date=reference_date
     )
 
     assert monthly_average.average_value == average_value
@@ -61,6 +65,7 @@ def test_monthly_average_creation(client, app, average_value, min_value, max_val
     assert monthly_average.max_value == max_value
     assert monthly_average.device_id == device_id
     assert monthly_average.field_id == field_id
+    assert monthly_average.reference_date == reference_date
 
     with app.app_context():
         db.session.add(field)
@@ -75,12 +80,12 @@ def test_monthly_average_creation(client, app, average_value, min_value, max_val
         filtered_result = MonthlyAverage.query.filter_by(id=monthly_average.id).first()
         assert filtered_result.id != 2
 
-@pytest.mark.parametrize("average_value, min_value, max_value, device_id, field_id", [
-    (500.5, 400.0, 600.0, 1, 1),
-    (600.3, 500.0, 700.0, 2, 1),
-    (700.0, 600.0, 800.0, 3, 2),
+@pytest.mark.parametrize("average_value, min_value, max_value, device_id, field_id, reference_date", [
+    (500.5, 400.0, 600.0, 1, 1, datetime.date(2022, 1, 1)),
+    (600.3, 500.0, 700.0, 2, 1, datetime.date(2022, 1, 2)),
+    (700.0, 600.0, 800.0, 3, 2, datetime.date(2022, 1, 3)),
 ])
-def test_yearly_average_creation_and_filtering(app, average_value, min_value, max_value, device_id, field_id):
+def test_yearly_average_creation_and_filtering(app, average_value, min_value, max_value, device_id, field_id, reference_date):
     field = Field(name="TestField", unit_id=1, device_type_id=1, loggable=True)
 
     yearly_average = YearlyAverage(
@@ -88,7 +93,8 @@ def test_yearly_average_creation_and_filtering(app, average_value, min_value, ma
         min_value=min_value,
         max_value=max_value,
         device_id=device_id,
-        field_id=field_id
+        field_id=field_id,
+        reference_date=reference_date
     )
 
     assert yearly_average.average_value == average_value
@@ -96,13 +102,13 @@ def test_yearly_average_creation_and_filtering(app, average_value, min_value, ma
     assert yearly_average.max_value == max_value
     assert yearly_average.device_id == device_id
     assert yearly_average.field_id == field_id
+    assert yearly_average.reference_date == reference_date
 
     with app.app_context():
         db.session.add(field)
         db.session.add(yearly_average)
         db.session.commit()
 
-        # Check dates after committing to the database
         assert yearly_average.created_at is not None
         assert yearly_average.updated_at is not None
         assert yearly_average.created_at <= yearly_average.updated_at
