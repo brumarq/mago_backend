@@ -1,8 +1,9 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 
 namespace Application.Exceptions
 {
-    public abstract class CustomException : Exception
+    public class CustomException : Exception
     {
         public readonly HttpStatusCode StatusCode;
 
@@ -16,6 +17,5 @@ namespace Application.Exceptions
         {
             StatusCode = statusCode;
         }
-
     }
 }

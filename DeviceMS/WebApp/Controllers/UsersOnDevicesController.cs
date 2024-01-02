@@ -28,7 +28,8 @@ namespace WebApp.Controllers
         {
             var loggedUserId = _authenticationService.GetUserId();
 
-            if (!loggedUserId.Equals(userId))
+            if (!loggedUserId.Equals(userId) && 
+                _authenticationService.HasPermission("client"))
             {
                 return Unauthorized($"The logged user cannot access this device.");
             }
@@ -63,7 +64,7 @@ namespace WebApp.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize("admin")]
+        [Authorize("Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try

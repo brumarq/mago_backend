@@ -250,6 +250,10 @@ public class Auth0Service : IAuth0Service
     
     public async Task<bool> DeleteUserAsync(string userId)
     {
+
+        var userExists = await GetUser(userId);
+        
+        
         // Use _auth0ManagementService to get the access token
         var token = await _auth0ManagementService.GetToken();
 
