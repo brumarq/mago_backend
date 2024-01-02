@@ -5,7 +5,7 @@ from service import AggregatedLogsProcessor
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
 @app.function_name(name="process_aggregation_logs_timer")
-@app.schedule(schedule="* * * * *", arg_name="myTimer", run_on_startup=True, #0 5 * * * 
+@app.schedule(schedule="5 0 * * *", arg_name="myTimer", run_on_startup=True, # Daily timer at 12:05AM (00:05)
               use_monitor=False) 
 def process_aggregation_logs_timer(myTimer: func.TimerRequest) -> None:
     if myTimer.past_due:
