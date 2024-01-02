@@ -16,9 +16,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Change to ProcessAggregationLogsTimer directory
+        run: cd ProcessAggregationLogsTimer
+
       - name: Make script executable (if needed)
-        run: chmod +x ./ProcessAggregationLogsTimer/azure_function_deployment.ps1
+        run: chmod +x ./azure_function_deployment.ps1
+
+      - name: Install Azure Functions Core Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install azure-functions-core-tools
 
       - name: Run Azure Deployment Script
         run: |
-          pwsh -File ./ProcessAggregationLogsTimer/azure_function_deployment.ps1
+          pwsh -File ./azure_function_deployment.ps1
