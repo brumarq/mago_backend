@@ -92,7 +92,7 @@ builder.Services.AddAuthorization(options =>
 // Authorization handler registration
 builder.Services.AddSingleton<IAuthorizationHandler, HasPermissionHandler>();
 
-// Extra stuff for converting int to string representation of enums in Swagger UI
+// Extra stuff for converting int to string representation of enums in Swagger UI.
 builder.Services
     .AddControllersWithViews()
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters
