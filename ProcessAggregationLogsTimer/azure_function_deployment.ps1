@@ -35,8 +35,10 @@ Write-Host $cmd
 Invoke-Expression $cmd
 
 # Add required settings
+$azureFunctionTimezone = "Europe Standard Time"
 az functionapp config appsettings set --name $functionAppName --resource-group $resourceGroupName --settings METRICS_DB_CONNECTION_STRING_PYODBC=$secretValue
 az functionapp config appsettings set --name $functionAppName --resource-group $resourceGroupName --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true
+az functionapp config appsettings set --name $functionAppName --resource-group $resourceGroupName --settings WEBSITE_TIME_ZONE=$azureFunctionTimezone
 
 # Deploy the azure function code
 func azure functionapp publish $functionAppName
