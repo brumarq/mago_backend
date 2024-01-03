@@ -1,8 +1,8 @@
-﻿using Application.ApplicationServices.Interfaces;
+﻿using Application.ApplicationServices.Authentization.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
-namespace Application.ApplicationServices
+namespace Application.ApplicationServices.Authentization
 {
     public class AuthenticationService : IAuthenticationService
     {
@@ -28,7 +28,7 @@ namespace Application.ApplicationServices
 
         public bool IsLoggedInUser()
         {
-            return HasPermission("client") || HasPermission("admin");         
+            return HasPermission("client") || HasPermission("admin");
         }
     }
 }

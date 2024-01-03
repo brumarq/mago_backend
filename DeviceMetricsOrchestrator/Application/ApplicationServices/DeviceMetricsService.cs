@@ -1,11 +1,6 @@
 ﻿using Application.ApplicationServices.Interfaces;
 using Application.DTOs.DeviceMetrics;
-using Application.DTOs.Metrics;
-using CsvHelper;
-using CsvHelper.Configuration;
 using Domain.Enums;
-using Microsoft.AspNetCore.Http;
-using System.Globalization;
 
 namespace Application.ApplicationServices
 {

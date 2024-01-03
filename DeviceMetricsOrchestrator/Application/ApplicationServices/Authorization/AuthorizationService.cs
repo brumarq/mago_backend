@@ -1,6 +1,8 @@
-﻿using Application.ApplicationServices.Interfaces;
+﻿using Application.ApplicationServices.Authentization.Interfaces;
+using Application.ApplicationServices.Authorization.Interfaces;
+using Application.ApplicationServices.Interfaces;
 
-namespace Application.ApplicationServices
+namespace Application.ApplicationServices.Authorization
 {
     public class AuthorizationService : IAuthorizationService
     {

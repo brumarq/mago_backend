@@ -1,3 +1,5 @@
+using Application.ApplicationServices.Authentization.Interfaces;
+using Application.ApplicationServices.Authorization.Interfaces;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs.Device;
 using Application.Exceptions;
@@ -35,6 +37,9 @@ public class DeviceService : IDeviceService
         var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{deviceId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
         var response = await _httpClient.SendAsync(request);
+
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
+            throw new UnauthorizedException($"This user does not have access to view device {deviceId}");
 
         return response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound;
     }

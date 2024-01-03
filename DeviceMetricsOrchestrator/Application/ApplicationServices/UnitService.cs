@@ -1,5 +1,5 @@
-﻿using Application.ApplicationServices.Interfaces;
-using Application.DTOs.Device;
+﻿using Application.ApplicationServices.Authentization.Interfaces;
+using Application.ApplicationServices.Interfaces;
 using Application.DTOs.Misc;
 using Application.Exceptions;
 using Microsoft.Extensions.Configuration;

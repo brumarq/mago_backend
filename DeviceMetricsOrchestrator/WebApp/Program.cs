@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebApp.Middleware.Authentication;
+using Application.ApplicationServices.Authentization.Interfaces;
+using Application.ApplicationServices.Authentization;
+using Application.ApplicationServices.Authorization;
 
 // using Infrastructure.Data.Context;
 // using Infrastructure.Repositories;
@@ -33,7 +36,7 @@ builder.Services.AddHttpContextAccessor();
 // Add repositories for dependency injection
 // builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-builder.Services.AddScoped<Application.ApplicationServices.Interfaces.IAuthorizationService, Application.ApplicationServices.AuthorizationService>();
+builder.Services.AddScoped<Application.ApplicationServices.Authorization.Interfaces.IAuthorizationService, AuthorizationService>();
 builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<IMetricsService, MetricsService>();
 builder.Services.AddScoped<IAggregatedLogsService, AggregatedLogsService>();
