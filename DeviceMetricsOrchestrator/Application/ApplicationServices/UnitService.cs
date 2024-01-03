@@ -4,6 +4,7 @@ using Application.DTOs.Misc;
 using Application.Exceptions;
 using Microsoft.Extensions.Configuration;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace Application.ApplicationServices
@@ -28,7 +29,9 @@ namespace Application.ApplicationServices
             if (!_authenticationService.IsLoggedInUser())
                 throw new UnauthorizedException($"The user is not logged in. Please login first.");
 
-            var response = await _httpClient.GetAsync($"{_baseUri}{unitId}");
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{unitId}");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+            using var response = await _httpClient.SendAsync(request);
 
             return response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound;
         }
@@ -41,7 +44,10 @@ namespace Application.ApplicationServices
             if (!await UnitExistsAsync(unitId))
                 throw new NotFoundException($"Unit with id {unitId} does not exist!");
 
-            var response = await _httpClient.GetAsync($"{_baseUri}{unitId}");
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{unitId}");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+            using var response = await _httpClient.SendAsync(request);
+
             response.EnsureSuccessStatusCode();
 
             var body = await response.Content.ReadFromJsonAsync<UnitResponseDTO>();
