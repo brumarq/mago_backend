@@ -1,5 +1,4 @@
 ﻿using Application.ApplicationServices.Interfaces;
-using Application.Exceptions;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 

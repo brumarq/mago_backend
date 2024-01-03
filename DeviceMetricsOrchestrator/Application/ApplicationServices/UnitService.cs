@@ -25,44 +25,28 @@ namespace Application.ApplicationServices
 
         public async Task<bool> UnitExistsAsync(int unitId)
         {
-            try
-            {
-                if (!_authenticationService.IsLoggedInUser())
-                    throw new UnauthorizedException($"The user is not logged in. Please login first.");
+            if (!_authenticationService.IsLoggedInUser())
+                throw new UnauthorizedException($"The user is not logged in. Please login first.");
 
-                var response = await _httpClient.GetAsync($"{_baseUri}{unitId}");
+            var response = await _httpClient.GetAsync($"{_baseUri}{unitId}");
 
-                return response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound;
-            }
-            catch(Exception ex)
-            {
-                throw;
-            }
-            
+            return response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound;
         }
 
         public async Task<UnitResponseDTO> GetUnitByIdAsync(int unitId)
         {
-            try
-            {
-                if (!_authenticationService.IsLoggedInUser())
-                    throw new UnauthorizedException($"The user is not logged in. Please login first.");
+            if (!_authenticationService.IsLoggedInUser())
+                throw new UnauthorizedException($"The user is not logged in. Please login first.");
 
-                if (!await UnitExistsAsync(unitId))
-                    throw new NotFoundException($"Unit with id {unitId} does not exist!");
+            if (!await UnitExistsAsync(unitId))
+                throw new NotFoundException($"Unit with id {unitId} does not exist!");
 
-                var response = await _httpClient.GetAsync($"{_baseUri}{unitId}");
-                response.EnsureSuccessStatusCode();
+            var response = await _httpClient.GetAsync($"{_baseUri}{unitId}");
+            response.EnsureSuccessStatusCode();
 
-                var body = await response.Content.ReadFromJsonAsync<UnitResponseDTO>();
+            var body = await response.Content.ReadFromJsonAsync<UnitResponseDTO>();
 
-                return body!;
-            }
-            catch(Exception ex)
-            {
-                throw;
-            }
-            
+            return body!;
         }
     }
 }

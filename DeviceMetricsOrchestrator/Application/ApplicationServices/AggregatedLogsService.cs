@@ -31,43 +31,35 @@ namespace Application.ApplicationServices
 
         public async Task<IEnumerable<AggregatedLogsResponseDTO>> GetAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId, string startDate, string endDate)
         {
-            try
-            {
-                if (!_authenticationService.IsLoggedInUser())
-                    throw new UnauthorizedException($"The user is not logged in. Please login first.");
+            if (!_authenticationService.IsLoggedInUser())
+                throw new UnauthorizedException($"The user is not logged in. Please login first.");
 
-                if (!await _deviceService.DeviceExistsAsync(deviceId))
-                    throw new NotFoundException($"Device with id {deviceId} does not exist!");
+            if (!await _deviceService.DeviceExistsAsync(deviceId))
+                throw new NotFoundException($"Device with id {deviceId} does not exist!");
 
-                var loggedInUserId = _authenticationService.GetUserId();
+            var loggedInUserId = _authenticationService.GetUserId();
 
-                if (!await _authorizationService.IsDeviceAccessibleToUser(loggedInUserId!, deviceId))
-                    throw new ForbiddenException($"The user with id {loggedInUserId} does not have permission to access device with id {deviceId}");
+            if (!await _authorizationService.IsDeviceAccessibleToUser(loggedInUserId!, deviceId))
+                throw new ForbiddenException($"The user with id {loggedInUserId} does not have permission to access device with id {deviceId}");
 
-                // Send request along with a token to the MetricsMS
-                HttpRequestMessage request = null;
-                if (!string.IsNullOrEmpty(startDate) || !string.IsNullOrEmpty(endDate))
-                    request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{aggregatedLogDateType.ToString()}/{deviceId}/{fieldId}?start_date={startDate}&end_date={endDate}");
-                else
-                    request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{aggregatedLogDateType.ToString()}/{deviceId}/{fieldId}");
+            // Send request along with a token to the MetricsMS
+            HttpRequestMessage request = null;
+            if (!string.IsNullOrEmpty(startDate) || !string.IsNullOrEmpty(endDate))
+                request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{aggregatedLogDateType.ToString()}/{deviceId}/{fieldId}?start_date={startDate}&end_date={endDate}");
+            else
+                request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{aggregatedLogDateType.ToString()}/{deviceId}/{fieldId}");
 
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
-                var response = await _httpClient.SendAsync(request);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+            var response = await _httpClient.SendAsync(request);
 
-                response.EnsureSuccessStatusCode();
+            response.EnsureSuccessStatusCode();
 
-                var body = await response.Content.ReadFromJsonAsync<IEnumerable<AggregatedLogsResponseDTO>>();
+            var body = await response.Content.ReadFromJsonAsync<IEnumerable<AggregatedLogsResponseDTO>>();
 
-                if (body == null)
-                    throw new NotFoundException($"Aggregated logs failed to get retrieved.");
+            if (body == null)
+                throw new NotFoundException($"Aggregated logs failed to get retrieved.");
 
-                return body!;
-            }
-            catch(HttpRequestException ex)
-            {
-                throw new CustomException(ex.Message, ex.StatusCode.Value);
-            }
-
+            return body!;
         }
     }
 }
