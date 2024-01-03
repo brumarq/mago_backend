@@ -52,6 +52,7 @@ namespace WebApp.Controllers
 
         // GET /notifications/device/5
         [HttpGet("device/{deviceId}")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId)
         {
             try
@@ -72,6 +73,7 @@ namespace WebApp.Controllers
 
         // POST /<notifications>
         [HttpPost]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult<NotificationResponseDTO>> CreateNotificationAsync([FromBody] CreateNotificationDTO createNotificationDTO)
         {
             try

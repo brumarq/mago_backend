@@ -26,6 +26,7 @@ namespace WebApp.Controllers
 
 
         [HttpGet("{unitId}")]
+        [Authorize("All")]
         public async Task<ActionResult<UnitDTO>> GetUnitById(int unitId)
         {      
             try

@@ -21,7 +21,7 @@ namespace WebApp.Controllers
         
         [HttpDelete("{userID}")]
         [Authorize("Admin")]
-        public async Task<ActionResult<UserOnDeviceResponseDTO>> DeleteUser(string userID)
+        public async Task<ActionResult> DeleteUser(string userID)
         {
             try
             {

@@ -74,7 +74,7 @@ namespace WebApp.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize("admin")]
+        [Authorize("Admin")]
         public async Task<ActionResult<UpdateDeviceTypeDTO>> UpdateDeviceTypeAsync(int id, [FromBody] UpdateDeviceTypeDTO updateDeviceTypeDto)
         {
             if (id <= 0)

@@ -34,7 +34,7 @@ namespace WebApp.Controllers
             }
         }
 
-        [HttpDelete("orchestrator/device/user-on-device/{userId}/{deviceId}")]
+        [HttpDelete("{userId}/{deviceId}")]
         public async Task<ActionResult> DeleteUserOnDeviceEntryAsync(string userId, int deviceId)
         {
             try

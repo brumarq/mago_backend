@@ -48,73 +48,54 @@ namespace Application.ApplicationServices
         public async Task DeleteUser(string userId)
         {
             var userDevicesResponse = await GetUserOnDevice(userId);
-
-            HandleHttpResponse(userDevicesResponse, userId);
+            if (!userDevicesResponse.IsSuccessStatusCode)
+            {
+                throw new CustomException($"{userDevicesResponse.ReasonPhrase}.", userDevicesResponse.StatusCode);
+            }
 
             var content = await userDevicesResponse.Content.ReadAsStringAsync();
             if (!string.IsNullOrWhiteSpace(content) && content != "[]")
             {
                 throw new InvalidOperationException($"User {userId} has devices assigned and cannot be deleted.");
             }
-
-            string requestUrl = $"{_baseUri}{userId}";
-
+            
             try
             {
                 var request = new HttpRequestMessage(HttpMethod.Delete, $"{_baseUri}{userId}");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 var response = await _httpClient.SendAsync(request);
-                response.EnsureSuccessStatusCode();
-
-                HandleHttpResponse(response, userId);
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new CustomException($"{response.ReasonPhrase}.", response.StatusCode);
+                }
             }
             catch (HttpRequestException e)
             {
-                Console.WriteLine(e);
-                throw;
-                
+                throw new CustomException($"Exception occurred when deleting user: {e.Message}", HttpStatusCode.ServiceUnavailable);
             }
         }
-        
+
         public async Task<HttpResponseMessage> GetUserOnDevice(string userId)
         {
             try
             {
                 var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUriUsersOnDevice}{userId}");
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+                request.Headers.Authorization =
+                    new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 var response = await _httpClient.SendAsync(request);
-                
-                response.EnsureSuccessStatusCode();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new CustomException($"{response.ReasonPhrase}", response.StatusCode);
+                }
 
                 return response;
             }
             catch (HttpRequestException e)
             {
-                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
-                {
-                    ReasonPhrase = $"Exception occurred when checking device existence: {e.Message}"
-                };
+                throw new CustomException($"Exception occurred when deleting user: {e.Message}",
+                    HttpStatusCode.ServiceUnavailable);
             }
         }
-        
-        private void HandleHttpResponse(HttpResponseMessage response, string userId)
-        {
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                throw new ForbiddenException($"Unauthorized access attempt for user {userId}.");
-            }
-
-            if (response.StatusCode == HttpStatusCode.Forbidden)
-            {
-                throw new ForbiddenException($"Forbidden access for user {userId}.");
-            }
-
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new HttpRequestException($"HTTP request failed for user {userId}. Status code: {response.StatusCode}");
-            }
-        }
-
-
     }
 }
