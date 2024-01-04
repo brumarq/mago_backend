@@ -46,7 +46,7 @@ jobs:
     name: Deploy docker container
     runs-on: ubuntu-20.04
     needs: devicems-unit-tests
-    environment: production
+    environment: devicems-production
 
     steps:
     - name: Check out repository
