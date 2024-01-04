@@ -55,9 +55,6 @@ public class Profiles : Profile
         CreateMap<Unit, UnitDTO>();
         CreateMap<UnitDTO, Unit>();
 
-        CreateMap<Quantity, QuantityDTO>();
-        CreateMap<QuantityDTO, Quantity>();
-
         CreateMap<DeviceType, LabelValueOptionDTO>()
             .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Label, opt => opt.MapFrom(src => src.Name));
