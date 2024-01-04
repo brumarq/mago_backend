@@ -7,6 +7,7 @@ namespace Application.ApplicationServices.Interfaces
         Task<NotificationResponseDTO> CreateNotificationAsync(CreateNotificationDTO createNotificationDTO);
         Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId);
 
-        Task<HttpResponseMessage> GetStatusTypeExistenceStatus(int statusTypeId);
+        Task<NotificationResponseDTO> GetNotificationByIdAsync(int id);
+        void CheckStatusTypeExistence(int statusTypeId);
     }
 }

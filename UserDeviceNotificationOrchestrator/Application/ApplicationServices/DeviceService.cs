@@ -1,63 +1,92 @@
 ﻿using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
 using Application.DTOs.UsersOnDevices;
+using Application.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace Application.ApplicationServices
 {
     public class DeviceService : IDeviceService
     {
+        private readonly IAuthenticationService _authenticationService;
         private readonly IHttpClientFactory _httpClientFactory;      
         private readonly HttpClient _httpClient;
         private readonly IUserService _userService;
-        private readonly string? _baseUri;
+        private readonly string? _baseUriDevice;
+        private readonly string? _baseUriUserOnDevice;
 
-        public DeviceService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IUserService userService)
+        public DeviceService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IUserService userService, IAuthenticationService authenticationService)
         {
             _httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient();
             _userService = userService;
-            _baseUri = configuration["ApiRequestUris:DeviceBaseUri"];
+            _baseUriDevice = configuration["ApiRequestUris:DeviceBaseUri"];
+            _baseUriUserOnDevice = configuration["ApiRequestUris:UsersOnDeviceUri"];
+            _authenticationService = authenticationService;
         }
 
-        public async Task<HttpResponseMessage> GetDeviceExistenceStatus(int deviceId)
+        private async Task<HttpResponseMessage> GetDeviceExistenceStatus(int deviceId)
         {
-            string requestUrl = $"{_baseUri}{deviceId}";
+            string requestUrl = $"{_baseUriDevice}{deviceId}";
 
             try
             {
-                var response = await _httpClient.GetAsync(requestUrl);
-                return response;
+                var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+                return await _httpClient.SendAsync(request);
             }
             catch (HttpRequestException e)
             {
                 return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
                 {
                     ReasonPhrase = $"Exception occurred when checking device existence: {e.Message}"
-                };
+                };  
             }
         }
         
-        
-
-        public async Task<UserOnDeviceResponseDTO> CreateNotificationAsync(CreateUserOnDeviceDTO createUserOnDeviceDTO)
+        public async void CheckDeviceExistence(int deviceID)
         {
-
-            HttpResponseMessage userResponseStatus = await _userService.GetUserExistenceStatus(createUserOnDeviceDTO.UserId);
-            if (!userResponseStatus.IsSuccessStatusCode)
-            {
-                throw new Exception($"User check failed: {userResponseStatus.StatusCode}: {userResponseStatus.ReasonPhrase}");
-            }
-
-            HttpResponseMessage deviceResponseStatus = await GetDeviceExistenceStatus(createUserOnDeviceDTO.DeviceId);
+            var deviceResponseStatus = await GetDeviceExistenceStatus(deviceID);
             if (!deviceResponseStatus.IsSuccessStatusCode)
             {
-                throw new Exception($"Device check failed: {deviceResponseStatus.StatusCode}: {deviceResponseStatus.ReasonPhrase}");
+                if (deviceResponseStatus.StatusCode == HttpStatusCode.NotFound)
+                    throw new NotFoundException("Device not found");
+                else
+                    throw new Exception($"Device check failed: {deviceResponseStatus.StatusCode}: {deviceResponseStatus.ReasonPhrase}");
             }
+        }
+
+        public async Task<IEnumerable<UserOnDeviceResponseDTO>> GetUserOnDeviceEntryByUserId(string userId)
+        {
+            _userService.CheckUserExistence(userId);
+
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUriUserOnDevice}{userId}");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                    throw new NotFoundException("UserOnDevice not found");
+                else
+                    throw new Exception($"UserOnDevice request failed: {response.StatusCode}: {response.ReasonPhrase}");
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            var userOnDeviceResponseDTOs = JsonConvert.DeserializeObject<List<UserOnDeviceResponseDTO>>(content);
+
+            return userOnDeviceResponseDTOs;
+        }
+
+        public async Task<UserOnDeviceResponseDTO> CreateUserOnDeviceEntryAsync(CreateUserOnDeviceDTO createUserOnDeviceDTO)
+        {
+            _userService.CheckUserExistence(createUserOnDeviceDTO.UserId);
+            CheckDeviceExistence(createUserOnDeviceDTO.DeviceId);
 
             var jsonCreateUserOnDeviceDTO = JsonConvert.SerializeObject(createUserOnDeviceDTO);
             var content = new StringContent(jsonCreateUserOnDeviceDTO, Encoding.UTF8, "application/json");
@@ -65,7 +94,9 @@ namespace Application.ApplicationServices
 
             try
             {
-                var response = await _httpClient.PostAsync($"{_baseUri}users-on-devices", content);
+                var request = new HttpRequestMessage(HttpMethod.Post, _baseUriUserOnDevice) { Content = content };
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+                var response = await _httpClient.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -89,23 +120,19 @@ namespace Application.ApplicationServices
         {
             try
             {
-                HttpResponseMessage userResponseStatus = await _userService.GetUserExistenceStatus(userId);
-                if (!userResponseStatus.IsSuccessStatusCode)
-                {
-                    throw new Exception($"User check failed: {userResponseStatus.StatusCode}: {userResponseStatus.ReasonPhrase}");
-                }
+                _userService.CheckUserExistence(userId);
 
-                HttpResponseMessage deviceResponseStatus = await GetDeviceExistenceStatus(deviceId);
-                if (!deviceResponseStatus.IsSuccessStatusCode)
-                {
-                    throw new Exception($"Device check failed: {deviceResponseStatus.StatusCode}: {deviceResponseStatus.ReasonPhrase}");
-                }
+                CheckDeviceExistence(deviceId);
 
                 UserOnDeviceResponseDTO matchingEntry;
-                var devicesFromUser = await _httpClient.GetAsync($"{_baseUri}users-on-devices/{userId}");
-                if (devicesFromUser.IsSuccessStatusCode)
+
+                var getRequest = new HttpRequestMessage(HttpMethod.Get, $"{_baseUriUserOnDevice}{userId}");
+                getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+                var devicesFromUserStatus = await _httpClient.SendAsync(getRequest);
+
+                if (devicesFromUserStatus.IsSuccessStatusCode)
                 {
-                    var responseContent = await devicesFromUser.Content.ReadAsStringAsync();
+                    var responseContent = await devicesFromUserStatus.Content.ReadAsStringAsync();
                     var userOnDeviceResponseDTO = JsonConvert.DeserializeObject<List<UserOnDeviceResponseDTO>>(responseContent);
 
                     matchingEntry = userOnDeviceResponseDTO.FirstOrDefault(dto => dto.DeviceId == deviceId);
@@ -116,23 +143,26 @@ namespace Application.ApplicationServices
                 }
                 else
                 {
-                    throw new Exception($"UserOnDevice check failed: {userResponseStatus.StatusCode}: {userResponseStatus.ReasonPhrase}");
+                    if (devicesFromUserStatus.StatusCode == HttpStatusCode.NotFound)
+                        throw new NotFoundException("UserOnDevice check failed: not found");
+                    else
+                        throw new Exception($"UserOnDevice check failed: {devicesFromUserStatus.StatusCode}: {devicesFromUserStatus.ReasonPhrase}");
                 }
 
+                var deleteRequest = new HttpRequestMessage(HttpMethod.Delete, $"{_baseUriUserOnDevice}{matchingEntry.Id}");
+                deleteRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+                var deletionResponse = await _httpClient.SendAsync(deleteRequest);
 
-                var response = await _httpClient.DeleteAsync($"{_baseUri}users-on-devices/{matchingEntry.Id}");
-
-                if (response.IsSuccessStatusCode)
+                if (!deletionResponse.IsSuccessStatusCode)
                 {
-                    return new NoContentResult();
-                }
-                else if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return new NotFoundResult();
+                    if (deletionResponse.StatusCode == HttpStatusCode.NotFound)
+                        return new NotFoundResult();
+                    else
+                        throw new Exception($"UserOnDevice entry deletion failed: {deletionResponse.StatusCode}: {deletionResponse.ReasonPhrase}");
                 }
                 else
                 {
-                    return new StatusCodeResult((int)response.StatusCode);
+                    return new NoContentResult();
                 }
             }
             catch (HttpRequestException e)
