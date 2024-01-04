@@ -11,7 +11,6 @@ func ToFileSendResponseDTO(fileSend *FileSend) FileSendResponseDTO {
 		BaseDTO:      ToBaseDTO(fileSend.BaseEntity),
 		UpdateStatus: fileSend.UpdateStatus,
 		DeviceID:     fileSend.DeviceId,
-		UserID:       fileSend.UserId,
 		File:         fileSend.File,
 		CurrPart:     fileSend.CurrPart,
 		TotParts:     fileSend.TotParts,
@@ -34,7 +33,6 @@ func ToFileSendResponseDTOList(fileSends []*FileSend) []*FileSendResponseDTO {
 func ToFileSend(createFileSendDto CreateFileSendDTO) *FileSend {
 	return &FileSend{
 		DeviceId: createFileSendDto.DeviceID,
-		UserId:   createFileSendDto.UserID,
 		File:     &createFileSendDto.File,
 	}
 }

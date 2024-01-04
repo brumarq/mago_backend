@@ -29,7 +29,7 @@ func TestFirmwareService_CreateFileSend(t *testing.T) {
 	}{
 		{
 			name:    "Success",
-			dto:     CreateFileSendDTO{DeviceID: 1, File: "Test File", UserID: 1},
+			dto:     CreateFileSendDTO{DeviceID: 1, File: "Test File"},
 			setup:   func() { mockRepo.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil) },
 			wantErr: false,
 		},
@@ -41,37 +41,25 @@ func TestFirmwareService_CreateFileSend(t *testing.T) {
 		},
 		{
 			name:    "File name is empty string",
-			dto:     CreateFileSendDTO{DeviceID: 1, File: "", UserID: 1},
-			setup:   func() {},
-			wantErr: true,
-		},
-		{
-			name:    "UserID is negative",
-			dto:     CreateFileSendDTO{DeviceID: 1, File: "Test File", UserID: -1},
-			setup:   func() {},
-			wantErr: true,
-		},
-		{
-			name:    "UserID is 0",
-			dto:     CreateFileSendDTO{DeviceID: 1, File: "Test File", UserID: 0},
+			dto:     CreateFileSendDTO{DeviceID: 1, File: ""},
 			setup:   func() {},
 			wantErr: true,
 		},
 		{
 			name:    "DeviceId is negative",
-			dto:     CreateFileSendDTO{DeviceID: -1, File: "Test File", UserID: 1},
+			dto:     CreateFileSendDTO{DeviceID: -1, File: "Test File"},
 			setup:   func() {},
 			wantErr: true,
 		},
 		{
 			name:    "DeviceId is 0",
-			dto:     CreateFileSendDTO{DeviceID: 0, File: "Test File", UserID: 1},
+			dto:     CreateFileSendDTO{DeviceID: 0, File: "Test File"},
 			setup:   func() {},
 			wantErr: true,
 		},
 		{
 			name: "Repository Create Failure",
-			dto:  CreateFileSendDTO{DeviceID: 1, File: "Test File", UserID: 1},
+			dto:  CreateFileSendDTO{DeviceID: 1, File: "Test File"},
 			setup: func() {
 				mockRepo.EXPECT().Create(gomock.Any(), gomock.Any()).Return(errors.New("mock create error"))
 			},
@@ -124,7 +112,6 @@ func TestFirmwareService_GetFirmwareHistoryByDeviceId(t *testing.T) {
 						},
 						UpdateStatus: func(s string) *string { return &s }("Status1"),
 						DeviceId:     1,
-						UserId:       1,
 						File:         func(s string) *string { return &s }("File1"),
 						CurrPart:     1,
 						TotParts:     3,
@@ -137,7 +124,6 @@ func TestFirmwareService_GetFirmwareHistoryByDeviceId(t *testing.T) {
 						},
 						UpdateStatus: func(s string) *string { return &s }("Status2"),
 						DeviceId:     1,
-						UserId:       1,
 						File:         func(s string) *string { return &s }("File2"),
 						CurrPart:     1,
 						TotParts:     3,
