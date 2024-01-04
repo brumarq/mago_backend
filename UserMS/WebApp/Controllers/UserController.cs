@@ -1,10 +1,16 @@
+using System;
+using System.Collections.Generic;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace WebApp.Controllers;
 
@@ -13,12 +19,14 @@ namespace WebApp.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IConfiguration _configuration;
+    private readonly ILogger<UserController> _logger;
     private readonly IAuth0Service _auth0Service;
 
-    public UserController(IConfiguration configuration, IAuth0Service auth0Service)
+    public UserController(IConfiguration configuration, IAuth0Service auth0Service, ILogger<UserController> logger)
     {
         _configuration = configuration;
         _auth0Service = auth0Service;
+        _logger = logger;
     }
 
     // GET: /customers/5
@@ -96,7 +104,8 @@ public class UserController : ControllerBase
         {
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
-    }    
+    } 
+    
     // DELETE: /users/{id}
     [HttpDelete("{id}")]
     [Authorize("Admin")]
@@ -105,6 +114,12 @@ public class UserController : ControllerBase
     {
         try
         {
+            
+            if (!IsRequestFromOrchestrator(HttpContext.Request))
+            {
+                return Unauthorized("Access denied");
+            }
+            
             await _auth0Service.DeleteUserAsync(id);
             return Ok();
         }
@@ -117,8 +132,6 @@ public class UserController : ControllerBase
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
-
-    
     
     [HttpPost]
     [Authorize("Admin")]
@@ -148,6 +161,13 @@ public class UserController : ControllerBase
     private bool HasPermission(string permission)
     {
         return User.HasClaim(c => c.Type == "permissions" && c.Value == permission);
+    }
+    
+    private bool IsRequestFromOrchestrator(HttpRequest request)
+    {
+        var orchestratorHeader = request.Headers["Orchestrator-Header"];
+        _logger.LogInformation($"Call made by: {orchestratorHeader}");
+        return true;
     }
 
 }
