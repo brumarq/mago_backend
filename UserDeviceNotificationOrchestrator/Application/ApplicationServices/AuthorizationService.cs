@@ -32,5 +32,17 @@ namespace Application.ApplicationServices
 
             return userOnDeviceEntries.Any(uod => uod.Device?.Id == notificationResponseDTO.DeviceID);
         }
+
+        public async Task<bool> IsDeviceAccessibleToUser(string loggedInUserId, int deviceId)
+        {
+            var isAdmin = _authenticationService.HasPermission("admin");
+            if (isAdmin)
+                return true;
+
+            var userOnDeviceEntries = await _deviceService.GetUserOnDeviceEntryByUserId(loggedInUserId);
+
+            return userOnDeviceEntries.Any(uod => uod.Device?.Id == deviceId);
+
+        }
     }
 }
