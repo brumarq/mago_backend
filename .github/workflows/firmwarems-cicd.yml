@@ -42,6 +42,7 @@ jobs:
   docker-upload:
     name: Deploy docker container
     runs-on: ubuntu-20.04
+    needs: firmwarems-unit-tests
     environment: production
 
     steps:
