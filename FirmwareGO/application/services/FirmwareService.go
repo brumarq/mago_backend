@@ -58,10 +58,6 @@ func validateFileSendDTO(newFileSendDTO CreateFileSendDTO) error {
 		return errors.New("file cannot be null or empty")
 	}
 
-	if newFileSendDTO.UserID <= 0 {
-		return errors.New("user id cannot be negative or 0")
-	}
-
 	if newFileSendDTO.DeviceID <= 0 {
 		return errors.New("device id cannot be negative or 0")
 	}
