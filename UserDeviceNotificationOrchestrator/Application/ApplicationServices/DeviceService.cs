@@ -135,7 +135,7 @@ namespace Application.ApplicationServices
                     var responseContent = await devicesFromUserStatus.Content.ReadAsStringAsync();
                     var userOnDeviceResponseDTO = JsonConvert.DeserializeObject<List<UserOnDeviceResponseDTO>>(responseContent);
 
-                    matchingEntry = userOnDeviceResponseDTO.FirstOrDefault(dto => dto.DeviceId == deviceId);
+                    matchingEntry = userOnDeviceResponseDTO.FirstOrDefault(dto => dto.Device?.Id == deviceId);
                     if(matchingEntry == null)
                     {
                         return new NotFoundResult();

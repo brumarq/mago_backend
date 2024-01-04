@@ -30,7 +30,7 @@ namespace Application.ApplicationServices
             int deviceId = notificationResponseDTO.DeviceID;
             var userOnDeviceEntries = await _deviceService.GetUserOnDeviceEntryByUserId(loggedInUserId);
 
-            return userOnDeviceEntries.Any(uod => uod.DeviceId == notificationResponseDTO.DeviceID);
+            return userOnDeviceEntries.Any(uod => uod.Device?.Id == notificationResponseDTO.DeviceID);
         }
     }
 }
