@@ -34,10 +34,11 @@ namespace Application.ApplicationServices
 
         public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId)
         {
-            _deviceService.CheckDeviceExistence(deviceId);
 
             try
             {
+                _deviceService.CheckDeviceExistence(deviceId);
+                
                 var getRequest = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}device/{deviceId}");
                 getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 var response = await _httpClient.SendAsync(getRequest);
@@ -94,15 +95,15 @@ namespace Application.ApplicationServices
 
         public async Task<NotificationResponseDTO> CreateNotificationAsync(CreateNotificationDTO createNotificationDTO)
         {
-            _deviceService.CheckDeviceExistence(createNotificationDTO.DeviceID);
-
-            CheckStatusTypeExistence(createNotificationDTO.StatusTypeID);
-
-            var jsonNotificationDTO = JsonConvert.SerializeObject(createNotificationDTO);
-            var content = new StringContent(jsonNotificationDTO, Encoding.UTF8, "application/json");
-
             try
             {
+                _deviceService.CheckDeviceExistence(createNotificationDTO.DeviceID);
+
+                CheckStatusTypeExistence(createNotificationDTO.StatusTypeID);
+
+                var jsonNotificationDTO = JsonConvert.SerializeObject(createNotificationDTO);
+                var content = new StringContent(jsonNotificationDTO, Encoding.UTF8, "application/json");
+                
                 var postRequest = new HttpRequestMessage(HttpMethod.Post, _baseUri) { Content = content };
                 postRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 var response = await _httpClient.SendAsync(postRequest);
