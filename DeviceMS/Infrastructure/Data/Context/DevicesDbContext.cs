@@ -15,7 +15,7 @@ public class DevicesDbContext : DbContext
     public DbSet<SettingValue> SettingValue { get; set; }
     public DbSet<Setting> Setting { get; set; }
     public DbSet<Unit> Unit { get; set; }
-    public DbSet<Quantity> Quantity { get; set; }
+    // public DbSet<Quantity> Quantity { get; set; }
 
     public DevicesDbContext(DbContextOptions<DevicesDbContext> options) : base(options)
     {
