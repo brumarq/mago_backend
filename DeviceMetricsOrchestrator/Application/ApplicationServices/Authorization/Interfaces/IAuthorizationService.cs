@@ -1,6 +1,6 @@
 ﻿using Application.DTOs.UsersOnDevices;
 
-namespace Application.ApplicationServices.Interfaces
+namespace Application.ApplicationServices.Authorization.Interfaces
 {
     public interface IAuthorizationService
     {

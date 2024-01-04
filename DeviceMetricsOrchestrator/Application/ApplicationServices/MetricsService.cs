@@ -1,14 +1,11 @@
+using Application.ApplicationServices.Authentization.Interfaces;
+using Application.ApplicationServices.Authorization.Interfaces;
 using Application.ApplicationServices.Interfaces;
-using Application.DTOs.Device;
 using Application.DTOs.Metrics;
 using Application.Exceptions;
-using Domain.Enums;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Security.Claims;
 
 namespace Application.ApplicationServices
 {
