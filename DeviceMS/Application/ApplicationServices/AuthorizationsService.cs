@@ -19,7 +19,7 @@ namespace Application.ApplicationServices
 
             var usersDevices = await _usersOnDevicesService.GetUsersOnDevicesByUserIdAsync(loggedInUserId!);
 
-            return usersDevices.Any(uod => uod.DeviceId == deviceId) || isAdmin;
+            return usersDevices.Any(uod => uod.Device?.Id == deviceId) || isAdmin;
         }
 
         public bool IsCorrectUserOrAdmin(string loggedInUserId, string userId)

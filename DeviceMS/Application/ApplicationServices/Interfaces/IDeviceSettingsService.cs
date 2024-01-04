@@ -7,7 +7,7 @@ namespace Application.ApplicationServices.Interfaces
     {
         Task<SettingValueResponseDTO> AddSettingToDevice(CreateSettingValueDTO newSettingValue);
         Task<IEnumerable<SettingValueResponseDTO>> GetSettingsForDeviceAsync(int deviceId);
-        Task<bool?> UpdateSettingAsync(int id, UpdateSettingValueDTO updateSettingValueDto); 
-        Task<bool> DeleteSettingFromDeviceAsync(int id);
+        // Task<bool?> UpdateSettingAsync(int id, UpdateSettingValueDTO updateSettingValueDto); 
+        // Task<bool> DeleteSettingFromDeviceAsync(int id);
     }
 }

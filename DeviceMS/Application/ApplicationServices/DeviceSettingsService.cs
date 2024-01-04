@@ -37,17 +37,17 @@ namespace Application.ApplicationServices
             return _mapper.Map<SettingValueResponseDTO>(newSettingValue);
         }
 
-        public async Task<bool?> UpdateSettingAsync(int id, UpdateSettingValueDTO updateSettingValueDto)
-        {
-            ValidateSettingValue(updateSettingValueDto);
-            return await _repository.UpdateAsync(_mapper.Map<SettingValue>(updateSettingValueDto,
-                opt => opt.AfterMap((src, dest) => dest.Id = id)));
-        }
+        // public async Task<bool?> UpdateSettingAsync(int id, UpdateSettingValueDTO updateSettingValueDto)
+        // {
+        //     ValidateSettingValue(updateSettingValueDto);
+        //     return await _repository.UpdateAsync(_mapper.Map<SettingValue>(updateSettingValueDto,
+        //         opt => opt.AfterMap((src, dest) => dest.Id = id)));
+        // }
 
-        public async Task<bool> DeleteSettingFromDeviceAsync(int id)
-        {
-            return await _repository.DeleteAsync(id);
-        }
+        // public async Task<bool> DeleteSettingFromDeviceAsync(int id)
+        // {
+        //     return await _repository.DeleteAsync(id);
+        // }
 
 
         private void ValidateSettingValue(SettingValueRequestDTO newSettingValue)
@@ -64,7 +64,7 @@ namespace Application.ApplicationServices
 
             if (string.IsNullOrEmpty(newSettingValue.UserId))
             {
-                throw new BadRequestException("User id cannot be negative or 0");
+                throw new BadRequestException("User id must be specified");
             }
 
             if (newSettingValue.Setting == null)
@@ -79,12 +79,12 @@ namespace Application.ApplicationServices
 
             if (newSettingValue.Setting.DefaultValue <= 0)
             {
-                throw new BadRequestException("Setting Error: DefaultValue not specified");
+                throw new BadRequestException("Setting Error: DefaultValue not specified or negative");
             }
 
             if (newSettingValue.Setting.UnitId <= 0)
             {
-                throw new BadRequestException("Setting Error: UnitId not specified");
+                throw new BadRequestException("Setting Error: UnitId not specified or negative");
             }
         }
     }

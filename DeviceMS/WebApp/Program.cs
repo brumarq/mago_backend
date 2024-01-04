@@ -32,6 +32,7 @@ builder.Services.AddDbContext<DevicesDbContext>(options => options.UseSqlServer(
 // Add repositories for dependency injection
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
+// Add services for dependency injection
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IAuthorizationsService, AuthorizationsService>();
 builder.Services.AddScoped<IDeviceService, DeviceService>();
@@ -96,9 +97,6 @@ builder.Services.AddSingleton<IAuthorizationHandler, HasPermissionHandler>();
 builder.Configuration.AddEnvironmentVariables();
 var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8181";
 builder.WebHost.UseUrls($"http://*:{httpPort}");
-
-// Add services for dependency injection
-//...
 
 var app = builder.Build();
 
