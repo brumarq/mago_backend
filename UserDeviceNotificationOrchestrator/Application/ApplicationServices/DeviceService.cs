@@ -50,15 +50,30 @@ namespace Application.ApplicationServices
             }
         }
         
-        public async void CheckDeviceExistence(int deviceID)
+        public async Task CheckDeviceExistence(int deviceID)
         {
-            var deviceResponseStatus = await GetDeviceExistenceStatus(deviceID);
-            if (!deviceResponseStatus.IsSuccessStatusCode)
+            try
             {
-                if (deviceResponseStatus.StatusCode == HttpStatusCode.NotFound)
-                    throw new NotFoundException("Device not found");
-                else
-                    throw new Exception($"Device check failed: {deviceResponseStatus.StatusCode}: {deviceResponseStatus.ReasonPhrase}");
+                var deviceResponseStatus = await GetDeviceExistenceStatus(deviceID);
+                if (!deviceResponseStatus.IsSuccessStatusCode)
+                {
+                    if (deviceResponseStatus.StatusCode == HttpStatusCode.NotFound)
+                        throw new NotFoundException("Device not found");
+                    else
+                        throw new Exception($"Device check failed: {deviceResponseStatus.StatusCode}: {deviceResponseStatus.ReasonPhrase}");
+                }
+            }
+            catch (CustomException e)
+            {
+                throw new CustomException(e.Message, e.StatusCode);
+            }
+            catch (HttpRequestException e)
+            {
+                throw new CustomException(e.Message, HttpStatusCode.ServiceUnavailable);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Device existence check: {e.Message}");
             }
         }
 
@@ -86,8 +101,8 @@ namespace Application.ApplicationServices
 
         public async Task<UserOnDeviceResponseDTO> CreateUserOnDeviceEntryAsync(CreateUserOnDeviceDTO createUserOnDeviceDTO)
         {
-            _userService.CheckUserExistence(createUserOnDeviceDTO.UserId);
-            CheckDeviceExistence(createUserOnDeviceDTO.DeviceId);
+            await _userService.CheckUserExistence(createUserOnDeviceDTO.UserId);
+            await CheckDeviceExistence(createUserOnDeviceDTO.DeviceId);
 
             var jsonCreateUserOnDeviceDTO = JsonConvert.SerializeObject(createUserOnDeviceDTO);
             var content = new StringContent(jsonCreateUserOnDeviceDTO, Encoding.UTF8, "application/json");
@@ -125,9 +140,9 @@ namespace Application.ApplicationServices
         {
             try
             {
-                _userService.CheckUserExistence(userId);
+                await _userService.CheckUserExistence(userId);
 
-                CheckDeviceExistence(deviceId);
+                await CheckDeviceExistence(deviceId);
 
                 UserOnDeviceResponseDTO matchingEntry;
 

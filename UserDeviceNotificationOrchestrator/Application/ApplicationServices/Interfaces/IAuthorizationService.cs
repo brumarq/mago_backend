@@ -10,5 +10,6 @@ namespace Application.ApplicationServices.Interfaces
     public interface IAuthorizationService
     {
         Task<bool> IsNotificationAccessibleToUser(string loggedInUserId, NotificationResponseDTO notificationResponseDTO);
+        Task<bool> IsDeviceAccessibleToUser(string loggedInUserId, int deviceId);
     }
 }

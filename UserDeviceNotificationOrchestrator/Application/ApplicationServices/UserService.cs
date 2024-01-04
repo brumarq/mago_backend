@@ -45,15 +45,30 @@ namespace Application.ApplicationServices
             }
         }
 
-        public async void CheckUserExistence(string userId)
+        public async Task CheckUserExistence(string userId)
         {
-            var userResponseStatus = await GetUserExistenceStatus(userId);
-            if (!userResponseStatus.IsSuccessStatusCode)
+            try
             {
-                if (userResponseStatus.StatusCode == HttpStatusCode.NotFound)
-                    throw new NotFoundException("User check failed: not found");
-                else
-                    throw new Exception($"User check failed: {userResponseStatus.StatusCode}: {userResponseStatus.ReasonPhrase}");
+                var userResponseStatus = await GetUserExistenceStatus(userId);
+                if (!userResponseStatus.IsSuccessStatusCode)
+                {
+                    if (userResponseStatus.StatusCode == HttpStatusCode.NotFound)
+                        throw new NotFoundException("User check failed: not found");
+                    else
+                        throw new Exception($"User check failed: {userResponseStatus.StatusCode}: {userResponseStatus.ReasonPhrase}");
+                }
+            }
+            catch (CustomException e)
+            {
+                throw new CustomException(e.Message, e.StatusCode);
+            }
+            catch (HttpRequestException e)
+            {
+                throw new CustomException(e.Message, HttpStatusCode.ServiceUnavailable);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"User existence check: {e.Message}");
             }
         }
 
