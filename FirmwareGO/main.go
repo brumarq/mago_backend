@@ -15,10 +15,12 @@ import (
 	"FirmwareGO/webapp/controllers"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
+	"gorm.io/plugin/prometheus"
 	"log"
 	"os"
 )
@@ -31,6 +33,12 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to connect to database", err)
 	}
+
+	// Configure Prometheus plugin
+	db.Use(prometheus.New(prometheus.Config{
+		DBName:          "FirmwareDB", // Metrics label
+		RefreshInterval: 15,           // Refresh metrics interval (default 15 seconds)
+	}))
 
 	db.AutoMigrate(&FileSend{})
 
@@ -45,6 +53,9 @@ func main() {
 
 	// Set up the router
 	router := gin.Default()
+
+	// Register the Prometheus metrics handler
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	// Register swagger endpoint
 	router.GET("/swagger/*any", func(c *gin.Context) {
