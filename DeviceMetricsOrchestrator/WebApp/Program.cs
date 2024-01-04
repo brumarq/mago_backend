@@ -11,11 +11,6 @@ using Application.ApplicationServices.Authentization.Interfaces;
 using Application.ApplicationServices.Authentization;
 using Application.ApplicationServices.Authorization;
 
-// using Infrastructure.Data.Context;
-// using Infrastructure.Repositories;
-// using Infrastructure.Repositories.Interfaces;
-// using Microsoft.EntityFrameworkCore;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -31,10 +26,6 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddHttpContextAccessor();
 
-// builder.Services.AddDbContext<DevicesDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DevicesDb")));
-
-// Add repositories for dependency injection
-// builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<Application.ApplicationServices.Authorization.Interfaces.IAuthorizationService, AuthorizationService>();
 builder.Services.AddScoped<IDeviceService, DeviceService>();
