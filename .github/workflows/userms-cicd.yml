@@ -25,7 +25,7 @@ jobs:
   docker-upload:
     name: Deploy docker container
     runs-on: ubuntu-20.04
-    environment: production
+    environment: userms-production
 
     steps:
     - name: Check out repository
@@ -93,7 +93,9 @@ jobs:
         Auth0-Management__ClientId=${{ secrets.AUTH0_MGMT_CLIENT_ID }} \
         Auth0-Management__ClientSecret=${{ secrets.AUTH0_MGMT_CLIENT_SECRET }} \
         Auth0-Roles__admin=${{ secrets.AUTH0_ROLE_ADMIN }} \
-        Auth0-Roles__client=${{ secrets.AUTH0_ROLE_CLIENT }}
+        Auth0-Roles__client=${{ secrets.AUTH0_ROLE_CLIENT }} \
+        OrchestratorApiKey=${{ secrets.ORCHESTRATORAPIKEY }}
+
         
         if [ -n "$SERVICE_EXISTS" ]; then
           oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}

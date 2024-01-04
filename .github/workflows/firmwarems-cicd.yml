@@ -43,7 +43,7 @@ jobs:
     name: Deploy docker container
     runs-on: ubuntu-20.04
     needs: firmwarems-unit-tests
-    environment: production
+    environment: firmwarems-production
 
     steps:
       - name: Check Out repository

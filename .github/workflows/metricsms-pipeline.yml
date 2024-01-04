@@ -47,7 +47,7 @@ jobs:
     name: Deploy Docker Container
     runs-on: ubuntu-20.04
     needs: flask-app-unit-tests
-    environment: production
+    environment: metricsms-production
 
     steps:
       - name: Check out repository
