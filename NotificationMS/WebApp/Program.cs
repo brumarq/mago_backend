@@ -11,12 +11,14 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebApp.Middleware.Authentication;
 using Prometheus;
+using IAuthorizationService = Application.ApplicationServices.Interfaces.IAuthorizationService;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
 
 // Add automapper for dependency injection
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -32,6 +34,9 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 // Add services for dependency injection
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
+
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -73,7 +78,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 // Authorization policies
 builder.Services.AddAuthorization(options =>
-{
+{   
     options.AddPolicy("Admin", policy => policy.RequireClaim("permissions", "admin"));
     options.AddPolicy("Client", policy => policy.RequireClaim("permissions", "client"));
     options.AddPolicy("All", policy => policy.RequireAssertion(context =>

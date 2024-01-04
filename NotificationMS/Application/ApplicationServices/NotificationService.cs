@@ -72,7 +72,7 @@ namespace Application.ApplicationServices
             var statusType = statusTypes.FirstOrDefault(n => n.Id == id);
 
             if (statusType == null)
-                throw new BadRequestException("Status Type was not found...");
+                throw new NotFoundException("Status Type was not found...");
 
             return _mapper.Map<StatusTypeDTO>(statusType);
         }
