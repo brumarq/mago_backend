@@ -12,7 +12,7 @@ namespace Application.ApplicationServices
         private readonly string? _baseUri;
         private readonly string? _baseUriUsersOnDevice;
         private readonly IAuthenticationService _authenticationService;
-
+        private readonly string? _orchestratorApiKey;
 
         public UserService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IAuthenticationService authenticationService)
         {
@@ -20,7 +20,7 @@ namespace Application.ApplicationServices
             _baseUri = configuration["ApiRequestUris:UserBaseUri"];
             _baseUriUsersOnDevice = configuration["ApiRequestUris:UsersOnDeviceUri"];
             _authenticationService = authenticationService;
-
+            _orchestratorApiKey = configuration["OrchestratorApiKey"];
         }
 
         private async Task<HttpResponseMessage> GetUserExistenceStatus(string userId)
@@ -75,7 +75,10 @@ namespace Application.ApplicationServices
             {
                 var request = new HttpRequestMessage(HttpMethod.Delete, $"{_baseUri}{userId}");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+                request.Headers.Add("X-Orchestrator-Key", _orchestratorApiKey);
+                
                 var response = await _httpClient.SendAsync(request);
+                
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new CustomException($"{response.ReasonPhrase}.", response.StatusCode);

@@ -21,12 +21,14 @@ public class UserController : ControllerBase
     private readonly IConfiguration _configuration;
     private readonly ILogger<UserController> _logger;
     private readonly IAuth0Service _auth0Service;
-
+    private readonly string? _orchestratorApiKey;
+    
     public UserController(IConfiguration configuration, IAuth0Service auth0Service, ILogger<UserController> logger)
     {
         _configuration = configuration;
         _auth0Service = auth0Service;
         _logger = logger;
+        _orchestratorApiKey = configuration["OrchestratorApiKey"];
     }
 
     // GET: /customers/5
@@ -165,9 +167,19 @@ public class UserController : ControllerBase
     
     private bool IsRequestFromOrchestrator(HttpRequest request)
     {
-        var orchestratorHeader = request.Headers["Orchestrator-Header"];
-        _logger.LogInformation($"Call made by: {orchestratorHeader}");
+        if (!request.Headers.TryGetValue("X-Orchestrator-Key", out var receivedKey))
+        {
+            _logger.LogWarning("Orchestrator key header missing in request.");
+            return false;
+        }
+
+        if (receivedKey != _orchestratorApiKey)
+        {
+            _logger.LogWarning("Invalid orchestrator key provided.");
+            return false;
+        }
+
+        _logger.LogInformation("Valid orchestrator key received.");
         return true;
     }
-
 }
