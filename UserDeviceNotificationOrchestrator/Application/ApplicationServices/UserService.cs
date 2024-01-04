@@ -23,7 +23,7 @@ namespace Application.ApplicationServices
 
         }
 
-        public async Task<HttpResponseMessage> GetUserExistenceStatus(string userId)
+        private async Task<HttpResponseMessage> GetUserExistenceStatus(string userId)
         {
 
             try
@@ -44,7 +44,19 @@ namespace Application.ApplicationServices
                 };
             }
         }
-        
+
+        public async void CheckUserExistence(string userId)
+        {
+            var userResponseStatus = await GetUserExistenceStatus(userId);
+            if (!userResponseStatus.IsSuccessStatusCode)
+            {
+                if (userResponseStatus.StatusCode == HttpStatusCode.NotFound)
+                    throw new NotFoundException("User check failed: not found");
+                else
+                    throw new Exception($"User check failed: {userResponseStatus.StatusCode}: {userResponseStatus.ReasonPhrase}");
+            }
+        }
+
         public async Task DeleteUser(string userId)
         {
             var userDevicesResponse = await GetUserOnDevice(userId);
