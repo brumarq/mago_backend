@@ -11,11 +11,11 @@ namespace WebApp.Controllers;
 [ApiController]
 public class DeviceMetricsController : ControllerBase
 {
-    private readonly IDeviceMetricsService _service;
+    private readonly IDeviceMetricsService _deviceMetricsService;
 
-    public DeviceMetricsController(IDeviceMetricsService service)
+    public DeviceMetricsController(IDeviceMetricsService deviceMetricsService)
     {
-        _service = service;
+        _deviceMetricsService = deviceMetricsService;
     }
 
     [HttpGet("{deviceId}")]
@@ -24,7 +24,7 @@ public class DeviceMetricsController : ControllerBase
     {
         try
         {
-            var deviceMetrics = await _service.GetDeviceMetricsAsync(deviceId);
+            var deviceMetrics = await _deviceMetricsService.GetDeviceMetricsAsync(deviceId);
 
             return Ok(deviceMetrics);
         }
@@ -45,7 +45,7 @@ public class DeviceMetricsController : ControllerBase
     {
         try
         {
-            var deviceAggregatedLogs = await _service.GetDeviceAggregatedLogsAsync(aggregatedLogDateType, deviceId, fieldId, startDate, endDate);
+            var deviceAggregatedLogs = await _deviceMetricsService.GetDeviceAggregatedLogsAsync(aggregatedLogDateType, deviceId, fieldId, startDate, endDate);
 
             return Ok(deviceAggregatedLogs);
         }

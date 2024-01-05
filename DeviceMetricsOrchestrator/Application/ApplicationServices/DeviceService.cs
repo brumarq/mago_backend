@@ -29,7 +29,7 @@ public class DeviceService : IDeviceService
         _authorizationService = authorizationService;
     }
 
-    public async Task<bool> DeviceExistsAsync(int deviceId)
+    public async Task CheckDeviceExistence(int deviceId)
     {
         if (!_authenticationService.IsLoggedInUser())
             throw new UnauthorizedException($"The user is not logged in. Please login first.");
@@ -41,7 +41,8 @@ public class DeviceService : IDeviceService
         if (response.StatusCode == HttpStatusCode.Unauthorized)
             throw new UnauthorizedException($"This user does not have access to view device {deviceId}");
 
-        return response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound;
+        if (!response.IsSuccessStatusCode || response == null)
+            throw new NotFoundException($"Device with id {deviceId} does not exist.");
     }
 
     public async Task<DeviceResponseDTO> GetDeviceByIdAsync(int deviceId)
@@ -49,8 +50,7 @@ public class DeviceService : IDeviceService
         if (!_authenticationService.IsLoggedInUser())
             throw new UnauthorizedException($"The user is not logged in. Please login first.");
 
-        if (!await DeviceExistsAsync(deviceId))
-            throw new NotFoundException($"Device with id {deviceId} does not exist!");
+        await CheckDeviceExistence(deviceId);
 
         var loggedInUserId = _authenticationService.GetUserId();
 
