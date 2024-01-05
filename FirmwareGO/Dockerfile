@@ -17,7 +17,7 @@ RUN swag init
 # Build the Go app
 RUN go build -o main .
 
-# Expose port 8080 to outside world
+# Expose port 6969 to outside world
 EXPOSE 6969
 
 # Run the executable

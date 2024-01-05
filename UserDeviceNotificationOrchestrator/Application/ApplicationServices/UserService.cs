@@ -12,7 +12,7 @@ namespace Application.ApplicationServices
         private readonly string? _baseUri;
         private readonly string? _baseUriUsersOnDevice;
         private readonly IAuthenticationService _authenticationService;
-
+        private readonly string? _orchestratorApiKey;
 
         public UserService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IAuthenticationService authenticationService)
         {
@@ -20,7 +20,7 @@ namespace Application.ApplicationServices
             _baseUri = configuration["ApiRequestUris:UserBaseUri"];
             _baseUriUsersOnDevice = configuration["ApiRequestUris:UsersOnDeviceUri"];
             _authenticationService = authenticationService;
-
+            _orchestratorApiKey = configuration["OrchestratorApiKey"];
         }
 
         private async Task<HttpResponseMessage> GetUserExistenceStatus(string userId)
@@ -45,15 +45,30 @@ namespace Application.ApplicationServices
             }
         }
 
-        public async void CheckUserExistence(string userId)
+        public async Task CheckUserExistence(string userId)
         {
-            var userResponseStatus = await GetUserExistenceStatus(userId);
-            if (!userResponseStatus.IsSuccessStatusCode)
+            try
             {
-                if (userResponseStatus.StatusCode == HttpStatusCode.NotFound)
-                    throw new NotFoundException("User check failed: not found");
-                else
-                    throw new Exception($"User check failed: {userResponseStatus.StatusCode}: {userResponseStatus.ReasonPhrase}");
+                var userResponseStatus = await GetUserExistenceStatus(userId);
+                if (!userResponseStatus.IsSuccessStatusCode)
+                {
+                    if (userResponseStatus.StatusCode == HttpStatusCode.NotFound)
+                        throw new NotFoundException("User check failed: not found");
+                    else
+                        throw new Exception($"User check failed: {userResponseStatus.StatusCode}: {userResponseStatus.ReasonPhrase}");
+                }
+            }
+            catch (CustomException e)
+            {
+                throw new CustomException(e.Message, e.StatusCode);
+            }
+            catch (HttpRequestException e)
+            {
+                throw new CustomException(e.Message, HttpStatusCode.ServiceUnavailable);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"User existence check: {e.Message}");
             }
         }
 
@@ -75,7 +90,10 @@ namespace Application.ApplicationServices
             {
                 var request = new HttpRequestMessage(HttpMethod.Delete, $"{_baseUri}{userId}");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+                request.Headers.Add("X-Orchestrator-Key", _orchestratorApiKey);
+                
                 var response = await _httpClient.SendAsync(request);
+                
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new CustomException($"{response.ReasonPhrase}.", response.StatusCode);

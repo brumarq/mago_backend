@@ -8,6 +8,6 @@ namespace Application.ApplicationServices.Interfaces
         Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId);
 
         Task<NotificationResponseDTO> GetNotificationByIdAsync(int id);
-        void CheckStatusTypeExistence(int statusTypeId);
+        Task CheckStatusTypeExistence(int statusTypeId);
     }
 }

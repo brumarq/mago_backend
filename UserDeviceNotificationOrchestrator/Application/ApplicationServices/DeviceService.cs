@@ -40,24 +40,40 @@ namespace Application.ApplicationServices
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 return await _httpClient.SendAsync(request);
             }
+            catch (CustomException e)
+            {
+                throw new Exception($"Request failed: {e.Message}");
+            }
             catch (HttpRequestException e)
             {
-                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
-                {
-                    ReasonPhrase = $"Exception occurred when checking device existence: {e.Message}"
-                };  
+                throw new Exception($"Request failed: {e.Message}");
             }
         }
         
-        public async void CheckDeviceExistence(int deviceID)
+        public async Task CheckDeviceExistence(int deviceID)
         {
-            var deviceResponseStatus = await GetDeviceExistenceStatus(deviceID);
-            if (!deviceResponseStatus.IsSuccessStatusCode)
+            try
             {
-                if (deviceResponseStatus.StatusCode == HttpStatusCode.NotFound)
-                    throw new NotFoundException("Device not found");
-                else
-                    throw new Exception($"Device check failed: {deviceResponseStatus.StatusCode}: {deviceResponseStatus.ReasonPhrase}");
+                var deviceResponseStatus = await GetDeviceExistenceStatus(deviceID);
+                if (!deviceResponseStatus.IsSuccessStatusCode)
+                {
+                    if (deviceResponseStatus.StatusCode == HttpStatusCode.NotFound)
+                        throw new NotFoundException("Device not found");
+                    else
+                        throw new Exception($"Device check failed: {deviceResponseStatus.StatusCode}: {deviceResponseStatus.ReasonPhrase}");
+                }
+            }
+            catch (CustomException e)
+            {
+                throw new CustomException(e.Message, e.StatusCode);
+            }
+            catch (HttpRequestException e)
+            {
+                throw new CustomException(e.Message, HttpStatusCode.ServiceUnavailable);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Device existence check: {e.Message}");
             }
         }
 
@@ -85,8 +101,8 @@ namespace Application.ApplicationServices
 
         public async Task<UserOnDeviceResponseDTO> CreateUserOnDeviceEntryAsync(CreateUserOnDeviceDTO createUserOnDeviceDTO)
         {
-            _userService.CheckUserExistence(createUserOnDeviceDTO.UserId);
-            CheckDeviceExistence(createUserOnDeviceDTO.DeviceId);
+            await _userService.CheckUserExistence(createUserOnDeviceDTO.UserId);
+            await CheckDeviceExistence(createUserOnDeviceDTO.DeviceId);
 
             var jsonCreateUserOnDeviceDTO = JsonConvert.SerializeObject(createUserOnDeviceDTO);
             var content = new StringContent(jsonCreateUserOnDeviceDTO, Encoding.UTF8, "application/json");
@@ -110,6 +126,10 @@ namespace Application.ApplicationServices
                     throw new HttpRequestException($"Create UsersOnDevices entry request failed {(int)response.StatusCode}: {errorContent}");
                 }
             }
+            catch (CustomException e)
+            {
+                throw new Exception($"Request failed: {e.Message}");
+            }
             catch (HttpRequestException e)
             {
                 throw new Exception($"Request failed: {e.Message}");
@@ -120,9 +140,9 @@ namespace Application.ApplicationServices
         {
             try
             {
-                _userService.CheckUserExistence(userId);
+                await _userService.CheckUserExistence(userId);
 
-                CheckDeviceExistence(deviceId);
+                await CheckDeviceExistence(deviceId);
 
                 UserOnDeviceResponseDTO matchingEntry;
 
@@ -164,6 +184,10 @@ namespace Application.ApplicationServices
                 {
                     return new NoContentResult();
                 }
+            }
+            catch (CustomException e)
+            {
+                throw new Exception($"Request failed: {e.Message}");
             }
             catch (HttpRequestException e)
             {

@@ -34,10 +34,10 @@ namespace Application.ApplicationServices
 
         public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId)
         {
-            _deviceService.CheckDeviceExistence(deviceId);
-
             try
             {
+                await _deviceService.CheckDeviceExistence(deviceId);
+                
                 var getRequest = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}device/{deviceId}");
                 getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 var response = await _httpClient.SendAsync(getRequest);
@@ -94,15 +94,15 @@ namespace Application.ApplicationServices
 
         public async Task<NotificationResponseDTO> CreateNotificationAsync(CreateNotificationDTO createNotificationDTO)
         {
-            _deviceService.CheckDeviceExistence(createNotificationDTO.DeviceID);
-
-            CheckStatusTypeExistence(createNotificationDTO.StatusTypeID);
-
-            var jsonNotificationDTO = JsonConvert.SerializeObject(createNotificationDTO);
-            var content = new StringContent(jsonNotificationDTO, Encoding.UTF8, "application/json");
-
             try
             {
+                await _deviceService.CheckDeviceExistence(createNotificationDTO.DeviceID);
+
+                await CheckStatusTypeExistence(createNotificationDTO.StatusTypeID);
+
+                var jsonNotificationDTO = JsonConvert.SerializeObject(createNotificationDTO);
+                var content = new StringContent(jsonNotificationDTO, Encoding.UTF8, "application/json");
+                
                 var postRequest = new HttpRequestMessage(HttpMethod.Post, _baseUri) { Content = content };
                 postRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 var response = await _httpClient.SendAsync(postRequest);
@@ -142,15 +142,30 @@ namespace Application.ApplicationServices
             }
         }
 
-        public async void CheckStatusTypeExistence(int statusTypeId)
+        public async Task CheckStatusTypeExistence(int statusTypeId)
         {
-            var statusTypeResponseStatus = await GetStatusTypeExistenceStatus(statusTypeId);
-            if (!statusTypeResponseStatus.IsSuccessStatusCode)
+            try
             {
-                if (statusTypeResponseStatus.StatusCode == HttpStatusCode.NotFound)
-                    throw new NotFoundException("Status type not found");
-                else
-                    throw new Exception($"Status type check failed: {statusTypeResponseStatus.StatusCode}: {statusTypeResponseStatus.ReasonPhrase}");
+                var statusTypeResponseStatus = await GetStatusTypeExistenceStatus(statusTypeId);
+                if (!statusTypeResponseStatus.IsSuccessStatusCode)
+                {
+                    if (statusTypeResponseStatus.StatusCode == HttpStatusCode.NotFound)
+                        throw new NotFoundException("Status type not found");
+                    else
+                        throw new Exception($"Status type check failed: {statusTypeResponseStatus.StatusCode}: {statusTypeResponseStatus.ReasonPhrase}");
+                }
+            }
+            catch (CustomException e)
+            {
+                throw new CustomException(e.Message, e.StatusCode);
+            }
+            catch (HttpRequestException e)
+            {
+                throw new CustomException(e.Message, HttpStatusCode.ServiceUnavailable);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"StatusType existence check: {e.Message}");
             }
         }
     }

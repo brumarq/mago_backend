@@ -3,28 +3,47 @@ name: Firmware Service CI/CD
 on:
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - "FirmwareGO/**/*"
 
 env:
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
-  DOCKER_HUB_USERNAME : ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }}
-  DOCKER_HUB_ACCESS_TOKEN : ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }}
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }}
+  DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }}
   AUTH0_DOMAIN: ${{secrets.AUTH0_DOMAIN_NO_HTTPS}}
   AUTH0_AUDIENCE: ${{secrets.AUTH0_AUDIENCE}}
-  AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }} 
+  AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
   AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
   OPENSHIFT_NAMESPACE: mago-backend
   APP_NAME: firmware-microservice
   APP_PORT: 6969
 
 jobs:
+  firmwarems-unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Out Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "^1.21.1"
+
+      - name: Run Unit Tests
+        run: |
+          cd FirmwareGO/tests/unittests
+          go test -v ./...
+
   docker-upload:
     name: Deploy docker container
     runs-on: ubuntu-20.04
-    environment: production
+    needs: firmwarems-unit-tests
+    environment: firmwarems-production
 
     steps:
       - name: Check Out repository
