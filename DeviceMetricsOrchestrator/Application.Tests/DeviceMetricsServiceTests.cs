@@ -5,13 +5,10 @@ using Application.ApplicationServices.Interfaces;
 using Application.DTOs.Device;
 using Application.DTOs.Metrics;
 using Application.DTOs.Misc;
-using Application.Exceptions;
 using Domain.Enums;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using Newtonsoft.Json;
 using System.Net;
-using System.Net.Http;
 
 namespace Application.Test
 {
