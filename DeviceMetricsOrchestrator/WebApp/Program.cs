@@ -30,6 +30,8 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<Application.ApplicationServices.Authorization.Interfaces.IAuthorizationService, AuthorizationService>();
+builder.Services.AddScoped<IFieldService, FieldService>();
+builder.Services.AddScoped<IDeviceTypeService, DeviceTypeService>();
 builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<IMetricsService, MetricsService>();
 builder.Services.AddScoped<IAggregatedLogsService, AggregatedLogsService>();

@@ -28,9 +28,4 @@ class FieldCreation(Resource):
         """Creates a field"""
         data = api.payload
 
-        name = data["name"]
-        unit_id = data["unitId"]
-        device_type_id = data["deviceTypeId"]
-        loggable = data["loggable"]
-
-        return self.field_service.create_field(name, unit_id, device_type_id, loggable)
+        return self.field_service.create_field(data=data)
