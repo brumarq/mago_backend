@@ -17,7 +17,8 @@ namespace Application.ApplicationServices
         private readonly HttpClient _httpClient;
         private readonly IDeviceService _deviceService;
         private readonly IUserService _userService;
-        private readonly string _baseUri;
+        private readonly string? _baseUri;
+        private readonly string? _orchestratorApiKey;
 
 
         public NotificationService(IHttpClientFactory httpClientFactory, IDeviceService deviceService,
@@ -27,9 +28,11 @@ namespace Application.ApplicationServices
             _httpClient = httpClientFactory.CreateClient();
             this._deviceService = deviceService;
             this._userService = userService;
-            _baseUri = configuration["ApiRequestUris:NotificationBaseUri"];
             _authenticationService = authenticationService;
             _authorizationService = authorizationService;
+            _baseUri = configuration["ApiRequestUris:NotificationBaseUri"];
+            _orchestratorApiKey = configuration["OrchestratorApiKey"];
+
         }
 
         public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId)
@@ -41,6 +44,8 @@ namespace Application.ApplicationServices
                 
                 var getRequest = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}device/{deviceId}");
                 getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+                getRequest.Headers.Add("X-Orchestrator-Key", _orchestratorApiKey);
+
                 var response = await _httpClient.SendAsync(getRequest);
 
                 if (response.IsSuccessStatusCode)
@@ -67,6 +72,8 @@ namespace Application.ApplicationServices
             {
                 var getRequest = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{id}");
                 getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+                getRequest.Headers.Add("X-Orchestrator-Key", _orchestratorApiKey);
+
                 var response = await _httpClient.SendAsync(getRequest);
 
                 if (response.IsSuccessStatusCode)
@@ -106,6 +113,8 @@ namespace Application.ApplicationServices
                 
                 var postRequest = new HttpRequestMessage(HttpMethod.Post, _baseUri) { Content = content };
                 postRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+                postRequest.Headers.Add("X-Orchestrator-Key", _orchestratorApiKey);
+
                 var response = await _httpClient.SendAsync(postRequest);
 
                 if (response.IsSuccessStatusCode)
