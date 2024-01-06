@@ -11,15 +11,21 @@ namespace WebApp.Controllers
     [ApiController]
     public class UsersOnDevicesController : ControllerBase
     {
+        private readonly ILogger<UsersOnDevicesController> _logger;
+
         private readonly IUsersOnDevicesService _usersOnDevicesService;
         private readonly IAuthenticationService _authenticationService;
         private readonly IAuthorizationsService _authorizationService;
+        private readonly string? _orchestratorApiKey;
 
-        public UsersOnDevicesController(IUsersOnDevicesService usersOnDevicesService, IAuthenticationService authenticationService, IAuthorizationsService authorizationService)
+        public UsersOnDevicesController(IConfiguration configuration, IUsersOnDevicesService usersOnDevicesService, IAuthenticationService authenticationService, IAuthorizationsService authorizationService, ILogger<UsersOnDevicesController> logger)
         {
             _usersOnDevicesService = usersOnDevicesService;
             _authenticationService = authenticationService;
             _authorizationService = authorizationService;
+            _logger = logger;
+            _orchestratorApiKey = configuration["OrchestratorApiKey"];
+
         }
 
         [HttpGet("{userId}")]
@@ -51,6 +57,11 @@ namespace WebApp.Controllers
         {
             try
             {
+                if (!IsRequestFromOrchestrator(HttpContext.Request))
+                {
+                    return Unauthorized("Access denied");
+                }
+                
                 var newUserOnDeviceEntry = await _usersOnDevicesService.CreateUserOnDeviceAsync(createUserOnDeviceDTO);
 
                 return (newUserOnDeviceEntry == null)
@@ -83,6 +94,24 @@ namespace WebApp.Controllers
             {
                 return StatusCode(500, $"Internal server error: {e.Message}");
             }
+        }
+        
+        private bool IsRequestFromOrchestrator(HttpRequest request)
+        {
+            if (!request.Headers.TryGetValue("X-Orchestrator-Key", out var receivedKey))
+            {
+                _logger.LogWarning("Orchestrator key header missing in request.");
+                return false;
+            }
+
+            if (receivedKey != _orchestratorApiKey)
+            {
+                _logger.LogWarning("Invalid orchestrator key provided.");
+                return false;
+            }
+
+            _logger.LogInformation("Valid orchestrator key received.");
+            return true;
         }
     }
 }
