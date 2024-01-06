@@ -35,8 +35,7 @@ namespace Application.ApplicationServices
 
             var loggedInUserId = _authenticationService.GetUserId();
 
-            if (!await _deviceService.DeviceExistsAsync(deviceId))
-                throw new NotFoundException($"Device with id {deviceId} does not exist!");
+            await _deviceService.CheckDeviceExistence(deviceId);
 
             if (!await _authorizationService.IsDeviceAccessibleToUser(loggedInUserId!, deviceId))
                 throw new ForbiddenException($"The user with id {loggedInUserId} does not have permission to access device with id {deviceId}");

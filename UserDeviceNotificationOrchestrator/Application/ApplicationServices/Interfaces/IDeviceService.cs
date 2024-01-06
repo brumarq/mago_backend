@@ -10,7 +10,7 @@ namespace Application.ApplicationServices.Interfaces
 {
     public interface IDeviceService
     {
-        void CheckDeviceExistence(int deviceID);
+        Task CheckDeviceExistence(int deviceID);
         Task<UserOnDeviceResponseDTO> CreateUserOnDeviceEntryAsync(CreateUserOnDeviceDTO createUserOnDeviceDTO);
         Task<IEnumerable<UserOnDeviceResponseDTO>> GetUserOnDeviceEntryByUserId(string userId);
         Task<IActionResult> DeleteUserOnDeviceEntryAsync(string userId, int deviceId);

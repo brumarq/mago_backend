@@ -32,6 +32,16 @@ namespace WebApp.Controllers
         {
             try
             {
+                var loggedUserId = _authenticationService.GetUserId();
+
+                var loggedInUserId = _authenticationService.GetUserId();
+                bool isUserAllowed = await _authorizationService.IsDeviceAccessibleToUser(loggedInUserId, deviceId);
+
+                if(!isUserAllowed)
+                {
+                    return Unauthorized($"The logged user cannot access this device.");
+                }
+
                 var notificationDTOs = await _notificationService.GetNotificationsByDeviceIdAsync(deviceId);
                 return Ok(notificationDTOs);
             }

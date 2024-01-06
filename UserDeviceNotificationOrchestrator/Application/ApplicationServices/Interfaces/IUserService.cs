@@ -2,7 +2,7 @@
 {
     public interface IUserService
     {
-        void CheckUserExistence(string userId);
+        Task CheckUserExistence(string userId);
         Task DeleteUser(string userId);
     }
 }

@@ -24,7 +24,7 @@ namespace Application.ApplicationServices
             _authenticationService = authenticationService;
         }
 
-        public async Task<bool> UnitExistsAsync(int unitId)
+        public async Task CheckUnitExistence(int unitId)
         {
             if (!_authenticationService.IsLoggedInUser())
                 throw new UnauthorizedException($"The user is not logged in. Please login first.");
@@ -33,7 +33,8 @@ namespace Application.ApplicationServices
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
             using var response = await _httpClient.SendAsync(request);
 
-            return response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NotFound;
+            if (!response.IsSuccessStatusCode || response == null)
+                throw new NotFoundException($"Unit with id {unitId} does not exist.");
         }
 
         public async Task<UnitResponseDTO> GetUnitByIdAsync(int unitId)
@@ -41,8 +42,7 @@ namespace Application.ApplicationServices
             if (!_authenticationService.IsLoggedInUser())
                 throw new UnauthorizedException($"The user is not logged in. Please login first.");
 
-            if (!await UnitExistsAsync(unitId))
-                throw new NotFoundException($"Unit with id {unitId} does not exist!");
+            await CheckUnitExistence(unitId);
 
             using var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{unitId}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());

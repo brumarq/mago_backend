@@ -8,9 +8,9 @@ ENV ASPNETCORE_URLS=http://0.0.0.0:8585
 # Copy the csproj and restore any dependencies (via nuget)
 COPY *.sln .
 COPY Application/*.csproj ./Application/
-COPY Infrastructure/*.csproj ./Infrastructure/
 COPY Domain/*.csproj ./Domain/
-COPY Domain.Tests/*.csproj ./Domain.Tests/
+COPY Application.Tests/*.csproj ./Application.Tests/
+COPY Infrastructure/*.csproj ./Infrastructure/
 COPY WebApp/*.csproj ./WebApp/
 
 RUN dotnet nuget locals all --clear

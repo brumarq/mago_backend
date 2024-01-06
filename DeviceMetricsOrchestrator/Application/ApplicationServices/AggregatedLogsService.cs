@@ -36,8 +36,7 @@ namespace Application.ApplicationServices
             if (!_authenticationService.IsLoggedInUser())
                 throw new UnauthorizedException($"The user is not logged in. Please login first.");
 
-            if (!await _deviceService.DeviceExistsAsync(deviceId))
-                throw new NotFoundException($"Device with id {deviceId} does not exist!");
+            await _deviceService.CheckDeviceExistence(deviceId);
 
             var loggedInUserId = _authenticationService.GetUserId();
 
