@@ -3,6 +3,7 @@ using Application.ApplicationServices.Authorization.Interfaces;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs.Metrics;
 using Application.Exceptions;
+using Application.Helpers;
 using Domain.Enums;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
@@ -53,7 +54,7 @@ namespace Application.ApplicationServices
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
             var response = await _httpClient.SendAsync(request);
 
-            response.EnsureSuccessStatusCode();
+            HttpRequestHelper.CheckStatusAndParseErrorMessageFromJsonData(response);
 
             var body = await response.Content.ReadFromJsonAsync<IEnumerable<AggregatedLogsResponseDTO>>();
 

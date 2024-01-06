@@ -2,6 +2,7 @@
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs.UsersOnDevices;
 using Application.Exceptions;
+using Application.Helpers;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -40,7 +41,7 @@ namespace Application.ApplicationServices
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
             var response = await _httpClient.SendAsync(request);
 
-            response.EnsureSuccessStatusCode();
+            HttpRequestHelper.CheckStatusAndParseErrorMessageFromJsonData(response);
 
             var body = await response.Content.ReadFromJsonAsync<IEnumerable<UsersOnDevicesResponseDTO>>();
 
