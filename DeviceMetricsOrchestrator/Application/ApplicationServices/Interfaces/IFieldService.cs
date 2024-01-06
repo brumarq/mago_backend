@@ -5,6 +5,6 @@ namespace Application.ApplicationServices.Interfaces
 {
     public interface IFieldService
     {
-        Task<Dictionary<string,string>> CreateFieldAsync(CreateFieldDTO createFieldDTO);
+        Task<CreateFieldDTO> CreateFieldAsync(CreateFieldDTO createFieldDTO);
     }
 }

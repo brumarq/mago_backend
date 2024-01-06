@@ -36,7 +36,7 @@ namespace Application.ApplicationServices
             _authenticationService = authenticationService;
             _authorizationService = authorizationService;
         }
-        public async Task<Dictionary<string,string>> CreateFieldAsync(CreateFieldDTO createFieldDTO)
+        public async Task<CreateFieldDTO> CreateFieldAsync(CreateFieldDTO createFieldDTO)
         {
             if (!_authenticationService.IsLoggedInUser())
                 throw new UnauthorizedException($"The user is not logged in. Please login first.");
@@ -57,7 +57,7 @@ namespace Application.ApplicationServices
 
             HttpRequestHelper.CheckStatusAndParseErrorMessageFromJsonData(response);
 
-            var body = JsonConvert.DeserializeObject<Dictionary<string, string>>(await response.Content.ReadAsStringAsync());
+            var body = await response.Content.ReadFromJsonAsync<CreateFieldDTO>();
 
             return body!;
         }
