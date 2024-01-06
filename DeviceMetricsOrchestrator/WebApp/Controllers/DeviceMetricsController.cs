@@ -43,6 +43,10 @@ public class DeviceMetricsController : ControllerBase
         {
             return StatusCode((int)ce.StatusCode, ce.Message);
         }
+        catch (HttpRequestException re)
+        {
+            return StatusCode((int)re.StatusCode!, re?.Message);
+        }
         catch (Exception e)
         {
             return StatusCode(500, $"Internal server error: {e.Message}");
@@ -71,6 +75,10 @@ public class DeviceMetricsController : ControllerBase
         catch (CustomException ce)
         {
             return StatusCode((int)ce.StatusCode, ce.Message);
+        }
+        catch (HttpRequestException re)
+        {
+            return StatusCode((int)re.StatusCode!, re?.Message);
         }
         catch (Exception e)
         {
