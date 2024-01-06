@@ -11,6 +11,7 @@ using Application.ApplicationServices.Authentization.Interfaces;
 using Application.ApplicationServices.Authentization;
 using Application.ApplicationServices.Authorization;
 using System.Reflection;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -108,7 +109,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
-
+app.UseMetricServer();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

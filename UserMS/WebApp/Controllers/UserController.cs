@@ -116,7 +116,6 @@ public class UserController : ControllerBase
     {
         try
         {
-            
             if (!IsRequestFromOrchestrator(HttpContext.Request))
             {
                 return Unauthorized("Access denied");
