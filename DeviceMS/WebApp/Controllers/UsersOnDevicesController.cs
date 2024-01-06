@@ -53,6 +53,7 @@ namespace WebApp.Controllers
 
         [HttpPost]
         [Authorize("Admin")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult<UsersOnDevicesResponseDTO>> CreateUsersOnDevicesEntry([FromBody] CreateUserOnDeviceDTO createUserOnDeviceDTO)
         {
             try
