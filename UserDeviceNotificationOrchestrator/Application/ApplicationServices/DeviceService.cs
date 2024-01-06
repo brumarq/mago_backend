@@ -19,15 +19,17 @@ namespace Application.ApplicationServices
         private readonly IUserService _userService;
         private readonly string? _baseUriDevice;
         private readonly string? _baseUriUserOnDevice;
+        private readonly string? _orchestratorApiKey;
 
         public DeviceService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IUserService userService, IAuthenticationService authenticationService)
         {
             _httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient();
             _userService = userService;
+            _authenticationService = authenticationService;
             _baseUriDevice = configuration["ApiRequestUris:DeviceBaseUri"];
             _baseUriUserOnDevice = configuration["ApiRequestUris:UsersOnDeviceUri"];
-            _authenticationService = authenticationService;
+            _orchestratorApiKey = configuration["OrchestratorApiKey"];
         }
 
         private async Task<HttpResponseMessage> GetDeviceExistenceStatus(int deviceId)
@@ -112,6 +114,8 @@ namespace Application.ApplicationServices
             {
                 var request = new HttpRequestMessage(HttpMethod.Post, _baseUriUserOnDevice) { Content = content };
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+                request.Headers.Add("X-Orchestrator-Key", _orchestratorApiKey);
+
                 var response = await _httpClient.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)

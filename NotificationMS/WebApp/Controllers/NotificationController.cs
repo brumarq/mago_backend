@@ -12,14 +12,20 @@ namespace WebApp.Controllers
     public class NotificationController : ControllerBase
     {
         private readonly INotificationService _notificationService;
+        private readonly ILogger<NotificationController> _logger;
+
         private readonly IAuthenticationService _authenticationService;
         private readonly IAuthorizationService _authorizationService;
+        private readonly string? _orchestratorApiKey;
 
-        public NotificationController(INotificationService notificationService, IAuthenticationService authenticationService, IAuthorizationService authorizationService)
+        public NotificationController(IConfiguration configuration, INotificationService notificationService, IAuthenticationService authenticationService, IAuthorizationService authorizationService, ILogger<NotificationController> logger)
         {
             _notificationService = notificationService;
             _authenticationService = authenticationService;
             _authorizationService = authorizationService;
+            _logger = logger;
+            _orchestratorApiKey = configuration["OrchestratorApiKey"];
+
         }
 
         // GET: /notifications
@@ -50,6 +56,11 @@ namespace WebApp.Controllers
         {   
             try
             {
+                if (!IsRequestFromOrchestrator(HttpContext.Request))
+                {
+                    return Unauthorized("Access denied");
+                }
+                
                 var notificationDTO = await _notificationService.GetNotificationByIdAsync(id);
                 if (notificationDTO == null)
                 {
@@ -75,6 +86,11 @@ namespace WebApp.Controllers
         {
             try
             {
+                if (!IsRequestFromOrchestrator(HttpContext.Request))
+                {
+                    return Unauthorized("Access denied");
+                }
+                
                 var notificationDTO = await _notificationService.GetNotificationsByDeviceIdAsync(deviceId);
                 if (notificationDTO == null)
                 {
@@ -101,6 +117,11 @@ namespace WebApp.Controllers
         {
             try
             {
+                if (!IsRequestFromOrchestrator(HttpContext.Request))
+                {
+                    return Unauthorized("Access denied");
+                }
+                
                 var result = await _notificationService.CreateNotificationAsync(createNotificationDTO);
                 if (result == null)
                 {
@@ -202,8 +223,23 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+        
+        private bool IsRequestFromOrchestrator(HttpRequest request)
+        {
+            if (!request.Headers.TryGetValue("X-Orchestrator-Key", out var receivedKey))
+            {
+                _logger.LogWarning("Orchestrator key header missing in request.");
+                return false;
+            }
 
+            if (receivedKey != _orchestratorApiKey)
+            {
+                _logger.LogWarning("Invalid orchestrator key provided.");
+                return false;
+            }
 
-
+            _logger.LogInformation("Valid orchestrator key received.");
+            return true;
+        }
     }
 }
