@@ -1,17 +1,11 @@
 ﻿using Moq;
-using Newtonsoft.Json;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
-using Application.DTOs;
 using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using NUnit.Framework;
 
 
 namespace Application.Tests;
@@ -19,10 +13,10 @@ namespace Application.Tests;
 [TestFixture]
 public class Auth0ManagementServiceTests
 {
-    private Mock<IHttpClientFactory> _mockHttpClientFactory;
-    private Mock<IConfiguration> _mockConfiguration;
-    private Mock<ILogger<Auth0ManagementService>> _mockLogger;
-    private IAuth0ManagementService _auth0ManagementService;
+    private Mock<IHttpClientFactory> _mockHttpClientFactory = null!;
+    private Mock<IConfiguration> _mockConfiguration = null!;
+    private Mock<ILogger<Auth0ManagementService>> _mockLogger = null!;
+    private IAuth0ManagementService _auth0ManagementService = null!;
 
     [SetUp]
     public void Setup()
@@ -31,7 +25,12 @@ public class Auth0ManagementServiceTests
         _mockHttpClientFactory = new Mock<IHttpClientFactory>();
         _mockConfiguration = new Mock<IConfiguration>();
         
-        _auth0ManagementService = new Auth0ManagementService(_mockHttpClientFactory.Object, _mockConfiguration.Object, _mockLogger.Object);    
+        _auth0ManagementService = new Auth0ManagementService(_mockHttpClientFactory.Object, _mockConfiguration.Object, _mockLogger.Object);
+        
+        _mockConfiguration.Setup(c => c["Auth0-Management:Domain"]).Returns("https://example.com");
+        _mockConfiguration.Setup(c => c["Auth0-Management:ClientId"]).Returns("clientId");
+        _mockConfiguration.Setup(c => c["Auth0-Management:ClientSecret"]).Returns("clientSecret");
+        _mockConfiguration.Setup(c => c["Auth0-Management:Audience"]).Returns("audience");
     }
     
     
@@ -48,20 +47,16 @@ public class Auth0ManagementServiceTests
         // Use reflection to set the private _currentToken field
         typeof(Auth0ManagementService)
             .GetField("_currentToken", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-            .SetValue(_auth0ManagementService, existingToken);
+            ?.SetValue(_auth0ManagementService, existingToken);
 
         var token = await _auth0ManagementService.GetToken();
 
-        Assert.AreEqual(existingToken.Token, token.Token);
+        Assert.That(token.Token, Is.EqualTo(existingToken.Token));
     }
     
     [Test]
     public async Task GetToken_TokenInvalid_FetchesNewToken()
     {
-        _mockConfiguration.Setup(c => c["Auth0-Management:Domain"]).Returns("https://example.com");
-        _mockConfiguration.Setup(c => c["Auth0-Management:ClientId"]).Returns("clientId");
-        _mockConfiguration.Setup(c => c["Auth0-Management:ClientSecret"]).Returns("clientSecret");
-        _mockConfiguration.Setup(c => c["Auth0-Management:Audience"]).Returns("audience");
 
         var fakeHttpMessageHandler = new FakeHttpMessageHandler();
         fakeHttpMessageHandler.SetupResponse("https://example.com/oauth/token",
@@ -71,11 +66,11 @@ public class Auth0ManagementServiceTests
             });
 
         var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
-        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
+        _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
 
         var token = await _auth0ManagementService.GetToken();
 
-        Assert.AreEqual("newToken", token.Token);
+        Assert.That(token.Token, Is.EqualTo("newToken"));
     }
 
     [Test]
@@ -87,11 +82,11 @@ public class Auth0ManagementServiceTests
         fakeHttpMessageHandler.SetupResponse("https://example.com/oauth/token", new HttpResponseMessage(HttpStatusCode.BadRequest));
 
         var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
-        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
+        _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
 
         var token = await _auth0ManagementService.GetToken();
 
-        Assert.IsEmpty(token.Token);
+        Assert.That(token.Token, Is.Empty);
     }
     
     private class FakeHttpMessageHandler : DelegatingHandler

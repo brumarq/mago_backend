@@ -44,7 +44,7 @@ public class Auth0Service : IAuth0Service
 
         // Prepare the request to create a new user in Auth0
         var client = _httpClientFactory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Post, "https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users")
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{_configuration["Auth0-Management:Audience"]}users")
         {
             Content = JsonContent.Create(new
             {
@@ -139,7 +139,7 @@ public class Auth0Service : IAuth0Service
     {
         var token = await _auth0ManagementService.GetToken();
         var client = _httpClientFactory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Patch, $"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users/{userId}")
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"{_configuration["Auth0-Management:Audience"]}users/{userId}")
         {
             Content = JsonContent.Create(userDetails),
             Headers = { { "Authorization", $"Bearer {token.Token}" } }
@@ -164,7 +164,7 @@ public class Auth0Service : IAuth0Service
 
         // Prepare the request to assign a role to a user
         var client = _httpClientFactory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Get, $"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users/{userId}")
+        var request = new HttpRequestMessage(HttpMethod.Get, $"{_configuration["Auth0-Management:Audience"]}users/{userId}")
         {
             Headers =
             {
@@ -191,10 +191,10 @@ public class Auth0Service : IAuth0Service
         };
     }
     
-    public async Task<List<UserDTO>> GetAllUsers()
+    public async Task<List<UserCompressedDTO>> GetAllUsers()
     {
-        var roleNames = new List<string> { "admin", "client" }; // Extend this list with other roles as needed
-        var allUsersWithRoles = new List<UserDTO>();
+        var roleNames = new List<string> { "admin", "client" };
+        var allUsersWithRoles = new List<UserCompressedDTO>();
 
         foreach (var roleName in roleNames)
         {
@@ -202,12 +202,12 @@ public class Auth0Service : IAuth0Service
             if (string.IsNullOrEmpty(roleId))
             {
                 _logger.LogError($"Role ID for {roleName} not found in configuration.");
-                continue; // Skip to the next role if the role ID is not found
+                continue;
             }
 
             var users = await GetUsersByRoleId(roleId);
 
-            var usersWithRole = users.Select(user => new UserDTO
+            var usersWithRole = users.Select(user => new UserCompressedDTO
             {
                 User = user,
                 Role = roleName
@@ -220,12 +220,12 @@ public class Auth0Service : IAuth0Service
     }
 
 
-    public async Task<List<User>> GetUsersByRoleId(string roleId)
+    public async Task<List<UserCompressed>> GetUsersByRoleId(string roleId)
     {
         var token = await _auth0ManagementService.GetToken();
 
         var client = _httpClientFactory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Get, $"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/roles/{roleId}/users")
+        var request = new HttpRequestMessage(HttpMethod.Get, $"{_configuration["Auth0-Management:Audience"]}roles/{roleId}/users")
         {
             Headers =
             {
@@ -242,24 +242,22 @@ public class Auth0Service : IAuth0Service
             throw new Exception($"{errorContent}");
         }
 
-        var users = await response.Content.ReadFromJsonAsync<List<User>>();
-        return users ?? new List<User>();
+        var users = await response.Content.ReadFromJsonAsync<List<UserCompressed>>();
+        return users ?? new List<UserCompressed>();
     }
 
     // Delete User
     
     public async Task<bool> DeleteUserAsync(string userId)
     {
-
-        var userExists = await GetUser(userId);
-        
+        var result = await GetUser(userId);
         
         // Use _auth0ManagementService to get the access token
         var token = await _auth0ManagementService.GetToken();
 
         // Prepare the request to delete the user
         var client = _httpClientFactory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users/{userId}")
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"{_configuration["Auth0-Management:Audience"]}users/{userId}")
         {
             Headers =
             {

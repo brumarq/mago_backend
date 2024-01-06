@@ -30,7 +30,7 @@ public class Auth0RolesService: IAuth0RolesService
         var roleId = _configuration[$"Auth0-Roles:{roleName}"];
 
         var client = _httpClientFactory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users/{userId}/roles")
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"{_configuration["Auth0-Management:Audience"]}users/{userId}/roles")
         {
             Content = JsonContent.Create(new { roles = new[] { roleId } }),
             Headers =
@@ -55,7 +55,7 @@ public class Auth0RolesService: IAuth0RolesService
         var token = await _auth0ManagementService.GetToken();
 
         var client = _httpClientFactory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Post, $"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/roles/{_configuration[$"Auth0-Roles:{roleName}"]}/users")
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{_configuration["Auth0-Management:Audience"]}roles/{_configuration[$"Auth0-Roles:{roleName}"]}/users")
         {
             Content = JsonContent.Create(new
             {
@@ -83,7 +83,7 @@ public class Auth0RolesService: IAuth0RolesService
         var token = await _auth0ManagementService.GetToken();
 
         var client = _httpClientFactory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Get, $"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users/{userId}/roles")
+        var request = new HttpRequestMessage(HttpMethod.Get, $"{_configuration["Auth0-Management:Audience"]}users/{userId}/roles")
         {
             Headers =
             {

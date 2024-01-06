@@ -10,10 +10,15 @@ namespace Application.ApplicationServices
     public class Auth0ManagementService : IAuth0ManagementService
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private ManagementToken _currentToken;
         private readonly IConfiguration _configuration;
         private readonly ILogger<Auth0ManagementService> _logger;
         
+        private ManagementToken _currentToken = new()
+        {
+            Token = string.Empty,
+            ExpirationTime = DateTime.MinValue
+        };
+
         public Auth0ManagementService(IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<Auth0ManagementService> logger)
         {
             _httpClientFactory = httpClientFactory;
@@ -23,8 +28,10 @@ namespace Application.ApplicationServices
 
         public async Task<ManagementToken> GetToken()
         {
-            if (_currentToken != null && _currentToken.ExpirationTime > DateTime.UtcNow)
+            if (_currentToken.ExpirationTime > DateTime.UtcNow)
+            {
                 return _currentToken;
+            }
 
             return _currentToken = await FetchNewTokenAsync();
         }
@@ -36,9 +43,9 @@ namespace Application.ApplicationServices
             {
                 Content = JsonContent.Create(new TokenRequestDTO
                 {
-                    client_id = $"{_configuration["Auth0-Management:ClientId"]}",
-                    client_secret = $"{_configuration["Auth0-Management:ClientSecret"]}",
-                    audience = $"{_configuration["Auth0-Management:Audience"]}",
+                    client_id = _configuration["Auth0-Management:ClientId"],
+                    client_secret = _configuration["Auth0-Management:ClientSecret"],
+                    audience = _configuration["Auth0-Management:Audience"],
                     grant_type = "client_credentials"
                 })
             };
@@ -49,15 +56,15 @@ namespace Application.ApplicationServices
                 _logger.LogError("Error fetching token from Auth0 Management API. Status Code: {StatusCode}", response.StatusCode);
                 return new ManagementToken
                 {
-                    Token = "",
-                    ExpirationTime = DateTime.UtcNow.AddSeconds(0)
+                    Token = string.Empty,
+                    ExpirationTime = DateTime.UtcNow
                 };
             }
 
             var tokenResponse = await response.Content.ReadFromJsonAsync<ManagementTokenResponse>();
             return new ManagementToken
             {
-                Token = tokenResponse.Token,
+                Token = tokenResponse?.Token,
                 ExpirationTime = DateTime.UtcNow.AddSeconds(86400)
             };
         }
