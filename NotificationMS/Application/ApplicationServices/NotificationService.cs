@@ -3,6 +3,7 @@ using Application.DTOs;
 using Application.Exceptions;
 using AutoMapper;
 using Domain.Entities;
+using Infrastructure.Repositories;
 using Infrastructure.Repositories.Interfaces;
 
 namespace Application.ApplicationServices
@@ -22,8 +23,10 @@ namespace Application.ApplicationServices
         }
         
 
-        public async Task<CreateNotificationDTO> CreateNotificationAsync(CreateNotificationDTO createNotificationDTO)
+        public async Task<NotificationResponseDTO> CreateNotificationAsync(CreateNotificationDTO createNotificationDTO)
         {
+            ValidateCreateNotificationDTO(createNotificationDTO);
+
             Status newNotification = new Status
             {
                 Message = createNotificationDTO.Message,
@@ -32,9 +35,9 @@ namespace Application.ApplicationServices
                 StatusTypeId = createNotificationDTO.StatusTypeID // Set the foreign key proper
             };
 
-            await _notificationRepository.CreateAsync(newNotification);
+            var responseDTO = await _notificationRepository.CreateAsync(newNotification);
 
-            return _mapper.Map<CreateNotificationDTO>(newNotification);
+            return _mapper.Map<NotificationResponseDTO>(responseDTO);
         }
 
         public async Task<IEnumerable<NotificationResponseDTO>> GetAllNotificationsAsync()
@@ -46,30 +49,38 @@ namespace Application.ApplicationServices
 
         public async Task<NotificationResponseDTO> GetNotificationByIdAsync(int id)
         {
-            var notifications = await _notificationRepository.GetAllAsync();
+            if(id <= 0)
+                throw new BadRequestException("The id cannot be negative or 0.");
 
-            var notification = notifications.FirstOrDefault(n => n.Id == id);
+            var notification = await _notificationRepository.GetByConditionAsync(n => n.Id == id);
 
             if (notification == null)
-                throw new BadRequestException("Notification was not found...");
+                throw new NotFoundException("Notification was not found...");
 
             return _mapper.Map<NotificationResponseDTO>(notification);
         }
 
         public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId)
         {
-            var notifications = await _notificationRepository.GetAllAsync();
+            if (deviceId <= 0)
+                throw new BadRequestException("The deviceID cannot be negative or 0.");
 
-            var notification = notifications.Where(n => n.DeviceId == deviceId);
+            var allNotifications = await _notificationRepository.GetAllAsync();
 
-            return _mapper.Map<IEnumerable<NotificationResponseDTO>>(notification);
+            var notifications = allNotifications.Where(n => n.DeviceId == deviceId);
+
+            if (!notifications.Any())
+                throw new NotFoundException("Notifications were not found...");
+
+            return _mapper.Map<IEnumerable<NotificationResponseDTO>>(notifications);
         }
 
         public async Task<StatusTypeDTO> GetStatusTypeByIdAsync(int id)
         {
-            var statusTypes = await _statusTypeRepository.GetAllAsync();
+            if (id <= 0)
+                throw new BadRequestException("The deviceID cannot be negative or 0.");
 
-            var statusType = statusTypes.FirstOrDefault(n => n.Id == id);
+            var statusType = await _statusTypeRepository.GetByConditionAsync(s => s.Id == id);
 
             if (statusType == null)
                 throw new NotFoundException("Status Type was not found...");
@@ -79,6 +90,9 @@ namespace Application.ApplicationServices
 
         public async Task<StatusTypeDTO> CreateStatusTypeAsync(CreateStatusTypeDTO statusTypeDTO)
         {
+            if (statusTypeDTO.Name == null || statusTypeDTO.Name == "")
+                throw new BadRequestException("StatusType Name property is required to be filled out");
+
             StatusType newStatusType = new StatusType
             {
                 Name = statusTypeDTO.Name
@@ -91,6 +105,9 @@ namespace Application.ApplicationServices
         
         public async Task DeleteStatusTypeAsync(int id)
         {
+            if (id <= 0)
+                throw new BadRequestException("The status type ID cannot be negative or 0.");
+
             var statusType = await _statusTypeRepository.GetByConditionAsync(st => st.Id == id);
 
             if (statusType == null)
@@ -98,7 +115,12 @@ namespace Application.ApplicationServices
                 throw new NotFoundException("StatusType not found.");
             }
 
-            // Optional: Add logic here to handle if the StatusType is associated with any Statuses
+            var notificationByStatusTypeId = await _notificationRepository.GetByConditionAsync(st => st.StatusTypeId == id);
+            if (notificationByStatusTypeId != null)
+            {
+                throw new BadRequestException("StatusType is associated with notifications");
+            }
+
 
             await _statusTypeRepository.DeleteAsync(statusType.Id); // Adjust repository methods if needed
         }
@@ -114,14 +136,31 @@ namespace Application.ApplicationServices
 
             // Update properties
             statusType.Name = statusTypeDTO.Name;
-            // Add other property updates as necessary
 
             await _statusTypeRepository.UpdateAsync(statusType); // Adjust repository methods if needed
 
             return _mapper.Map<StatusTypeDTO>(statusType);
         }
 
+        private void ValidateCreateNotificationDTO(CreateNotificationDTO createNotificationDTO)
+        {
+            switch (createNotificationDTO)
+            {
+                case null:
+                    throw new BadRequestException("The object cannot be null.");
 
+                case { Message: null } or { Message: "" }:
+                    throw new BadRequestException("The 'Message' property is required to be filled out");
+
+                case { DeviceID: <= 0 }:
+                    throw new BadRequestException("The 'DeviceID' property cannot be negative or 0.");
+
+                case { StatusTypeID: <= 0 }:
+                    throw new BadRequestException("The 'StatusTypeID' property cannot be negative or 0.");
+
+
+            }
+        }
 
 
     }
