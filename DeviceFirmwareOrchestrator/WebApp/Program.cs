@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Prometheus;
 using WebApp.Middleware.Authentication;
 
 // using Infrastructure.Data.Context;
@@ -105,6 +106,7 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseMetricServer();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
