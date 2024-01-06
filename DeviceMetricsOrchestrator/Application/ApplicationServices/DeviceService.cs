@@ -3,6 +3,7 @@ using Application.ApplicationServices.Authorization.Interfaces;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs.Device;
 using Application.Exceptions;
+using Application.Helpers;
 using Microsoft.Extensions.Configuration;
 using System.Net;
 using System.Net.Http.Headers;
@@ -61,9 +62,12 @@ public class DeviceService : IDeviceService
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
         var response = await _httpClient.SendAsync(request);
 
-        response.EnsureSuccessStatusCode();
+        HttpRequestHelper.CheckStatusAndParseErrorMessageFromJsonData(response);
 
         var body = await response.Content.ReadFromJsonAsync<DeviceResponseDTO>();
+
+        if (body == null)
+            throw new NotFoundException("Failed to retrieve device by id");
 
         return body!;
     }

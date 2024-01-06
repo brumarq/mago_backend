@@ -1,5 +1,4 @@
 ﻿using Application.DTOs.DeviceMetrics;
-using Application.DTOs.Metrics;
 using Domain.Enums;
 
 namespace Application.ApplicationServices.Interfaces

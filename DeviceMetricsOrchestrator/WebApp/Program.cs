@@ -11,6 +11,7 @@ using Application.ApplicationServices.Authentization.Interfaces;
 using Application.ApplicationServices.Authentization;
 using Application.ApplicationServices.Authorization;
 using System.Reflection;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,8 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<Application.ApplicationServices.Authorization.Interfaces.IAuthorizationService, AuthorizationService>();
+builder.Services.AddScoped<IFieldService, FieldService>();
+builder.Services.AddScoped<IDeviceTypeService, DeviceTypeService>();
 builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<IMetricsService, MetricsService>();
 builder.Services.AddScoped<IAggregatedLogsService, AggregatedLogsService>();
@@ -106,7 +109,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
-
+app.UseMetricServer();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

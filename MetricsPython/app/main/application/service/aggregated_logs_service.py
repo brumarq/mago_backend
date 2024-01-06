@@ -34,7 +34,7 @@ class AggregatedLogsService(BaseAggregatedLogsService):
 
         # start_date = request.args.get('start_date')
         # end_date = request.args.get('end_date')
-        if (start_date is None and end_date is not None) or (start_date is not None and end_date is None):
+        if (not start_date and end_date) or (start_date and not end_date):
             abort(400, "Both start date and end date must be provided or none of them.")
 
         if start_date is not None and end_date is not None:
