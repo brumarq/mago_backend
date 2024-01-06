@@ -12,18 +12,17 @@ namespace Application.Helpers
         /// <exception cref="HttpRequestException"></exception>
         public static void CheckStatusAndParseErrorMessageFromJsonData(HttpResponseMessage response)
         {
-            if (response.StatusCode != HttpStatusCode.OK)
+            if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
+                return;
+
+            if (response.Content.Headers.ContentLength > 0)
             {
-                if (response.Content.Headers.ContentLength > 0)
-                {
-                    string respStr = response.Content.ReadAsStringAsync().Result;
-                    var dic = JsonConvert.DeserializeObject<Dictionary<string, string>>(respStr);
-                    string message = dic["message"];
-                    response.ReasonPhrase = message;
-                }
-                throw new HttpRequestException(response.ReasonPhrase, inner: null, response.StatusCode);
+                string respStr = response.Content.ReadAsStringAsync().Result;
+                var dic = JsonConvert.DeserializeObject<Dictionary<string, string>>(respStr);
+                string message = dic["message"];
+                response.ReasonPhrase = message;
             }
-            response.EnsureSuccessStatusCode(); // just in case this fails, use normal way of handling messages...
+            throw new HttpRequestException(response.ReasonPhrase, inner: null, response.StatusCode);       
         }
     }
 }
