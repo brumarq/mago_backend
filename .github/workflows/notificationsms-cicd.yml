@@ -17,6 +17,7 @@ env:
   AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }} 
   AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
   OPENSHIFT_NAMESPACE: mago-backend
+  OPENSHIFT_TEST_NAMESPACE: mago-backend-test
   APP_NAME: notifications-microservice
   APP_PORT: 8282
 
