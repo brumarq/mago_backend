@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from db import Database
 from queries import QueryHandler
+from models import DeviceStats
 
 class AggregatedLogsProcessor:
     def __init__(self):
@@ -14,16 +15,29 @@ class AggregatedLogsProcessor:
         self.__process_logs("YearlyAverage")
 
     def __process_log_records(self, table_name: str, start_date: datetime.date, end_date: datetime.date):
-        field_ids = self.queryhandler.get_all_field_ids()
+        all_log_value_entries = self.queryhandler.get_all_logs_by_date_range(start_date, end_date)
+        device_stats = DeviceStats()
+        for log_value_entry in all_log_value_entries:
+            value, field_id, device_id = log_value_entry
 
-        for field_id in field_ids:
-            result = self.queryhandler.get_aggregated_logs_by_date_time(field_id, start_date, end_date)
+            device_field_stats = device_stats.get_device_stats(device_id, field_id)
 
-            if result is not None:
-                average_value, min_value, max_value, device_id = result
-                self.queryhandler.save_averages(table_name, field_id, average_value, min_value, max_value, device_id, start_date) # start_date is the reference_date..
-        #TODO FINISH??
+            if device_field_stats.count == 0: # if count is 0 we do not have a value yet for min and max (0) so we need to set the current values
+                device_field_stats.min = value
+                device_field_stats.max = value
+            else: # count is more than 1, so we have values to calc min/max from
+                device_field_stats.min = min(device_field_stats.min, value) 
+                device_field_stats.max = max(device_field_stats.max, value)
 
+            device_field_stats.sum += value
+            device_field_stats.count += 1
+
+        for device_id, field_stats in device_stats.items(): # foreach device get each field and the statsitics of the values (min,max,average) and insert them into database.
+            for field_id, log_value_stats in field_stats.items():
+                if log_value_stats.count > 0:
+                    average_value = log_value_stats.sum / log_value_stats.count
+                    self.queryhandler.save_averages(table_name, field_id, average_value, log_value_stats.min, log_value_stats.max, device_id, start_date)
+   
 
     def __get_reference_date_or_log_date(self, table_name: str):
         last_record_date = self.queryhandler.get_most_recent_reference_date(table_name) # Try fetching lastest record from WeeklyAverage (reference_date)

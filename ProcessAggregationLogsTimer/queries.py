@@ -44,32 +44,32 @@ class QueryHandler:
         return None
 
 
-    def get_aggregated_logs_by_date_time(self, field_id: int, start_date: datetime.date, end_date: datetime.time) -> tuple:
-        query = """
-            SELECT
-                AVG(CAST(lv.value AS FLOAT)) AS average_value,
-                MIN(CAST(lv.value AS FLOAT)) AS min_value,
-                MAX(CAST(lv.value AS FLOAT)) AS max_value,
-                lc.device_id
-            FROM
-                LogValue lv
-            JOIN
-                LogCollection lc ON lv.log_collection_id = lc.id
-            JOIN
-                LogCollectionType lct ON lc.log_collection_type_id = lct.id
-            WHERE
-                lv.field_id = ? AND lv.created_at >= ? AND lv.created_at < ?
-            GROUP BY
-                lc.device_id;
-        """
+    # def get_aggregated_logs_by_date_time(self, field_id: int, start_date: datetime.date, end_date: datetime.time) -> tuple:
+    #     query = """
+    #         SELECT
+    #             AVG(CAST(lv.value AS FLOAT)) AS average_value,
+    #             MIN(CAST(lv.value AS FLOAT)) AS min_value,
+    #             MAX(CAST(lv.value AS FLOAT)) AS max_value,
+    #             lc.device_id
+    #         FROM
+    #             LogValue lv
+    #         JOIN
+    #             LogCollection lc ON lv.log_collection_id = lc.id
+    #         JOIN
+    #             LogCollectionType lct ON lc.log_collection_type_id = lct.id
+    #         WHERE
+    #             lv.field_id = ? AND lv.created_at >= ? AND lv.created_at < ?
+    #         GROUP BY
+    #             lc.device_id;
+    #     """
 
-        parameters = (field_id, start_date, end_date)
-        result = self.database.execute_select_query(query, parameters)
+    #     parameters = (field_id, start_date, end_date)
+    #     result = self.database.execute_select_query(query, parameters)
 
-        if not result:
-            return None
+    #     if not result:
+    #         return None
 
-        return result[0]
+    #     return result[0]
 
     def save_averages(self, table_name: str, field_id: int, average_value: float, min_value: float, max_value: float, device_id: int, reference_date: datetime.date) -> None:
         current_datetime = datetime.utcnow()
@@ -94,3 +94,25 @@ class QueryHandler:
         # Extract the IDs from the result and return as a list
         field_ids = [row[0] for row in result]
         return field_ids
+    
+
+    def get_all_logs_by_date_range(self, start_date: datetime.date, end_date: datetime.date) -> list:
+        query = """
+            SELECT
+                lv.value,
+                lv.field_id,
+                lc.device_id
+            FROM
+                LogValue lv
+            JOIN
+                LogCollection lc ON lv.log_collection_id = lc.id
+            JOIN
+                LogCollectionType lct ON lc.log_collection_type_id = lct.id
+            WHERE
+                lv.created_at >= ? AND lv.created_at < ?
+        """
+
+        parameters = (start_date, end_date)
+        result = self.database.execute_select_query(query, parameters)
+
+        return result

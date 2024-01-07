@@ -7,7 +7,7 @@ load_dotenv()
 
 class Database:
     def __init__(self):
-        self.connection = pyodbc.connect(os.environ.get('METRICS_DB_CONNECTION_STRING_PYODBC'))
+        self.connection = pyodbc.connect('Driver={ODBC Driver 18 for SQL Server};Server=tcp:mago-database-server.database.windows.net,1433;Database=MetricsDB;Uid=MagoDBAdmin;Pwd=Test123*;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
 
     def execute_select_query(self, query: str, parameters=None) -> List[Tuple]:
         cursor = self.connection.cursor()
