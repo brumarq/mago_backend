@@ -82,10 +82,10 @@ jobs:
           fi
 
           oc set env deployment/${{ env.APP_NAME }} \
-          Auth0__Domain=${{ env.AUTH0_DOMAIN }} \
-          Auth0__Audience=${{ env.AUTH0_AUDIENCE }} \
-          Auth0__ClientId=${{ env.AUTH0_CLIENT_ID }} \
-          Auth0__ClientSecret=${{ env.AUTH0_CLIENT_SECRET }} \
+          Auth0__Domain=${{ env.AUTH0_TEST_DOMAIN }} \
+          Auth0__Audience=${{ env.AUTH0_TEST_AUDIENCE }} \
+          Auth0__ClientId=${{ env.AUTH0_TEST_CLIENT_ID }} \
+          Auth0__ClientSecret=${{ env.AUTH0_TEST_CLIENT_SECRET }} \
           Auth0-Management__Domain=${{ secrets.AUTH0_MGMT_DOMAIN }} \
           Auth0-Management__Audience=${{ secrets.AUTH0_MGMT_AUDIENCE }} \
           Auth0-Management__ClientId=${{ secrets.AUTH0_MGMT_CLIENT_ID }} \
