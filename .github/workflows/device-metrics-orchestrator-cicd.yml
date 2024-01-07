@@ -21,8 +21,8 @@ env:
   APP_PORT: 8585
 
 jobs:
-  device-metrics-orchestrator-integration-tests:
-    name: Integration tests
+  device-metrics-orchestrator-unit-tests:
+    name: Unit tests
     runs-on: ubuntu-latest
 
     steps:
