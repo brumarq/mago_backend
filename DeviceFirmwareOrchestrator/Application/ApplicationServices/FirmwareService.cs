@@ -35,7 +35,6 @@ public class FirmwareService : IFirmwareService
     {
         await _deviceService.EnsureDeviceExists(newFileSendDto.DeviceId);
         
-        
         var request = new HttpRequestMessage(HttpMethod.Post, _baseUri);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
         
