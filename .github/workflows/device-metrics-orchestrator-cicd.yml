@@ -45,7 +45,7 @@ jobs:
   docker-upload:
     name: Deploy docker container
     runs-on: ubuntu-20.04
-    needs: device-metrics-orchestrator-integration-tests
+    needs: device-metrics-orchestrator-unit-tests
     environment: device-metrics-orchestrator-production
 
     steps:
