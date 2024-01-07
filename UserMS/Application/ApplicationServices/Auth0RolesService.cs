@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
+using Application.Exceptions;
 using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -44,14 +45,13 @@ public class Auth0RolesService: IAuth0RolesService
         {
             var errorContent = await response.Content.ReadAsStringAsync();
             _logger.LogError("Error unassigning role from user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
-            throw new Auth0Service.UserRoleException($"{errorContent}");
+            throw new BadRequestException($"{errorContent}");
         }
     }
 
     
     public async Task AssignRole(string roleName, string userId)
     {
-        // Use _auth0ManagementService to get the access token
         var token = await _auth0ManagementService.GetToken();
 
         var client = _httpClientFactory.CreateClient();
@@ -73,13 +73,12 @@ public class Auth0RolesService: IAuth0RolesService
         {
             var errorContent = await response.Content.ReadAsStringAsync();
             _logger.LogError("Error assigning role to user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
-            throw new Auth0Service.UserRoleException($"{errorContent}");
+            throw new BadRequestException($"{errorContent}");
         }
     }
     
     public async Task<string> GetRole(string userId)
     {
-        // Use _auth0ManagementService to get the access token
         var token = await _auth0ManagementService.GetToken();
 
         var client = _httpClientFactory.CreateClient();
@@ -97,10 +96,9 @@ public class Auth0RolesService: IAuth0RolesService
         {
             var errorContent = await response.Content.ReadAsStringAsync();
             _logger.LogError("Error retrieving roles for user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
-            throw new Auth0Service.UserRoleException($"{errorContent}");
+            throw new BadRequestException($"{errorContent}");
         }
 
-        // Read the response content and deserialize it
         var roles = await response.Content.ReadFromJsonAsync<List<Role>>();
 
         // Check if the roles list is not empty, then return the name of the first role
@@ -109,7 +107,6 @@ public class Auth0RolesService: IAuth0RolesService
             return roles.First().Name;
         }
 
-        // If the roles list is empty, return an empty string or null
         return "";
     }
 }

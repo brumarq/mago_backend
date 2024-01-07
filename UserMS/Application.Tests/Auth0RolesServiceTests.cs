@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
+using Application.Exceptions;
 using Domain.Entities;
 
 namespace Application.Tests;
@@ -69,7 +70,7 @@ public class Auth0RolesServiceTests
         
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
 
-        Assert.ThrowsAsync<Auth0Service.UserRoleException>(() => _auth0RolesService.UnassignRoleAsync("admin", userId));
+        Assert.ThrowsAsync<BadRequestException>(() => _auth0RolesService.UnassignRoleAsync("admin", userId));
     }
     
     [Test]
@@ -93,7 +94,7 @@ public class Auth0RolesServiceTests
         
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
 
-        Assert.ThrowsAsync<Auth0Service.UserRoleException>(() => _auth0RolesService.AssignRole("admin", "userId"));
+        Assert.ThrowsAsync<BadRequestException>(() => _auth0RolesService.AssignRole("admin", "userId"));
     }
     
     [Test]
@@ -126,7 +127,7 @@ public class Auth0RolesServiceTests
         
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
 
-        Assert.ThrowsAsync<Auth0Service.UserRoleException>(() => _auth0RolesService.GetRole(userId));
+        Assert.ThrowsAsync<BadRequestException>(() => _auth0RolesService.GetRole(userId));
     }
     
     private class FakeHttpMessageHandler : DelegatingHandler

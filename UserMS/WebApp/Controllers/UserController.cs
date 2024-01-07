@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
+using Application.Exceptions;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -41,13 +42,17 @@ public class UserController : ControllerBase
                 
             return Ok(userDto);
         }
-        catch (Auth0Service.UserNotFoundException ex)
+        catch (CustomException ce)
         {
-            return NotFound(ex.Message);
+            return StatusCode((int)ce.StatusCode, ce.Message);
         }
-        catch (Exception ex)
+        catch (HttpRequestException re)
         {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            return StatusCode((int)re.StatusCode!, re?.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, $"Internal server error: {e.Message}");
         }
     }
 
@@ -61,9 +66,17 @@ public class UserController : ControllerBase
             var users = await _auth0Service.GetAllUsers();
             return Ok(users);
         }
-        catch (Exception ex)
+        catch (CustomException ce)
         {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            return StatusCode((int)ce.StatusCode, ce.Message);
+        }
+        catch (HttpRequestException re)
+        {
+            return StatusCode((int)re.StatusCode!, re?.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, $"Internal server error: {e.Message}");
         }
     }
 
@@ -84,17 +97,17 @@ public class UserController : ControllerBase
             var updatedUser = await _auth0Service.UpdateUserAsync(id, updateUserDto);
             return Ok(updatedUser);
         }
-        catch (Auth0Service.UserUpdateException ex)
+        catch (CustomException ce)
         {
-            return BadRequest(ex.Message);
+            return StatusCode((int)ce.StatusCode, ce.Message);
         }
-        catch (Auth0Service.UserNotFoundException ex)
+        catch (HttpRequestException re)
         {
-            return NotFound(ex.Message);
+            return StatusCode((int)re.StatusCode!, re?.Message);
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            return StatusCode(500, $"Internal server error: {e.Message}");
         }
     }
 
@@ -114,13 +127,17 @@ public class UserController : ControllerBase
             await _auth0Service.DeleteUserAsync(id);
             return Ok();
         }
-        catch (Auth0Service.UserNotFoundException ex)
+        catch (CustomException ce)
         {
-            return NotFound(ex.Message);
+            return StatusCode((int)ce.StatusCode, ce.Message);
         }
-        catch (Exception ex)
+        catch (HttpRequestException re)
         {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            return StatusCode((int)re.StatusCode!, re?.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, $"Internal server error: {e.Message}");
         }
     }
 
@@ -134,13 +151,17 @@ public class UserController : ControllerBase
             var result = await _auth0Service.CreateAuth0UserAsync(createUserDto);
             return Ok(result);
         }
-        catch (Auth0Service.UserCreationException ex)
+        catch (CustomException ce)
         {
-            return BadRequest(ex.Message);
+            return StatusCode((int)ce.StatusCode, ce.Message);
         }
-        catch (Exception ex)
+        catch (HttpRequestException re)
         {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            return StatusCode((int)re.StatusCode!, re?.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, $"Internal server error: {e.Message}");
         }
     }
 
