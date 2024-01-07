@@ -4,8 +4,6 @@ from app.main.application.service.field_service import FieldService
 from app.main.infrastructure.repositories.repository import Repository
 from app.main.domain.entities.field import Field
 from app.main.webapp.middleware.authentication import requires_auth
-from flask import jsonify
-import json
 
 api = FieldDto.api
 

@@ -8,6 +8,7 @@ from app.main.domain.entities.monthly_average import MonthlyAverage
 from app.main.domain.entities.yearly_average import YearlyAverage
 from app.main.application.service.aggregated_logs_service import AggregatedLogsService
 from app.main.application.service.metrics_service import MetricsService
+from app.main.application.service.field_service import FieldService
 from app.main.domain.entities.log_value import LogValue
 from app import blueprint
 
@@ -52,3 +53,9 @@ def aggregated_logs_service(app):
 def metrics_service(app):
     with app.app_context():
         yield MetricsService(Repository(LogValue))
+
+
+@pytest.fixture
+def field_service(app):
+    with app.app_context():
+        yield FieldService(Repository(Field))
