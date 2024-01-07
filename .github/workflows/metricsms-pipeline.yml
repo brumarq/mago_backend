@@ -105,8 +105,8 @@ jobs:
 
           oc set env deployment/${{ env.APP_NAME }} \
           METRICS_DB_CONNECTION_STRING_SQLALCHEMY=${{ secrets.METRICS_DB_CONNECTION_STRING_SQLALCHEMY }} \
-          AUTH0_DOMAIN=${{ env.AUTH0_DOMAIN }} \
-          AUTH0_AUDIENCE=${{ env.AUTH0_AUDIENCE }}
+          AUTH0_DOMAIN=${{ env.AUTH0_TEST_DOMAIN }} \
+          AUTH0_AUDIENCE=${{ env.AUTH0_TEST_AUDIENCE }}
 
           if [ -n "$SERVICE_EXISTS" ]; then
             oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
