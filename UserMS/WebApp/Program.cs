@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Security.Claims;
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
@@ -20,7 +21,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - User Service", Version = "v1.0.0" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - User Service", Version = "v1" });
 
     // Security schema for Swagger UI
     var securitySchema = new OpenApiSecurityScheme
@@ -42,6 +43,10 @@ builder.Services.AddSwaggerGen(c =>
     {
         { securitySchema, new[] { "Bearer" } }
     });
+
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
 });
 
 // Authentication configuration

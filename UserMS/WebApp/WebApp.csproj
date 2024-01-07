@@ -27,4 +27,8 @@
       <ProjectReference Include="..\Application\Application.csproj" />
     </ItemGroup>
 
+    <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
 </Project>

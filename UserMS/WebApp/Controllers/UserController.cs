@@ -23,7 +23,16 @@ public class UserController : ControllerBase
         _logger = logger;
         _orchestratorApiKey = configuration["OrchestratorApiKey"];
     }
-
+    /// <summary>
+    /// Retrieves a user by their ID. Accessible by all users (both admin and client).
+    /// </summary>
+    /// <param name="id">The ID of the user to retrieve.</param>
+    /// <returns>Returns the user details if found.</returns>
+    /// <response code="200">Returns the user details.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="403">Forbidden access.</response>
+    /// <response code="400">Bad request.</response>
+    /// <response code="500">Internal server error.</response>
     // GET: /users/{id}
     [HttpGet("{id}")]
     [Authorize("All")]
@@ -56,7 +65,14 @@ public class UserController : ControllerBase
         }
     }
 
-    // GET: /users
+    /// <summary>
+    /// Retrieves a list of all users. Accessible only by admin users.
+    /// </summary>
+    /// <returns>Returns a list of all users.</returns>
+    /// <response code="200">Returns the list of users.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="403">Forbidden access.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpGet]
     [Authorize("Admin")]
     public async Task<ActionResult<IEnumerable<UserCompressedDTO>>> GetAllUsers()
@@ -80,7 +96,17 @@ public class UserController : ControllerBase
         }
     }
 
-    // PUT: /users/{id}
+    /// <summary>
+    /// Updates a user's information by their ID. Accessible by all users (both admin and client).
+    /// </summary>
+    /// <param name="id">The ID of the user to update.</param>
+    /// <param name="updateUserDto">The user data to be updated.</param>
+    /// <returns>Returns the updated user details.</returns>
+    /// <response code="200">User successfully updated.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="403">Forbidden access.</response>
+    /// <response code="400">Bad request.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpPut("{id}")]
     [Authorize("All")]
     public async Task<ActionResult> UpdateUser(string id, [FromBody] UpdateUserDTO updateUserDto)
@@ -111,7 +137,15 @@ public class UserController : ControllerBase
         }
     }
 
-    // DELETE: /users/{id}
+    /// <summary>
+    /// Deletes a user by their ID. Accessible only by admin users.
+    /// </summary>
+    /// <param name="id">The ID of the user to delete.</param>
+    /// <returns>Indicates whether the deletion was successful.</returns>
+    /// <response code="200">User successfully deleted.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="403">Forbidden access.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpDelete("{id}")]
     [Authorize("Admin")]
     [ApiExplorerSettings(IgnoreApi = true)]
@@ -141,7 +175,16 @@ public class UserController : ControllerBase
         }
     }
 
-    // POST: /users
+    /// <summary>
+    /// Creates a new user. Accessible only by admin users.
+    /// </summary>
+    /// <param name="createUserDto">The user data for the new user.</param>
+    /// <returns>Returns the details of the created user.</returns>
+    /// <response code="200">User successfully created.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="403">Forbidden access.</response>
+    /// <response code="400">Bad request.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpPost]
     [Authorize("Admin")]
     public async Task<ActionResult<User>> CreateUser([FromBody] CreateUserDTO createUserDto)
