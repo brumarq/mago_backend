@@ -1,16 +1,14 @@
 using Moq;
 using Newtonsoft.Json;
 using System.Net;
-using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
+using Application.Exceptions;
 using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using NUnit.Framework;
 using User = Domain.Entities.User;
 
 namespace Application.Tests;
@@ -18,14 +16,16 @@ namespace Application.Tests;
 [TestFixture]
 public class Auth0ServiceTests
 {
-    private Mock<ILogger<Auth0Service>> _mockLogger;
-    private Mock<IAuth0ManagementService> _mockAuth0ManagementService;
-    private Mock<IAuth0RolesService> _mockAuth0Roles;
-    private Mock<IHttpClientFactory> _mockHttpClientFactory;
-    private Mock<IConfiguration> _mockConfiguration;
-    private Auth0Service _auth0Service;
-    private Mock<IAuth0Service> _mockAuth0Service;
-
+    private Mock<ILogger<Auth0Service>> _mockLogger = null!;
+    private Mock<IAuth0ManagementService> _mockAuth0ManagementService = null!;
+    private Mock<IAuth0RolesService> _mockAuth0Roles = null!;
+    private Mock<IHttpClientFactory> _mockHttpClientFactory = null!;
+    private Mock<IConfiguration> _mockConfiguration = null!;
+    private Auth0Service _auth0Service = null!;
+    private Mock<IAuth0Service> _mockAuth0Service = null!;
+    private FakeHttpMessageHandler _fakeHttpMessageHandler = null!;
+    private HttpClient _fakeHttpClient = null!;
+    
     [SetUp]
     public void Setup()
     {
@@ -36,10 +36,24 @@ public class Auth0ServiceTests
         _mockConfiguration = new Mock<IConfiguration>();
         _mockAuth0Roles = new Mock<IAuth0RolesService>();
         
-        // Mock configuration for role URLs
         _mockConfiguration.Setup(config => config[It.IsAny<string>()]).Returns("configuredValue");
 
         _auth0Service = new Auth0Service(_mockLogger.Object, _mockAuth0ManagementService.Object, _mockHttpClientFactory.Object, _mockConfiguration.Object,_mockAuth0Roles.Object);
+        
+        _mockConfiguration.Setup(c => c["Auth0-Roles:admin"]).Returns("adminRoleId");
+        _mockConfiguration.Setup(c => c["Auth0-Management:Audience"]).Returns("https://random.com/api/v2/");
+        
+        _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(new ManagementToken { Token = "mockToken" });
+        _fakeHttpMessageHandler = new FakeHttpMessageHandler();
+        _fakeHttpClient = new HttpClient(_fakeHttpMessageHandler);
+
+    }
+    
+    [TearDown]
+    public void TearDown()
+    {
+        _fakeHttpMessageHandler.Dispose();
+        _fakeHttpClient.Dispose();
     }
 
     [Test]
@@ -54,14 +68,8 @@ public class Auth0ServiceTests
             SysAdmin = false
         };
         
-        // Mock Token Retrieval
-        var mockToken = new ManagementToken { Token = "mockToken" };
-        _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
-
-        var fakeHttpMessageHandler = new FakeHttpMessageHandler();
-
         // Mock the response for the user creation
-        fakeHttpMessageHandler.SetupResponse("https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users", 
+        _fakeHttpMessageHandler.SetupResponse("https://random.com/api/v2/users", 
             new HttpResponseMessage(HttpStatusCode.OK) {
                 Content = new StringContent(JsonConvert.SerializeObject(new {
                     user_id = "auth0|jahsjdkhasjkd",
@@ -79,14 +87,12 @@ public class Auth0ServiceTests
 
         // Mock the response for the role assignment - Ensure valid JSON content
         var roleAssignmentResponseContent = JsonConvert.SerializeObject(new { result = "success" });
-        fakeHttpMessageHandler.SetupResponse("https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/roles/configuredValue/users", 
+        _fakeHttpMessageHandler.SetupResponse("https://random.com/api/v2/roles/configuredValue/users", 
             new HttpResponseMessage(HttpStatusCode.OK) {
                 Content = new StringContent(roleAssignmentResponseContent)
             });
-
-        var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
-        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
-
+        
+        _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
         // Act
         var result = await _auth0Service.CreateAuth0UserAsync(createUserDto);
 
@@ -112,7 +118,7 @@ public class Auth0ServiceTests
         };
     
         // Act & Assert
-        Assert.ThrowsAsync<Auth0Service.InvalidUserDetailsException>(async () => await _auth0Service.CreateAuth0UserAsync(createUserDto));
+        Assert.ThrowsAsync<BadRequestException>(async () => await _auth0Service.CreateAuth0UserAsync(createUserDto));
     }
     
     [Test]
@@ -127,23 +133,14 @@ public class Auth0ServiceTests
             SysAdmin = false
         };
 
-        // Mock Token Retrieval
-        var mockToken = new ManagementToken { Token = "mockToken" };
-        _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
-
         // Mock the failure response for the user creation
-        var fakeHttpMessageHandler = new FakeHttpMessageHandler();
-        var errorResponseContent = "Error message";
-        fakeHttpMessageHandler.SetupResponse("https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users", 
+        var errorResponseContent = "{\"statusCode\":404,\"error\":\"Not Found\",\"message\":\"Something\",\"errorCode\":\"inexistent_user\"}";
+        _fakeHttpMessageHandler.SetupResponse("https://random.com/api/v2/users", 
             new HttpResponseMessage(HttpStatusCode.BadRequest) {
                 Content = new StringContent(errorResponseContent)
             });
-
-        var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
-        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
         
-        
-        
+        _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);        
         // Mock Logger
         _mockLogger.Setup(logger => 
             logger.Log(
@@ -155,14 +152,12 @@ public class Auth0ServiceTests
         ).Verifiable();
 
         // Act & Assert
-        var exception = Assert.ThrowsAsync<Auth0Service.UserCreationException>(async () => await _auth0Service.CreateAuth0UserAsync(createUserDto));
-        Assert.That(exception?.Message, Does.Contain(errorResponseContent));
+        var exception = Assert.ThrowsAsync<BadRequestException>(async () => await _auth0Service.CreateAuth0UserAsync(createUserDto));
+        Assert.That(exception?.Message, Does.Contain("Something"));
 
         // Verify that the logger was called
         _mockLogger.Verify();
     }
-    
-    // Updating Account
     
     [Test]
     public void UpdateUserAsync_EmailAndPasswordSimultaneously_ThrowsArgumentException()
@@ -175,7 +170,7 @@ public class Auth0ServiceTests
             Password = "Test..123"
         };
 
-        var exception = Assert.ThrowsAsync<ArgumentException>(
+        var exception = Assert.ThrowsAsync<BadRequestException>(
             async () => await _auth0Service.UpdateUserAsync("userId", updateUserDto)
         );
         Assert.That(exception?.Message, Is.EqualTo("Email and Password cannot be changed at the same time."));
@@ -202,9 +197,7 @@ public class Auth0ServiceTests
 
         // Mock UnassignRole
         _mockAuth0Roles.Setup(service => service.UnassignRoleAsync("client", userId)).Returns(Task.CompletedTask);
-
-        var fakeHttpMessageHandler = new FakeHttpMessageHandler();
-
+        
         // Prepare the mock user JSON response
         var mockUserJson = JsonConvert.SerializeObject(new User
         {
@@ -220,20 +213,15 @@ public class Auth0ServiceTests
             Picture = "https://samplePicture.com"
         });
 
-        var mockToken = new ManagementToken { Token = "mockToken" };
-        _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
-
         // Mock the response for GetUser
-        fakeHttpMessageHandler.SetupResponse($"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users/{userId}",
+        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/users/{userId}",
             new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(mockUserJson)
             });
 
         // Mock HttpClientFactory to return the HttpClient with the FakeHttpMessageHandler
-        var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
-        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
-
+        _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
         // Mock UpdateUserDetailsInAuth0
         _mockAuth0Service
             .Setup(service => service.UpdateUserDetailsInAuth0(userId, It.IsAny<Dictionary<string, object>>()))
@@ -272,9 +260,7 @@ public class Auth0ServiceTests
 
         // Mock UnassignRole
         _mockAuth0Roles.Setup(service => service.UnassignRoleAsync("client", userId)).Returns(Task.CompletedTask);
-
-        var fakeHttpMessageHandler = new FakeHttpMessageHandler();
-
+        
         // Prepare the mock user JSON response
         var mockUserJson = JsonConvert.SerializeObject(new User
         {
@@ -290,20 +276,15 @@ public class Auth0ServiceTests
             Picture = "https://samplePicture.com"
         });
 
-        var mockToken = new ManagementToken { Token = "mockToken" };
-        _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
-
         // Mock the response for GetUser
-        fakeHttpMessageHandler.SetupResponse($"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users/{userId}",
+        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/users/{userId}",
             new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(mockUserJson)
             });
 
         // Mock HttpClientFactory to return the HttpClient with the FakeHttpMessageHandler
-        var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
-        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
-
+        _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
         // Mock UpdateUserDetailsInAuth0
         _mockAuth0Service
             .Setup(service => service.UpdateUserDetailsInAuth0(userId, It.IsAny<Dictionary<string, object>>()))
@@ -322,9 +303,8 @@ public class Auth0ServiceTests
     
     
     [Test]
-    public async Task UpdateUserAsync_RoleUpdateEmailAndPassword_Unsuccesfull()
+    public void UpdateUserAsync_RoleUpdateEmailAndPassword_Unsuccesfull()
     {
-        var userId = "userId";
         var updateUserDto = new UpdateUserDTO
         {
             FamilyName = "Three",
@@ -333,12 +313,9 @@ public class Auth0ServiceTests
             Password = "Test..123",
             SysAdmin = true
         };
-        var mockToken = new ManagementToken { Token = "mockToken" };
-        _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
-
-
-        var exception = Assert.ThrowsAsync<ArgumentException>(
-            async () => await _auth0Service.UpdateUserAsync("userId", updateUserDto)
+        
+        var exception = Assert.ThrowsAsync<BadRequestException>(
+            () => _auth0Service.UpdateUserAsync("userId", updateUserDto)
         );
         Assert.That(exception?.Message, Is.EqualTo("Email and Password cannot be changed at the same time."));
     }
@@ -346,128 +323,119 @@ public class Auth0ServiceTests
     [Test]
     public void UpdateUserAsync_UpdateFails_ThrowsUserUpdateException()
     {
-        var userId = "userId";
+        const string userId = "userId";
         var updateUserDto = new UpdateUserDTO
         {
             FamilyName = "UpdatedFamilyName",
             GivenName = "UpdatedGivenName"
         };
 
-        var mockToken = new ManagementToken { Token = "mockToken" };
-        _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
-
         // Prepare the fake HTTP handler
-        var fakeHttpMessageHandler = new FakeHttpMessageHandler();
-        var errorResponseContent = "Error updating user in Auth0";
+        var errorResponseContent = "{\"statusCode\":403,\"error\":\"Not Found\",\"message\":\"Bad request\",\"errorCode\":\"inexistent_user\"}";
+
 
         // Setup the mock HTTP response to simulate failure
-        fakeHttpMessageHandler.SetupResponse($"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users/{userId}", 
+        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/users/{userId}", 
             new HttpResponseMessage(HttpStatusCode.BadRequest) {
                 Content = new StringContent(errorResponseContent)
             });
-
-        var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
-        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
-
+        
+        _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
         // Act & Assert
-        var exception = Assert.ThrowsAsync<Auth0Service.UserUpdateException>(
+        var exception = Assert.ThrowsAsync<BadRequestException>(
             async () => await _auth0Service.UpdateUserAsync(userId, updateUserDto)
         );
-        Assert.That(exception?.Message, Is.EqualTo($"{errorResponseContent}"));
+        Assert.That(exception?.Message, Is.EqualTo("Bad request"));
     }
     
     
     [Test]
-    public async Task GetUser_UnsuccessfulResponse_ThrowsUserNotFoundException()
+    public void GetUser_UnsuccessfulResponse_ThrowsUserNotFoundException()
     {
-        var userId = "someUserId";
+        const string userId = "someUserId";
+        var errorResponseContent = "{\"statusCode\":404,\"error\":\"Not Found\",\"message\":\"User not found\",\"errorCode\":\"inexistent_user\"}";
+
         var mockToken = new ManagementToken { Token = "mockToken" };
 
         // Mock GetToken to return a mock token
         _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
 
         // Setup the fake HTTP response for an error scenario
-        var fakeHttpMessageHandler = new FakeHttpMessageHandler();
-        fakeHttpMessageHandler.SetupResponse($"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users/{userId}",
+        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/users/{userId}",
             new HttpResponseMessage(HttpStatusCode.NotFound) // You can use other error codes as needed
             {
-                Content = new StringContent("User not found")
+                Content = new StringContent(errorResponseContent)
             });
 
         // Mock HttpClientFactory to return the HttpClient with the FakeHttpMessageHandler
-        var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
-        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
-
+        _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
         // Act and Assert
-        var ex = Assert.ThrowsAsync<Auth0Service.UserNotFoundException>(() => _auth0Service.GetUser(userId));
+        var ex = Assert.ThrowsAsync<NotFoundException>(() => _auth0Service.GetUser(userId));
 
         // Assert that the exception message is as expected
-        Assert.That(ex.Message, Is.EqualTo("User not found"));
+        Assert.That(ex?.Message, Is.EqualTo("User not found"));
     }
 
     
     [Test]
     public async Task GetUsersByRoleId_SuccessfulResponse_ReturnsUsers()
     {
-        var roleId = "testRoleId";
+        const string roleId = "testRoleId";
         var mockToken = new ManagementToken { Token = "mockToken" };
-        var fakeHttpMessageHandler = new FakeHttpMessageHandler();
         var mockUsers = new List<User> { /* populate with test data */ };
 
         _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
-        fakeHttpMessageHandler.SetupResponse($"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/roles/{roleId}/users",
+        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/roles/{roleId}/users",
             new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(JsonConvert.SerializeObject(mockUsers))
             });
-
-        var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
-        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
-
+        
+        _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
         var result = await _auth0Service.GetUsersByRoleId(roleId);
 
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(mockUsers.Count));
-        // Additional assertions to compare contents of result and mockUsers
+        Assert.That(result, Has.Count.EqualTo(mockUsers.Count));
     }
     
     [Test]
-    public async Task GetUsersByRoleId_UnsuccessfulResponse_ThrowsException()
+    public void GetUsersByRoleId_UnsuccessfulResponse_ThrowsException()
     {
         var roleId = "testRoleId";
+        var errorResponseContent = "{\"statusCode\":404,\"error\":\"Not Found\",\"message\":\"User not found\",\"errorCode\":\"inexistent_user\"}";
+
         var mockToken = new ManagementToken { Token = "mockToken" };
-        var fakeHttpMessageHandler = new FakeHttpMessageHandler();
 
         _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
-        fakeHttpMessageHandler.SetupResponse($"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/roles/{roleId}/users",
+        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/roles/{roleId}/users",
             new HttpResponseMessage(HttpStatusCode.NotFound)
             {
-                Content = new StringContent("Error message")
+                Content = new StringContent(errorResponseContent)
             });
+        
+        _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
+        var ex = Assert.ThrowsAsync<NotFoundException>(() => _auth0Service.GetUsersByRoleId(roleId));
 
-        var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
-        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
-
-        var ex = Assert.ThrowsAsync<Exception>(() => _auth0Service.GetUsersByRoleId(roleId));
-
-        Assert.That(ex.Message, Is.EqualTo("Error message"));
+        Assert.That(ex?.Message, Is.EqualTo("User not found"));
     }
-    
     
     [Test]
     public async Task DeleteUserAsync_SuccessfulDeletion_ReturnsTrue()
     {
         var userId = "existingUserId";
-        var mockToken = new ManagementToken { Token = "mockToken" };
-        _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
-
-        var fakeHttpMessageHandler = new FakeHttpMessageHandler();
-        fakeHttpMessageHandler.SetupResponse($"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users/{userId}",
-            new HttpResponseMessage(HttpStatusCode.NoContent));
-
-        var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
-        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
-
+        
+        // Mock the response for user retrieval
+        var userJson = JsonConvert.SerializeObject(new User
+        {
+            // Initialize the User properties as expected by the UserDTO
+        });
+        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/users/{userId}",
+            new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(userJson, Encoding.UTF8, "application/json")
+            });
+        
+        _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
         var result = await _auth0Service.DeleteUserAsync(userId);
 
         Assert.IsTrue(result);
@@ -476,23 +444,18 @@ public class Auth0ServiceTests
     [Test]
     public void DeleteUserAsync_UnsuccessfulResponse_ThrowsException()
     {
-        var userId = "nonExistingUserId";
-        var mockToken = new ManagementToken { Token = "mockToken" };
-        _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
+        const string userId = "nonExistingUserId";
+        var errorResponseContent = "{\"statusCode\":404,\"error\":\"Not Found\",\"message\":\"User not found\",\"errorCode\":\"inexistent_user\"}";
 
-        var fakeHttpMessageHandler = new FakeHttpMessageHandler();
-        fakeHttpMessageHandler.SetupResponse($"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users/{userId}",
+        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/users/{userId}",
             new HttpResponseMessage(HttpStatusCode.NotFound)
             {
-                Content = new StringContent("User not found")
+                Content = new StringContent(errorResponseContent)
             });
-
-        var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
-        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
-
-        var ex = Assert.ThrowsAsync<Exception>(() => _auth0Service.DeleteUserAsync(userId));
-
-        Assert.That(ex.Message, Is.EqualTo("User not found"));
+        
+        _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
+        var ex = Assert.ThrowsAsync<NotFoundException>(() => _auth0Service.DeleteUserAsync(userId));
+        Assert.That(ex?.Message, Is.EqualTo("User not found"));
     }
     
     [Test]
@@ -512,27 +475,25 @@ public class Auth0ServiceTests
         _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
 
         // Mock GetUsersByRoleId for each role
-        var fakeHttpMessageHandler = new FakeHttpMessageHandler();
-        fakeHttpMessageHandler.SetupResponse($"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/roles/{adminRoleId}/users",
+        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/roles/{adminRoleId}/users",
             new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(JsonConvert.SerializeObject(mockAdminUsers), Encoding.UTF8, "application/json")
             });
-        fakeHttpMessageHandler.SetupResponse($"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/roles/{clientRoleId}/users",
+        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/roles/{clientRoleId}/users",
             new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(JsonConvert.SerializeObject(mockClientUsers), Encoding.UTF8, "application/json")
             });
-
-        var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
-        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
+        
+        _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
 
         // Act
         var result = await _auth0Service.GetAllUsers();
 
         // Assert
-        Assert.NotNull(result);
-        Assert.AreEqual(mockAdminUsers.Count + mockClientUsers.Count, result.Count);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result, Has.Count.EqualTo(mockAdminUsers.Count + mockClientUsers.Count));
     }
     
     [Test]
@@ -543,29 +504,27 @@ public class Auth0ServiceTests
         var mockToken = new ManagementToken { Token = "mockToken" };
 
         // Setup configuration with a missing role ID for admin
-        _mockConfiguration.Setup(c => c["Auth0-Roles:admin"]).Returns((string)null);
+        _mockConfiguration.Setup(c => c["Auth0-Roles:admin"]).Returns("");
         _mockConfiguration.Setup(c => c["Auth0-Roles:client"]).Returns(clientRoleId);
 
         // Mock GetToken
         _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
 
         // Mock GetUsersByRoleId for client role only
-        var fakeHttpMessageHandler = new FakeHttpMessageHandler();
-        fakeHttpMessageHandler.SetupResponse($"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/roles/{clientRoleId}/users",
+        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/roles/{clientRoleId}/users",
             new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(JsonConvert.SerializeObject(mockClientUsers), Encoding.UTF8, "application/json")
             });
-
-        var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
-        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
+        
+        _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
 
         // Act
         var result = await _auth0Service.GetAllUsers();
 
         // Assert
-        Assert.NotNull(result);
-        Assert.AreEqual(mockClientUsers.Count, result.Count); // Should only return client users
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result, Has.Count.EqualTo(mockClientUsers.Count)); // Should only return client users
     }
     
     [Test]
@@ -579,34 +538,21 @@ public class Auth0ServiceTests
 
         // Mock GetToken
         _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
+        var errorResponseContent = "{\"statusCode\":404,\"error\":\"Not Found\",\"message\":\"Server error\",\"errorCode\":\"inexistent_user\"}";
 
         // Mock an unsuccessful GetUsersByRoleId response
-        var fakeHttpMessageHandler = new FakeHttpMessageHandler();
-        fakeHttpMessageHandler.SetupResponse($"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/roles/{adminRoleId}/users",
+        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/roles/{adminRoleId}/users",
             new HttpResponseMessage(HttpStatusCode.InternalServerError)
             {
-                Content = new StringContent("Server error")
+                Content = new StringContent(errorResponseContent)
             });
-
-        var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
-        _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
-
+        
+        _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
         // Act & Assert
         var ex = Assert.ThrowsAsync<Exception>(() => _auth0Service.GetAllUsers());
-        Assert.That(ex.Message, Is.EqualTo("Server error"));
+        Assert.That(ex?.Message, Is.EqualTo("Server error"));
     }
-
-
-
-
     
-    
-
-
-
-
-
-
     private class FakeHttpMessageHandler : DelegatingHandler
     {
         private readonly Dictionary<string, HttpResponseMessage> _responses = new Dictionary<string, HttpResponseMessage>();

@@ -1,16 +1,11 @@
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
+using Application.Exceptions;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace WebApp.Controllers;
 
@@ -18,20 +13,18 @@ namespace WebApp.Controllers;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly IConfiguration _configuration;
     private readonly ILogger<UserController> _logger;
     private readonly IAuth0Service _auth0Service;
     private readonly string? _orchestratorApiKey;
     
     public UserController(IConfiguration configuration, IAuth0Service auth0Service, ILogger<UserController> logger)
     {
-        _configuration = configuration;
         _auth0Service = auth0Service;
         _logger = logger;
         _orchestratorApiKey = configuration["OrchestratorApiKey"];
     }
 
-    // GET: /customers/5
+    // GET: /users/{id}
     [HttpGet("{id}")]
     [Authorize("All")]
     public async Task<ActionResult<User>> GetUserById(string id)
@@ -48,36 +41,46 @@ public class UserController : ControllerBase
             var userDto = await _auth0Service.GetUser(id);
                 
             return Ok(userDto);
-
         }
-        catch (Auth0Service.UserNotFoundException ex)
+        catch (CustomException ce)
         {
-            return NotFound(ex.Message);
+            return StatusCode((int)ce.StatusCode, ce.Message);
         }
-        catch (Exception ex)
+        catch (HttpRequestException re)
         {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            return StatusCode((int)re.StatusCode!, re?.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, $"Internal server error: {e.Message}");
         }
     }
 
-
-    // GET: /customers
+    // GET: /users
     [HttpGet]
     [Authorize("Admin")]
-    public async Task<ActionResult<IEnumerable<UserResponseDTO>>> GetAllUsers()
+    public async Task<ActionResult<IEnumerable<UserCompressedDTO>>> GetAllUsers()
     {
         try
         {
             var users = await _auth0Service.GetAllUsers();
             return Ok(users);
         }
-        catch (Exception ex)
+        catch (CustomException ce)
         {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            return StatusCode((int)ce.StatusCode, ce.Message);
+        }
+        catch (HttpRequestException re)
+        {
+            return StatusCode((int)re.StatusCode!, re?.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, $"Internal server error: {e.Message}");
         }
     }
 
-    // PUT: /userss
+    // PUT: /users/{id}
     [HttpPut("{id}")]
     [Authorize("All")]
     public async Task<ActionResult> UpdateUser(string id, [FromBody] UpdateUserDTO updateUserDto)
@@ -94,20 +97,20 @@ public class UserController : ControllerBase
             var updatedUser = await _auth0Service.UpdateUserAsync(id, updateUserDto);
             return Ok(updatedUser);
         }
-        catch (Auth0Service.UserUpdateException ex)
+        catch (CustomException ce)
         {
-            return BadRequest(ex.Message); // Or another appropriate status code
+            return StatusCode((int)ce.StatusCode, ce.Message);
         }
-        catch (Auth0Service.UserNotFoundException ex)
+        catch (HttpRequestException re)
         {
-            return NotFound(ex.Message);
+            return StatusCode((int)re.StatusCode!, re?.Message);
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            return StatusCode(500, $"Internal server error: {e.Message}");
         }
-    } 
-    
+    }
+
     // DELETE: /users/{id}
     [HttpDelete("{id}")]
     [Authorize("Admin")]
@@ -124,16 +127,21 @@ public class UserController : ControllerBase
             await _auth0Service.DeleteUserAsync(id);
             return Ok();
         }
-        catch (Auth0Service.UserNotFoundException ex)
+        catch (CustomException ce)
         {
-            return NotFound(ex.Message);
+            return StatusCode((int)ce.StatusCode, ce.Message);
         }
-        catch (Exception ex)
+        catch (HttpRequestException re)
         {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            return StatusCode((int)re.StatusCode!, re?.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, $"Internal server error: {e.Message}");
         }
     }
-    
+
+    // POST: /users
     [HttpPost]
     [Authorize("Admin")]
     public async Task<ActionResult<User>> CreateUser([FromBody] CreateUserDTO createUserDto)
@@ -143,16 +151,19 @@ public class UserController : ControllerBase
             var result = await _auth0Service.CreateAuth0UserAsync(createUserDto);
             return Ok(result);
         }
-        catch (Auth0Service.UserCreationException ex)
+        catch (CustomException ce)
         {
-            return BadRequest(ex.Message); // Or another appropriate status code
+            return StatusCode((int)ce.StatusCode, ce.Message);
         }
-        catch (Exception ex)
+        catch (HttpRequestException re)
         {
-            return StatusCode(500, $"Internal server error: {ex.Message}");
+            return StatusCode((int)re.StatusCode!, re?.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, $"Internal server error: {e.Message}");
         }
     }
-
 
     private string? GetUserId()
     {
@@ -163,7 +174,7 @@ public class UserController : ControllerBase
     {
         return User.HasClaim(c => c.Type == "permissions" && c.Value == permission);
     }
-    
+
     private bool IsRequestFromOrchestrator(HttpRequest request)
     {
         if (!request.Headers.TryGetValue("X-Orchestrator-Key", out var receivedKey))
@@ -181,4 +192,5 @@ public class UserController : ControllerBase
         _logger.LogInformation("Valid orchestrator key received.");
         return true;
     }
+
 }

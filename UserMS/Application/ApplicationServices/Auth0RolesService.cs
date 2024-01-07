@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
+using Application.Exceptions;
 using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -30,7 +31,7 @@ public class Auth0RolesService: IAuth0RolesService
         var roleId = _configuration[$"Auth0-Roles:{roleName}"];
 
         var client = _httpClientFactory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Delete, $"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users/{userId}/roles")
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"{_configuration["Auth0-Management:Audience"]}users/{userId}/roles")
         {
             Content = JsonContent.Create(new { roles = new[] { roleId } }),
             Headers =
@@ -44,18 +45,17 @@ public class Auth0RolesService: IAuth0RolesService
         {
             var errorContent = await response.Content.ReadAsStringAsync();
             _logger.LogError("Error unassigning role from user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
-            throw new Auth0Service.UserRoleException($"{errorContent}");
+            throw new BadRequestException($"{errorContent}");
         }
     }
 
     
     public async Task AssignRole(string roleName, string userId)
     {
-        // Use _auth0ManagementService to get the access token
         var token = await _auth0ManagementService.GetToken();
 
         var client = _httpClientFactory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Post, $"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/roles/{_configuration[$"Auth0-Roles:{roleName}"]}/users")
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{_configuration["Auth0-Management:Audience"]}roles/{_configuration[$"Auth0-Roles:{roleName}"]}/users")
         {
             Content = JsonContent.Create(new
             {
@@ -73,17 +73,16 @@ public class Auth0RolesService: IAuth0RolesService
         {
             var errorContent = await response.Content.ReadAsStringAsync();
             _logger.LogError("Error assigning role to user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
-            throw new Auth0Service.UserRoleException($"{errorContent}");
+            throw new BadRequestException($"{errorContent}");
         }
     }
     
     public async Task<string> GetRole(string userId)
     {
-        // Use _auth0ManagementService to get the access token
         var token = await _auth0ManagementService.GetToken();
 
         var client = _httpClientFactory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Get, $"https://dev-izvg6e0c4usamzex.eu.auth0.com/api/v2/users/{userId}/roles")
+        var request = new HttpRequestMessage(HttpMethod.Get, $"{_configuration["Auth0-Management:Audience"]}users/{userId}/roles")
         {
             Headers =
             {
@@ -97,10 +96,9 @@ public class Auth0RolesService: IAuth0RolesService
         {
             var errorContent = await response.Content.ReadAsStringAsync();
             _logger.LogError("Error retrieving roles for user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
-            throw new Auth0Service.UserRoleException($"{errorContent}");
+            throw new BadRequestException($"{errorContent}");
         }
 
-        // Read the response content and deserialize it
         var roles = await response.Content.ReadFromJsonAsync<List<Role>>();
 
         // Check if the roles list is not empty, then return the name of the first role
@@ -109,7 +107,6 @@ public class Auth0RolesService: IAuth0RolesService
             return roles.First().Name;
         }
 
-        // If the roles list is empty, return an empty string or null
         return "";
     }
 }
