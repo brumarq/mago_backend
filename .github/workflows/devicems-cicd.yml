@@ -103,9 +103,12 @@ jobs:
           fi
 
           oc set env deployment/${{ env.APP_NAME }} \
-          DEVICE_DB_CONNECTION_STRING=${{ secrets.DEVICE_DB_CONNECTION_STRING }} \
-          AUTH0__DOMAIN=${{ env.AUTH0_TEST_DOMAIN }} \
-          AUTH0__AUDIENCE=${{ env.AUTH0_TEST_AUDIENCE }} \
+          ConnectionStrings__DevicesDb=${{ secrets.DEVICE_DB_CONNECTION_STRING }} \
+          Auth0__Domain=${{ env.AUTH0_TEST_DOMAIN }} \
+          Auth0__Audience=${{ env.AUTH0_TEST_AUDIENCE }} \
+          Auth0__ClientId=${{ env.AUTH0_TEST_CLIENT_ID }} \
+          Auth0__ClientSecret=${{ env.AUTH0_TEST_CLIENT_SECRET }} \
+          OrchestratorApiKey=${{ secrets.ORCHESTRATORAPIKEY }}
 
           if [ -n "$SERVICE_EXISTS" ]; then
             oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
