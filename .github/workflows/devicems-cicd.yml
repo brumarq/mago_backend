@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: docker-upload
     name: Deploy Test Environment
-    environment: firmwarems-test
+    environment: devicems-test
 
     steps:
       - name: Log in to Openshift
