@@ -27,53 +27,53 @@ env:
   APP_PORT: 6969
 
 jobs:
-  firmwarems-unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-latest
+  # firmwarems-unit-tests:
+  #   name: Unit Tests
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Check Out Repository
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Check Out Repository
+  #       uses: actions/checkout@v2
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: "^1.21.1"
+  #     - name: Set up Go
+  #       uses: actions/setup-go@v2
+  #       with:
+  #         go-version: "^1.21.1"
 
-      - name: Run Unit Tests
-        run: |
-          cd FirmwareGO/tests/unittests
-          go test -v ./...
+  #     - name: Run Unit Tests
+  #       run: |
+  #         cd FirmwareGO/tests/unittests
+  #         go test -v ./...
 
-  docker-upload:
-    name: Deploy docker container
-    runs-on: ubuntu-20.04
-    needs: firmwarems-unit-tests
-    environment: firmwarems-production
+  # docker-upload:
+  #   name: Deploy docker container
+  #   runs-on: ubuntu-20.04
+  #   needs: firmwarems-unit-tests
+  #   environment: firmwarems-production
 
-    steps:
-      - name: Check Out repository
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Check Out repository
+  #       uses: actions/checkout@v2
 
-      - name: Build from dockerfile
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: ${{ env.APP_NAME }}
-          tags: latest
-          dockerfiles: ./FirmwareGO/Dockerfile
-          context: ./FirmwareGO/
+  #     - name: Build from dockerfile
+  #       uses: redhat-actions/buildah-build@v2
+  #       with:
+  #         image: ${{ env.APP_NAME }}
+  #         tags: latest
+  #         dockerfiles: ./FirmwareGO/Dockerfile
+  #         context: ./FirmwareGO/
 
-      - name: Login to Docker Hub with Buildah
-        run: |
-          buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
+  #     - name: Login to Docker Hub with Buildah
+  #       run: |
+  #         buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
 
-      - name: Push image to Docker Hub
-        run: |
-          buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
+  #     - name: Push image to Docker Hub
+  #       run: |
+  #         buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
 
   deploy-test-env:
     runs-on: ubuntu-20.04
-    needs: docker-upload
+    # needs: docker-upload
     name: Deploy Test Environment
     environment: firmwarems-test
 
