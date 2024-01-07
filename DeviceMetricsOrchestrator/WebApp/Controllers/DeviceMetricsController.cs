@@ -25,10 +25,15 @@ public class DeviceMetricsController : ControllerBase
     }
 
     /// <summary>
-    /// Get device metrics based on the device identifier
+    /// Get device metrics based on the device identifier | Permissions: Client and Admin
     /// </summary>
     /// <param name="deviceId">Device unique identifier</param>
     /// <returns>List of device metrics</returns>
+    /// <response code="200">Returns the user details.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="403">Forbidden access.</response>
+    /// <response code="400">Bad request.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpGet("{deviceId}")]
     [Authorize("All")]
     public async Task<ActionResult<IEnumerable<DeviceMetricsResponseDTO>>> GetDeviceMetrics(int deviceId)
@@ -54,7 +59,7 @@ public class DeviceMetricsController : ControllerBase
     }
 
     /// <summary>
-    /// Get aggregated logs based on the aggregation date type, device id, field id (and optionally date range)
+    /// Get aggregated logs based on date type, device and field | Permissions: Client and Admin
     /// </summary>
     /// <param name="aggregatedLogDateType">Aggregation date type that refers to 'Weekly', 'Monthly', 'Yearly'</param>
     /// <param name="deviceId">Device unique identifier</param>
@@ -62,6 +67,11 @@ public class DeviceMetricsController : ControllerBase
     /// <param name="startDate">Start date (optional) format: YYYY-MM-DD</param>
     /// <param name="endDate">End date (optional) format: YYYY-MM-DD</param>
     /// <returns>List of aggregated logs</returns>
+    /// <response code="200">Returns the user details.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="403">Forbidden access.</response>
+    /// <response code="400">Bad request.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpGet("{aggregatedLogDateType}/{deviceId}/{fieldId}")]
     [Authorize("All")] 
     public async Task<ActionResult<IEnumerable<DeviceAggregatedLogsResponseDTO>>> GetDeviceAggregatedLogs(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId, string? startDate, string? endDate)
