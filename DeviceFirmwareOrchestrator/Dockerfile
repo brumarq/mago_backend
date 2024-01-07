@@ -9,7 +9,7 @@ ENV ASPNETCORE_URLS=http://0.0.0.0:8383
 COPY *.sln .
 COPY Application/*.csproj ./Application/
 COPY Infrastructure/*.csproj ./Infrastructure/
-COPY Domain.Tests/*.csproj ./Domain.Tests/
+COPY Application.Tests/*.csproj ./Application.Tests/
 COPY Domain/*.csproj ./Domain/
 COPY WebApp/*.csproj ./WebApp/
 
