@@ -124,7 +124,7 @@ jobs:
         
   build-deploy:
     runs-on: ubuntu-20.04
-    needs: docker-upload
+    needs: integration-tests
     name: Deploy to Openshift
     environment: userms-production
 
