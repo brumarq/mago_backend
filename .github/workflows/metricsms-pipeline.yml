@@ -119,26 +119,9 @@ jobs:
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
-  integration-tests:
-    runs-on: ubuntu-20.04
-    needs: deploy-test-env
-    name: Integration Tests
-    steps:
-      - name: Check Out repository
-        uses: actions/checkout@v2
-
-      - name: Set up environment for Integration Tests
-        run: |
-          # Set up any dependencies or environment variables needed for integration tests
-
-      - name: Run Integration Tests
-        run: |
-          # Command to run your integration tests
-          # These should be designed to interact with the test environment
-
   build-deploy:
     runs-on: ubuntu-20.04
-    needs: docker-upload
+    needs: deploy-test-env
     name: Deploy to OpenShift
     environment: metricsms-production
 
