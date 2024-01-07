@@ -104,8 +104,8 @@ jobs:
 
           oc set env deployment/${{ env.APP_NAME }} \
           DEVICE_DB_CONNECTION_STRING=${{ secrets.DEVICE_DB_CONNECTION_STRING }} \
-          AUTH0_DOMAIN=${{ env.AUTH0_TEST_DOMAIN }} \
-          AUTH0_AUDIENCE=${{ env.AUTH0_TEST_AUDIENCE }} \
+          AUTH0__DOMAIN=${{ env.AUTH0_TEST_DOMAIN }} \
+          AUTH0__AUDIENCE=${{ env.AUTH0_TEST_AUDIENCE }} \
 
           if [ -n "$SERVICE_EXISTS" ]; then
             oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
