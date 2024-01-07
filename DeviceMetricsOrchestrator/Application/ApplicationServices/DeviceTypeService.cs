@@ -43,7 +43,7 @@ namespace Application.ApplicationServices
                 throw new UnauthorizedException($"This user does not have access to view device type {deviceTypeId}");
 
             if (!response.IsSuccessStatusCode || response == null)
-                throw new NotFoundException($"Device with id {deviceTypeId} does not exist.");
+                throw new NotFoundException($"Device type with id {deviceTypeId} does not exist.");
         }
 
         public async Task<DeviceTypeResponseDTO> GetDeviceTypeByIdAsync(int deviceTypeId)
