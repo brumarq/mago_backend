@@ -83,7 +83,7 @@ jobs:
 
   deploy-test-env:
     runs-on: ubuntu-20.04
-    needs: docker-upload
+    needs: apply-migrations-test-environment
     name: Deploy Test Environment
     environment: notificationsms-test
 
