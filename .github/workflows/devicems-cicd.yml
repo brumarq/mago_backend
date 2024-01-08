@@ -150,10 +150,10 @@ jobs:
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
   apply-migrations-production-environment:
-    name: Apply EF Core Migration Testing
+    name: Apply EF Core Migration Production
     needs: deploy-test-env
     runs-on: ubuntu-latest
-    environment: devicems-test  # Change this to your specific environment
+    environment: devicems-production  # Change this to your specific environment
   
     steps:
       - uses: actions/checkout@v3
