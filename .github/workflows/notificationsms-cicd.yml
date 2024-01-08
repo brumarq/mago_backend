@@ -100,6 +100,13 @@ jobs:
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
+      - name: Apply EF Core Migrations in Test Environment
+        run: |
+          cd ./NotificationMS/
+          dotnet ef database update
+        env:
+          ConnectionStrings__NotificationsDb: ${{ secrets.NOTIFICATIONS_DB_CONNECTION_STRING }}
+
   integration-tests:
     runs-on: ubuntu-20.04
     needs: deploy-test-env
