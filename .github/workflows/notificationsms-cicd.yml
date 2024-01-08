@@ -102,7 +102,7 @@ jobs:
 
       - name: Apply EF Core Migrations in Test Environment
         run: |
-          cd ./NotificationMS/
+          cd NotificationMS
           dotnet ef database update
         env:
           ConnectionStrings__NotificationsDb: ${{ secrets.NOTIFICATIONS_DB_CONNECTION_STRING }}
