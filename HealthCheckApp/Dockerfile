@@ -31,4 +31,4 @@ RUN useradd -u 1001 -r -g 0 -d /app -s /sbin/nologin -c "ASP.NET Core User" dotn
     chmod -R g=u /app
 USER 1001
 
-ENTRYPOINT ["dotnet", "WebApp.dll"]
+ENTRYPOINT ["dotnet", "HealthCheckApp.dll"]
