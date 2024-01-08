@@ -116,17 +116,11 @@ jobs:
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
-      - name: Add probes to deployment
+      - name: Apply Changes to Kubernetes Resources
         run: |
-          readiness_probe_url="https://${{ env.APP_NAME }}-service:${{ env.APP_PORT }}/health"
-          liveness_probe_url="https://${{ env.APP_NAME }}-service:${{ env.APP_PORT }}/ready"
+          oc apply -f path/to/your/deployment.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+        working-directory: ${{ github.workspace }}
 
-          # Add Readiness Probe
-          oc set probe deployment/${{ env.APP_NAME }} --readiness --get-url=$readiness_probe_url --initial-delay-seconds=5 --period-seconds=10 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-          
-          # Add Liveness Probe
-          oc set probe deployment/${{ env.APP_NAME }} --liveness --get-url=$liveness_probe_url --initial-delay-seconds=15 --period-seconds=30 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-          
   # integration-tests:
   #   runs-on: ubuntu-20.04
   #   needs: deploy-test-env
