@@ -25,7 +25,7 @@ public class DeviceMetricsController : ControllerBase
     }
 
     /// <summary>
-    /// Get device metrics based on the device identifier | Permissions: Client and Admin
+    /// Gets latest device metrics (lastest unique entry in Field for a Device) by device id | Permissions: Client and Admin
     /// </summary>
     /// <param name="deviceId">Device unique identifier</param>
     /// <returns>List of device metrics</returns>
@@ -36,11 +36,11 @@ public class DeviceMetricsController : ControllerBase
     /// <response code="500">Internal server error.</response>
     [HttpGet("{deviceId}")]
     [Authorize("All")]
-    public async Task<ActionResult<IEnumerable<DeviceMetricsResponseDTO>>> GetDeviceMetrics(int deviceId)
+    public async Task<ActionResult<IEnumerable<DeviceMetricsResponseDTO>>> GetLastestMetricsForDevice(int deviceId)
     {
         try
         {
-            var deviceMetrics = await _deviceMetricsService.GetDeviceMetricsAsync(deviceId);
+            var deviceMetrics = await _deviceMetricsService.GetLastMetricsForDeviceAsync(deviceId);
 
             return Ok(deviceMetrics);
         }

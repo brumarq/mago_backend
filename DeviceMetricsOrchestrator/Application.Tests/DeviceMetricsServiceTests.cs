@@ -151,7 +151,7 @@ namespace Application.Test
 
 
             // Act
-            var result = await _deviceMetricsService.GetDeviceMetricsAsync(deviceId);
+            var result = await _deviceMetricsService.GetLastMetricsForDeviceAsync(deviceId);
 
             // Assert
             Assert.IsNotNull(result);

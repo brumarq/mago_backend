@@ -29,7 +29,7 @@ namespace Application.ApplicationServices
             _authorizationService = authorizationService;
         }
 
-        public async Task<IEnumerable<MetricsResponseDTO>> GetMetricsForDeviceAsync(int deviceId)
+        public async Task<IEnumerable<MetricsResponseDTO>> GetLatestMetricsForDeviceAsync(int deviceId)
         {
             if (!_authenticationService.IsLoggedInUser())
                 throw new UnauthorizedException($"The user is not logged in. Please login first.");

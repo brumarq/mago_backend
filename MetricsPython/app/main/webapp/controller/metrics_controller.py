@@ -29,4 +29,4 @@ class MetricsList(Resource):
     @requires_auth
     def get(self, device_id: int):
         """Provides devices metrics for a specific device"""
-        return self.metrics_service.get_device_metrics_by_device(device_id)
+        return self.metrics_service.get_latest_device_metrics_by_device_id(device_id)

@@ -56,10 +56,10 @@ namespace Application.ApplicationServices
             return responseList;
         }
 
-        public async Task<IEnumerable<DeviceMetricsResponseDTO>> GetDeviceMetricsAsync(int deviceId)
+        public async Task<IEnumerable<DeviceMetricsResponseDTO>> GetLastMetricsForDeviceAsync(int deviceId)
         {
             var device = await _deviceService.GetDeviceByIdAsync(deviceId);
-            var metrics = await _metricsService.GetMetricsForDeviceAsync(deviceId);
+            var metrics = await _metricsService.GetLatestMetricsForDeviceAsync(deviceId);
 
             var responseList = new List<DeviceMetricsResponseDTO>();
 
