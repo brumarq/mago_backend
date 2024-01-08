@@ -118,7 +118,7 @@ jobs:
 
       - name: Apply Changes to Kubernetes Resources
         run: |
-          oc apply -f path/to/your/deployment.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+          oc apply -f deployment.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
         working-directory: ${{ github.workspace }}
 
   # integration-tests:
