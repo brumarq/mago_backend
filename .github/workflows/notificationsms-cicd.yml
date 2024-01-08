@@ -103,7 +103,7 @@ jobs:
   apply-specific-migration:
     name: Apply Specific EF Core Migration
     runs-on: ubuntu-latest
-    environment: your-environment-name  # Change this to your specific environment
+    environment: notificationsms-test  # Change this to your specific environment
   
     steps:
       - uses: actions/checkout@v3
