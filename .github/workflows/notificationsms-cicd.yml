@@ -121,9 +121,8 @@ jobs:
   
       - name: Apply Specific Migration
         run: |
-          dotnet ef database update --project NotificationMS/Infrastructure/Infrastructure.csproj --startup-project NotificationMS/WebApp/WebApp.csproj --context Infrastructure.Data.Context.NotificationsDbContext --configuration Debug
-        env:
-          ConnectionStrings__NotificationsDb: ${{ secrets.NOTIFICATIONS_DB_CONNECTION_STRING }}
+          dotnet ef database update --project NotificationMS/Infrastructure/Infrastructure.csproj --startup-project NotificationMS/WebApp/WebApp.csproj --context Infrastructure.Data.Context.NotificationsDbContext --configuration Debug --connection ${{ secrets.NOTIFICATIONS_DB_CONNECTION_STRING }}
+      
           
           
 
