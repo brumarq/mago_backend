@@ -95,8 +95,20 @@ jobs:
             CONTAINER_NAME=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} -o=jsonpath='{.spec.template.spec.containers[0].name}')
             oc set image deployment/${{ env.APP_NAME }} $CONTAINER_NAME=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
             oc rollout restart deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+            oc set probe deployment/${{ env.APP_NAME }} --liveness --readiness -- \
+              httpGet:
+                path: /health
+                port: ${{ env.APP_PORT }}
+              initialDelaySeconds: 15
+              periodSeconds: 20
           else
             oc create deployment ${{ env.APP_NAME }} --image=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+            oc set probe deployment/${{ env.APP_NAME }} --liveness --readiness -- \
+            httpGet:
+              path: /health
+              port: ${{ env.APP_PORT }}
+            initialDelaySeconds: 15
+            periodSeconds: 20
           fi
 
           oc set env deployment/${{ env.APP_NAME }} \
