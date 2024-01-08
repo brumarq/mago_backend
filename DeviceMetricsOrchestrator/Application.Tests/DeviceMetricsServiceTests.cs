@@ -147,7 +147,7 @@ namespace Application.Test
                 }
             };
 
-            _mockMetricsService.Setup(x => x.GetMetricsForDeviceAsync(deviceId)).ReturnsAsync(expectedMetrics);
+            _mockMetricsService.Setup(x => x.GetLatestMetricsForDeviceAsync(deviceId)).ReturnsAsync(expectedMetrics);
 
 
             // Act
