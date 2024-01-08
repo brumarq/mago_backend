@@ -115,6 +115,9 @@ jobs:
   
       - name: Restore dependencies
         run: dotnet restore NotificationMS/NotificationMS.sln  # Adjust path as needed
+
+      - name: Install EF Core CLI
+        run: dotnet tool install --global dotnet-ef
   
       - name: Apply Specific Migration
         run: |
