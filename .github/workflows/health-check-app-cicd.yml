@@ -1,0 +1,67 @@
+name: HealthCheckApp CI/CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "HealthCheckApp/**/*"
+
+env:
+  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_TEST }}
+  OPENSHIFT_NAMESPACE: mago-backend-test
+  APP_NAME: health-check-app
+  APP_PORT: 8989
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }}
+  DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }}
+
+jobs:
+  docker-build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Build from Dockerfile
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.APP_NAME }}
+          tags: latest
+          dockerfiles: ./HealthCheckApp/Dockerfile
+          context: ./HealthCheckApp/
+
+      - name: Login to Docker Hub with Buildah
+        run: |
+          buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
+
+      - name: Push image to Docker Hub
+        run: |
+          buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
+
+  deploy-test-env:
+    name: Deploy to Test Environment
+    runs-on: ubuntu-20.04
+    needs: docker-build-and-push
+
+    steps:
+      - name: Log in to Openshift
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+          openshift_token: ${{ env.OPENSHIFT_TOKEN }}
+          insecure_skip_tls_verify: true
+          namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Deploy to Test Environment in OpenShift
+        run: |
+          DEPLOYMENT_EXISTS=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+          if [ -n "$DEPLOYMENT_EXISTS" ]; then
+            oc set image deployment/${{ env.APP_NAME }} ${{ env.APP_NAME }}=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
+            oc rollout restart deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+          else
+            oc create deployment ${{ env.APP_NAME }} --image=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
+          fi
+          oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}

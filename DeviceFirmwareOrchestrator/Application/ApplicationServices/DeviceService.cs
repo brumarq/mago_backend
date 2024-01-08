@@ -35,10 +35,11 @@ public class DeviceService : IDeviceService
                 {
                     case HttpStatusCode.NotFound:
                         throw new NotFoundException("The selected device does not exist.");
+                    case HttpStatusCode.ServiceUnavailable:
+                        throw new ServiceUnavailableException("The Device Microservice is not available right now.");
                     default:
                         response.EnsureSuccessStatusCode();
                         break;
-                    //TODO: add more response status codes
                 }
             }
         }
