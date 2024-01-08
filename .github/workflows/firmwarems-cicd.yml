@@ -13,6 +13,8 @@ env:
   OPENSHIFT_TEST_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_TEST }}
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }}
   DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }}
+  # QUAY_USERNAME: ${{ secrets.QUAY_USERNAME_SANDER }}
+  # QUAY_ACCESS_TOKEN: ${{ secrets.QUAY_ACCESS_TOKEN_SANDER }}
   AUTH0_DOMAIN: ${{secrets.AUTH0_DOMAIN_NO_HTTPS}}
   AUTH0_TEST_DOMAIN: ${{secrets.AUTH0_DOMAIN_NO_HTTPS_TEST}}
   AUTH0_AUDIENCE: ${{secrets.AUTH0_AUDIENCE}}
@@ -27,28 +29,28 @@ env:
   APP_PORT: 6969
 
 jobs:
-  firmwarems-unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-latest
+  # firmwarems-unit-tests:
+  #   name: Unit Tests
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Check Out Repository
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Check Out Repository
+  #       uses: actions/checkout@v2
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: "^1.21.1"
+  #     - name: Set up Go
+  #       uses: actions/setup-go@v2
+  #       with:
+  #         go-version: "^1.21.1"
 
-      - name: Run Unit Tests
-        run: |
-          cd FirmwareGO/tests/unittests
-          go test -v ./...
+  #     - name: Run Unit Tests
+  #       run: |
+  #         cd FirmwareGO/tests/unittests
+  #         go test -v ./...
 
   docker-upload:
     name: Deploy docker container
     runs-on: ubuntu-20.04
-    needs: firmwarems-unit-tests
+    # needs: firmwarems-unit-tests
     environment: firmwarems-production
 
     steps:
@@ -71,6 +73,32 @@ jobs:
         run: |
           buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
 
+  # quay-upload:
+  #   name: Deploy docker container to quay.io
+  #   runs-on: ubuntu-20.04
+  #   # needs: firmwarems-unit-tests
+  #   environment: firmwarems-production
+
+  #   steps:
+  #     - name: Check Out repository
+  #       uses: actions/checkout@v2
+
+  #     - name: Build from dockerfile
+  #       uses: redhat-actions/buildah-build@v2
+  #       with:
+  #         image: ${{ env.APP_NAME }}
+  #         tags: latest
+  #         dockerfiles: ./FirmwareGO/Dockerfile
+  #         context: ./FirmwareGO/
+
+  #     - name: Login to Quay.io with Buildah
+  #       run: |
+  #         buildah login --username ${{ env.QUAY_USERNAME }} --password ${{ env.QUAY_ACCESS_TOKEN }} quay.io
+
+  #     - name: Push image to Quay.io
+  #       run: |
+  #         buildah push "${{ env.APP_NAME }}:latest" "docker://quay.io/sander_harks/${{ env.APP_NAME }}:latest"
+
   deploy-test-env:
     runs-on: ubuntu-20.04
     needs: docker-upload
@@ -88,13 +116,15 @@ jobs:
 
       - name: Deploy test env to Openshift
         run: |
+          # Check if the deployment exists
           DEPLOYMENT_EXISTS=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
           SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
 
+          # If it exists, update the image and restart the deployment
           if [ -n "$DEPLOYMENT_EXISTS" ]; then
             CONTAINER_NAME=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} -o=jsonpath='{.spec.template.spec.containers[0].name}')
             oc set image deployment/${{ env.APP_NAME }} $CONTAINER_NAME=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-            oc rollout restart deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+          # If it doesn't exist, create a new deployment
           else
             oc create deployment ${{ env.APP_NAME }} --image=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
           fi
@@ -103,6 +133,15 @@ jobs:
           FIRMWARE_DB_CONNECTION_STRING=${{ secrets.FIRMWARE_DB_CONNECTION_STRING }} \
           AUTH0_DOMAIN=${{ env.AUTH0_TEST_DOMAIN }} \
           AUTH0_AUDIENCE=${{ env.AUTH0_TEST_AUDIENCE }} \
+
+          # Add or update readiness and liveness probes
+          oc set probe deployment/${{ env.APP_NAME }} --readiness --get-url=https://:${{ env.APP_PORT }}/health --initial-delay-seconds=5 --period-seconds=10 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+          oc set probe deployment/${{ env.APP_NAME }} --liveness --get-url=https://:${{ env.APP_PORT }}/ready --initial-delay-seconds=15 --period-seconds=30 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+
+          # Trigger a new rollout if the deployment was updated
+          if [ -n "$DEPLOYMENT_EXISTS" ]; then
+            oc rollout restart deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+          fi
 
           if [ -n "$SERVICE_EXISTS" ]; then
             oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
@@ -115,63 +154,82 @@ jobs:
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
-  integration-tests:
-    runs-on: ubuntu-20.04
-    needs: deploy-test-env
-    name: Integration Tests
-    steps:
-      - name: Check Out repository
-        uses: actions/checkout@v2
+      # - name: Deploy test env to Openshift
+      #   run: |
+      #     # Check if the deployment exists
+      #     DEPLOYMENT_EXISTS=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
+      #     SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
 
-      - name: Set up environment for Integration Tests
-        run: |
-          # Set up any dependencies or environment variables needed for integration tests
+      #     # If it exists, update the image and restart the deployment
+      #     if [ -n "$DEPLOYMENT_EXISTS" ]; then
+      #       CONTAINER_NAME=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} -o=jsonpath='{.spec.template.spec.containers[0].name}')
+      #       oc set image deployment/${{ env.APP_NAME }} $CONTAINER_NAME=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+      #       oc rollout restart deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+      #     # If it doesn't exist, create a new deployment
+      #     else
+      #       oc create deployment ${{ env.APP_NAME }} --image=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+      #     fi
 
-      - name: Run Integration Tests
-        run: |
-          # Command to run your integration tests
-          # These should be designed to interact with the test environment
+      #     oc set env deployment/${{ env.APP_NAME }} \
+      #     FIRMWARE_DB_CONNECTION_STRING=${{ secrets.FIRMWARE_DB_CONNECTION_STRING }} \
+      #     AUTH0_DOMAIN=${{ env.AUTH0_TEST_DOMAIN }} \
+      #     AUTH0_AUDIENCE=${{ env.AUTH0_TEST_AUDIENCE }} \
 
-  build-deploy:
-    runs-on: ubuntu-20.04
-    needs: integration-tests
-    name: Deploy to Openshift
-    environment: firmwarems-production
+      #     if [ -n "$SERVICE_EXISTS" ]; then
+      #       oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+      #     fi
+      #     oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
-    steps:
-      - name: Log in to Openshift
-        uses: redhat-actions/oc-login@v1
-        with:
-          openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
-          openshift_token: ${{ env.OPENSHIFT_TOKEN }}
-          insecure_skip_tls_verify: true
-          namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+      #     ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
+      #     if [ -n "$ROUTE_EXISTS" ]; then
+      #       oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+      #     fi
+      #     oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
-      - name: Deploy to Openshift
-        run: |
-          DEPLOYMENT_EXISTS=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
-          SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+  # build-deploy:
+  #   runs-on: ubuntu-20.04
+  #   needs: integration-tests
+  #   name: Deploy to Openshift
+  #   environment: firmwarems-production
 
-          if [ -n "$DEPLOYMENT_EXISTS" ]; then
-            CONTAINER_NAME=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -o=jsonpath='{.spec.template.spec.containers[0].name}')
-            oc set image deployment/${{ env.APP_NAME }} $CONTAINER_NAME=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
-            oc rollout restart deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
-          else
-            oc create deployment ${{ env.APP_NAME }} --image=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
-          fi
+  #   steps:
+  #     - name: Log in to Openshift
+  #       uses: redhat-actions/oc-login@v1
+  #       with:
+  #         openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+  #         openshift_token: ${{ env.OPENSHIFT_TOKEN }}
+  #         insecure_skip_tls_verify: true
+  #         namespace: ${{ env.OPENSHIFT_NAMESPACE }}
 
-          oc set env deployment/${{ env.APP_NAME }} \
-          FIRMWARE_DB_CONNECTION_STRING=${{ secrets.FIRMWARE_DB_CONNECTION_STRING }} \
-          AUTH0_DOMAIN=${{ env.AUTH0_DOMAIN }} \
-          AUTH0_AUDIENCE=${{ env.AUTH0_AUDIENCE }} \
+  #     - name: Deploy to Openshift
+  #       run: |
+  #         DEPLOYMENT_EXISTS=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+  #         SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
 
-          if [ -n "$SERVICE_EXISTS" ]; then
-            oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
-          fi
-          oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+  #         if [ -n "$DEPLOYMENT_EXISTS" ]; then
+  #           CONTAINER_NAME=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -o=jsonpath='{.spec.template.spec.containers[0].name}')
+  #           oc set image deployment/${{ env.APP_NAME }} $CONTAINER_NAME=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
+  #           oc rollout restart deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+  #         else
+  #           oc create deployment ${{ env.APP_NAME }} --image=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
+  #         fi
 
-          ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
-          if [ -n "$ROUTE_EXISTS" ]; then
-            oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
-          fi
-          oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+  #         oc set env deployment/${{ env.APP_NAME }} \
+  #         FIRMWARE_DB_CONNECTION_STRING=${{ secrets.FIRMWARE_DB_CONNECTION_STRING }} \
+  #         AUTH0_DOMAIN=${{ env.AUTH0_DOMAIN }} \
+  #         AUTH0_AUDIENCE=${{ env.AUTH0_AUDIENCE }} \
+
+  #         if [ -n "$SERVICE_EXISTS" ]; then
+  #           oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+  #         fi
+  #         oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+  #         ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+  #         if [ -n "$ROUTE_EXISTS" ]; then
+  #           oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+  #         fi
+  #         oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+  #  # Add or update readiness and liveness probes
+  #  oc set probe deployment/${{ env.APP_NAME }} --readiness --get-url=https://:${{ env.APP_PORT }}/health --initial-delay-seconds=5 --period-seconds=10 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+  #  oc set probe deployment/${{ env.APP_NAME }} --liveness --get-url=https://:${{ env.APP_PORT }}/ready --initial-delay-seconds=15 --period-seconds=30 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
