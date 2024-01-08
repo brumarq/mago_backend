@@ -24,8 +24,18 @@ func (controller *FirmwareController) RegisterRoutes(router *gin.Engine) {
 		JwtMiddlewareHandler(EnsureAdminPermission()),
 	)
 
+	router.GET("/health", controller.HealthCheck)
+	router.GET("/ready", controller.ReadyCheck)
 	secureGroup.POST("", controller.CreateFirmwareFileSend)
 	secureGroup.GET("/devices/:deviceId", controller.GetFirmwareHistoryForDevice)
+}
+
+func (controller *FirmwareController) HealthCheck(context *gin.Context) {
+	context.JSON(http.StatusOK, gin.H{"status": "up"})
+}
+
+func (controller *FirmwareController) ReadyCheck(context *gin.Context) {
+	context.JSON(http.StatusOK, gin.H{"status": "ready"})
 }
 
 // CreateFirmwareFileSend godoc
