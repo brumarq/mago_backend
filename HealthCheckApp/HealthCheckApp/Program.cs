@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
+using System.Net.Sockets;
 
 namespace HealthCheckApp;
 
@@ -6,29 +7,52 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        var servicesToCheck = new (string Host, int Port)[]
+        var servicesToCheck = new (string Name, string Host)[]
         {
-            ("firmware-microservice-service-mago-backend-test.apps.ocp4-inholland.joran-bergfeld.com", 6969)
+            ("Device Service", "https://device-microservice-service-mago-backend.apps.ocp4-inholland.joran-bergfeld.com/"),
+            ("User Service", "https://user-microservice-service-mago-backend.apps.ocp4-inholland.joran-bergfeld.com/"),
+            ("Notifications Service", "https://notifications-microservice-service-mago-backend.apps.ocp4-inholland.joran-bergfeld.com/"),
+            ("Metrics Service", "https://metrics-microservice-service-mago-backend.apps.ocp4-inholland.joran-bergfeld.com/"),
+            ("Firmware Service", "https://firmware-microservice-service-mago-backend.apps.ocp4-inholland.joran-bergfeld.com/"),
+            ("Device/Metrics Orchestrator", "https://device-metrics-orchestrator-service-mago-backend.apps.ocp4-inholland.joran-bergfeld.com/"),
+            ("Device/Firmware Orchestrator", "https://device-firmware-orchestrator-service-mago-backend.apps.ocp4-inholland.joran-bergfeld.com/"),
+            ("User/Notification/Device Orchestrator", "https://user-device-noti-orchestrator-service-mago-backend.apps.ocp4-inholland.joran-bergfeld.com/"),
         };
 
         foreach (var service in servicesToCheck)
         {
-            await CheckServiceHealth(service.Host, service.Port);
+            await CheckServiceHealth(service.Name, service.Host);
         }
     }
 
-    static async Task CheckServiceHealth(string host, int port)
+    static async Task CheckServiceHealth(string serviceName, string host)
     {
-        using var client = new TcpClient();
+        using var httpClient = new HttpClient();
         try
         {
-            await client.ConnectAsync(host, port);
-            Console.WriteLine($"Success: Connected to {host}:{port}");
+            var response = await httpClient.GetAsync(host);
+            if (response.IsSuccessStatusCode || response.StatusCode == HttpStatusCode.NotFound)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine($"{serviceName}: Service at {host} is up and running ");
+                Console.ResetColor();
+            }
+            else if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
+                Console.WriteLine($"{serviceName} Unavailable: Service at {host} is down");
+                Console.ResetColor();
+            }
+            else
+            {
+                Console.WriteLine($"{serviceName}: Service at {host} returned status code {response.StatusCode}");
+            }
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"Error: Could not connect to {serviceName} at {host} - {e.Message}");
+            Console.ResetColor();
         }
     }
 }
