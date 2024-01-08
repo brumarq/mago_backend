@@ -132,7 +132,7 @@ jobs:
 
   apply-migrations-production-environment:
     name: Apply EF Core Migration Production
-    needs: apply-migrations-test-environment
+    needs: deploy-test-env
     runs-on: ubuntu-latest
     environment: notificationsms-production
   
