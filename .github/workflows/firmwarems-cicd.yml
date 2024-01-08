@@ -95,20 +95,9 @@ jobs:
             CONTAINER_NAME=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} -o=jsonpath='{.spec.template.spec.containers[0].name}')
             oc set image deployment/${{ env.APP_NAME }} $CONTAINER_NAME=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
             oc rollout restart deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-            oc set probe deployment/${{ env.APP_NAME }} --liveness --readiness -- \
-              httpGet:
-                path: /health
-                port: ${{ env.APP_PORT }}
-              initialDelaySeconds: 15
-              periodSeconds: 20
+              
           else
             oc create deployment ${{ env.APP_NAME }} --image=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-            oc set probe deployment/${{ env.APP_NAME }} --liveness --readiness -- \
-            httpGet:
-              path: /health
-              port: ${{ env.APP_PORT }}
-            initialDelaySeconds: 15
-            periodSeconds: 20
           fi
 
           oc set env deployment/${{ env.APP_NAME }} \
@@ -127,6 +116,17 @@ jobs:
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
+      - name: Add probes to deployment
+        run: |
+          readiness_probe_url="http://${{ env.APP_NAME }}-service:${{ env.APP_PORT }}/health"
+          liveness_probe_url="http://${{ env.APP_NAME }}-service:${{ env.APP_PORT }}/ready"
+
+          # Add Readiness Probe
+          oc set probe deployment/${{ env.APP_NAME }} --readiness --get-url=$readiness_probe_url --initial-delay-seconds=5 --period-seconds=10 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+          
+          # Add Liveness Probe
+          oc set probe deployment/${{ env.APP_NAME }} --liveness --get-url=$liveness_probe_url --initial-delay-seconds=15 --period-seconds=30 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+          
   integration-tests:
     runs-on: ubuntu-20.04
     needs: deploy-test-env
