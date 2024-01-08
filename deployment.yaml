@@ -6,7 +6,7 @@ spec:
   template:
     spec:
       containers:
-        - name: ${{ env.APP_NAME }}-container
+        - name: ${{ env.APP_NAME }}
           readinessProbe:
             httpGet:
               path: /health
