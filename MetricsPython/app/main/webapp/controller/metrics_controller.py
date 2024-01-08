@@ -2,13 +2,14 @@ from flask_restx import Resource
 from app.main.application.dtos.metrics_dto import MetricsDto
 from app.main.application.service.metrics_service import MetricsService
 from app.main.infrastructure.repositories.repository import Repository
+from app.main.infrastructure.repositories.metrics_repository import MetricsRepository
 from app.main.domain.entities.log_value import LogValue
 from app.main.webapp.middleware.authentication import requires_auth
 
 api = MetricsDto.api
 
 def initialize_metrics_service():
-    return MetricsService(Repository(LogValue))
+    return MetricsService(MetricsRepository(LogValue))
 
 metrics_service = initialize_metrics_service()
 

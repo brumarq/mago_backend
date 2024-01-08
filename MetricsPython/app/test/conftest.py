@@ -3,6 +3,7 @@ from manage import create_app
 from app.main import db
 from app.main.domain.entities.field import Field
 from app.main.infrastructure.repositories.repository import Repository
+from app.main.infrastructure.repositories.metrics_repository import MetricsRepository
 from app.main.domain.entities.weekly_average import WeeklyAverage
 from app.main.domain.entities.monthly_average import MonthlyAverage
 from app.main.domain.entities.yearly_average import YearlyAverage
@@ -52,7 +53,7 @@ def aggregated_logs_service(app):
 @pytest.fixture
 def metrics_service(app):
     with app.app_context():
-        yield MetricsService(Repository(LogValue))
+        yield MetricsService(MetricsRepository(LogValue))
 
 
 @pytest.fixture

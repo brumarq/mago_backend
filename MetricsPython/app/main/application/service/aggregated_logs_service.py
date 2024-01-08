@@ -7,7 +7,6 @@ from app.main.domain.entities.yearly_average import YearlyAverage
 from app.main.domain.entities.field import Field
 from datetime import datetime
 from flask import abort
-from flask import request
 from app.main.webapp.middleware.authentication import has_required_permission
 
 class AggregatedLogsService(BaseAggregatedLogsService):
@@ -32,8 +31,6 @@ class AggregatedLogsService(BaseAggregatedLogsService):
 
         condition = (repository.model.device_id == device_id) & (repository.model.field_id == field_id)
 
-        # start_date = request.args.get('start_date')
-        # end_date = request.args.get('end_date')
         if (not start_date and end_date) or (start_date and not end_date):
             abort(400, "Both start date and end date must be provided or none of them.")
 

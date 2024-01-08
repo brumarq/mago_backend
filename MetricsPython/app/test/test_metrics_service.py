@@ -8,14 +8,14 @@ from unittest.mock import patch
 def test_get_device_metrics_invalid_permissions(app, metrics_service):
     with app.test_request_context():
         with pytest.raises(Exception) as excinfo:
-            metrics_service.get_device_metrics_by_device(device_id=1)
+            metrics_service.get_latest_device_metrics_by_device_id(device_id=1)
         assert "401 Unauthorized: This user does not have sufficient permissions" in str(excinfo.value)
 
 @patch('app.main.application.service.metrics_service.has_required_permission', return_value=True)
 def test_get_device_metrics_invalid_device_id(app, metrics_service):
     with app.test_request_context():
         with pytest.raises(Exception) as excinfo:
-            metrics_service.get_device_metrics_by_device(device_id=0)
+            metrics_service.get_latest_device_metrics_by_device_id(device_id=0)
         assert '400 Bad Request: Device id cannot be 0 or negative!' in str(excinfo.value)
 
 @patch('app.main.application.service.metrics_service.has_required_permission', return_value=True)
@@ -37,7 +37,7 @@ def test_get_device_metrics_valid_request(app, metrics_service, repository):
         repository.create(log_value_entity)
 
         # Call the get_device_metrics_by_device method and get data
-        device_metrics = metrics_service.get_device_metrics_by_device(device_id=1)
+        device_metrics = metrics_service.get_latest_device_metrics_by_device_id(device_id=1)
 
         # Assert
         assert isinstance(device_metrics, list)  # Check if the result is a list
