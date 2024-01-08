@@ -24,5 +24,9 @@ namespace Application.DTOs.DeviceMetrics
         /// Field object
         /// </summary>
         public FieldResponseDTO? Field { get; set; }
+        /// <summary>
+        /// Reference date (start date of when the aggregated logs were calculated)
+        /// </summary>
+        public string? ReferenceDate { get; set; }
     }
 }

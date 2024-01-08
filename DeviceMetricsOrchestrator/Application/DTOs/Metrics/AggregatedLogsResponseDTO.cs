@@ -22,5 +22,9 @@
         /// Field object
         /// </summary>
         public FieldDTO? Field { get; set; }
+        /// <summary>
+        /// Reference date (start date of when the aggregated logs were calculated)
+        /// </summary>
+        public string? ReferenceDate { get; set; }
     }
 }

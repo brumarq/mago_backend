@@ -48,7 +48,8 @@ namespace Application.ApplicationServices
                         Unit = unit, // Use the unit retrieved above
                         DeviceType = device.DeviceType,
                         Loggable = field.Loggable,
-                    }
+                    },
+                    ReferenceDate = aggregatedLog.ReferenceDate
                 };
 
                 responseList.Add(deviceAggregatedLogsResponse);
