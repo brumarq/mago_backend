@@ -93,7 +93,9 @@ jobs:
 
       - name: Login to Quay.io with Buildah
         run: |
-          buildah login --username sander_harks+mago_access_token --password ${{ env.QUAY_ACCESS_TOKEN }} quay.io
+          echo ${{ env.QUAY_USERNAME }}
+          echo ${{ env.QUAY_ACCESS_TOKEN }}
+          buildah login --username ${{ env.QUAY_USERNAME }} --password ${{ env.QUAY_ACCESS_TOKEN }} quay.io
 
       - name: Push image to Quay.io
         run: |
