@@ -9,7 +9,7 @@ on:
 
 env:
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
-  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TEST_TOKEN }}
+  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_TEST }}
   OPENSHIFT_NAMESPACE: mago-backend-test
   APP_NAME: health-check-app
   APP_PORT: 8989
