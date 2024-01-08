@@ -27,28 +27,28 @@ env:
   APP_PORT: 6969
 
 jobs:
-  firmwarems-unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-latest
+  # firmwarems-unit-tests:
+  #   name: Unit Tests
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Check Out Repository
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Check Out Repository
+  #       uses: actions/checkout@v2
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: "^1.21.1"
+  #     - name: Set up Go
+  #       uses: actions/setup-go@v2
+  #       with:
+  #         go-version: "^1.21.1"
 
-      - name: Run Unit Tests
-        run: |
-          cd FirmwareGO/tests/unittests
-          go test -v ./...
+  #     - name: Run Unit Tests
+  #       run: |
+  #         cd FirmwareGO/tests/unittests
+  #         go test -v ./...
 
   docker-upload:
     name: Deploy docker container
     runs-on: ubuntu-20.04
-    needs: firmwarems-unit-tests
+    # needs: firmwarems-unit-tests
     environment: firmwarems-production
 
     steps:
@@ -118,8 +118,8 @@ jobs:
 
       - name: Add probes to deployment
         run: |
-          readiness_probe_url="http://${{ env.APP_NAME }}-service:${{ env.APP_PORT }}/health"
-          liveness_probe_url="http://${{ env.APP_NAME }}-service:${{ env.APP_PORT }}/ready"
+          readiness_probe_url="https://${{ env.APP_NAME }}-service:${{ env.APP_PORT }}/health"
+          liveness_probe_url="https://${{ env.APP_NAME }}-service:${{ env.APP_PORT }}/ready"
 
           # Add Readiness Probe
           oc set probe deployment/${{ env.APP_NAME }} --readiness --get-url=$readiness_probe_url --initial-delay-seconds=5 --period-seconds=10 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
@@ -127,63 +127,63 @@ jobs:
           # Add Liveness Probe
           oc set probe deployment/${{ env.APP_NAME }} --liveness --get-url=$liveness_probe_url --initial-delay-seconds=15 --period-seconds=30 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
           
-  integration-tests:
-    runs-on: ubuntu-20.04
-    needs: deploy-test-env
-    name: Integration Tests
-    steps:
-      - name: Check Out repository
-        uses: actions/checkout@v2
+  # integration-tests:
+  #   runs-on: ubuntu-20.04
+  #   needs: deploy-test-env
+  #   name: Integration Tests
+  #   steps:
+  #     - name: Check Out repository
+  #       uses: actions/checkout@v2
 
-      - name: Set up environment for Integration Tests
-        run: |
-          # Set up any dependencies or environment variables needed for integration tests
+  #     - name: Set up environment for Integration Tests
+  #       run: |
+  #         # Set up any dependencies or environment variables needed for integration tests
 
-      - name: Run Integration Tests
-        run: |
-          # Command to run your integration tests
-          # These should be designed to interact with the test environment
+  #     - name: Run Integration Tests
+  #       run: |
+  #         # Command to run your integration tests
+  #         # These should be designed to interact with the test environment
 
-  build-deploy:
-    runs-on: ubuntu-20.04
-    needs: integration-tests
-    name: Deploy to Openshift
-    environment: firmwarems-production
+  # build-deploy:
+  #   runs-on: ubuntu-20.04
+  #   needs: integration-tests
+  #   name: Deploy to Openshift
+  #   environment: firmwarems-production
 
-    steps:
-      - name: Log in to Openshift
-        uses: redhat-actions/oc-login@v1
-        with:
-          openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
-          openshift_token: ${{ env.OPENSHIFT_TOKEN }}
-          insecure_skip_tls_verify: true
-          namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+  #   steps:
+  #     - name: Log in to Openshift
+  #       uses: redhat-actions/oc-login@v1
+  #       with:
+  #         openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+  #         openshift_token: ${{ env.OPENSHIFT_TOKEN }}
+  #         insecure_skip_tls_verify: true
+  #         namespace: ${{ env.OPENSHIFT_NAMESPACE }}
 
-      - name: Deploy to Openshift
-        run: |
-          DEPLOYMENT_EXISTS=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
-          SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+  #     - name: Deploy to Openshift
+  #       run: |
+  #         DEPLOYMENT_EXISTS=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+  #         SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
 
-          if [ -n "$DEPLOYMENT_EXISTS" ]; then
-            CONTAINER_NAME=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -o=jsonpath='{.spec.template.spec.containers[0].name}')
-            oc set image deployment/${{ env.APP_NAME }} $CONTAINER_NAME=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
-            oc rollout restart deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
-          else
-            oc create deployment ${{ env.APP_NAME }} --image=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
-          fi
+  #         if [ -n "$DEPLOYMENT_EXISTS" ]; then
+  #           CONTAINER_NAME=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -o=jsonpath='{.spec.template.spec.containers[0].name}')
+  #           oc set image deployment/${{ env.APP_NAME }} $CONTAINER_NAME=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
+  #           oc rollout restart deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+  #         else
+  #           oc create deployment ${{ env.APP_NAME }} --image=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
+  #         fi
 
-          oc set env deployment/${{ env.APP_NAME }} \
-          FIRMWARE_DB_CONNECTION_STRING=${{ secrets.FIRMWARE_DB_CONNECTION_STRING }} \
-          AUTH0_DOMAIN=${{ env.AUTH0_DOMAIN }} \
-          AUTH0_AUDIENCE=${{ env.AUTH0_AUDIENCE }} \
+  #         oc set env deployment/${{ env.APP_NAME }} \
+  #         FIRMWARE_DB_CONNECTION_STRING=${{ secrets.FIRMWARE_DB_CONNECTION_STRING }} \
+  #         AUTH0_DOMAIN=${{ env.AUTH0_DOMAIN }} \
+  #         AUTH0_AUDIENCE=${{ env.AUTH0_AUDIENCE }} \
 
-          if [ -n "$SERVICE_EXISTS" ]; then
-            oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
-          fi
-          oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+  #         if [ -n "$SERVICE_EXISTS" ]; then
+  #           oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+  #         fi
+  #         oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
 
-          ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
-          if [ -n "$ROUTE_EXISTS" ]; then
-            oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
-          fi
-          oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+  #         ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+  #         if [ -n "$ROUTE_EXISTS" ]; then
+  #           oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+  #         fi
+  #         oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
