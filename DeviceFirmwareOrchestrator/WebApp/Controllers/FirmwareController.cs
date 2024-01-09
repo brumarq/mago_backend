@@ -28,7 +28,7 @@ public class FirmwareController : ControllerBase
 
             return (newFileSend == null)
                 ? StatusCode(500, "The firmware file could not be created.")
-                :CreatedAtAction(nameof(GetFileSendByIdAsync), new { id = newFileSend.Id }, newFileSend);
+                : Created("", newFileSend);
         }
         catch (CustomException ce)
         {
