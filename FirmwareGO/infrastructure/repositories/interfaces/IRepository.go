@@ -7,6 +7,7 @@ import (
 
 // IRepository is a generic interface for data operations
 type IRepository[T IEntity] interface {
+	IsDatabaseConnected() bool
 	Create(ctx context.Context, entity *T) error
 	GetAll(ctx context.Context) ([]T, error)
 	GetCollectionByCondition(ctx context.Context, condition map[string]interface{}, orderBy ...string) ([]T, error)
