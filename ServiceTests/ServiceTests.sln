@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserDeviceNotificationOrche
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceFirmwareOrchestratorTests", "DeviceFirmwareOrchestratorTests\DeviceFirmwareOrchestratorTests.csproj", "{F1BB72CD-C488-4F78-B447-6BAB73B012C1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceMetricsOrchestratorsTests", "DeviceMetricsOrchestratorsTests\DeviceMetricsOrchestratorsTests.csproj", "{ED865E72-A19F-4609-B560-327D5CF5BAC7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{F1BB72CD-C488-4F78-B447-6BAB73B012C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1BB72CD-C488-4F78-B447-6BAB73B012C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1BB72CD-C488-4F78-B447-6BAB73B012C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED865E72-A19F-4609-B560-327D5CF5BAC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED865E72-A19F-4609-B560-327D5CF5BAC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED865E72-A19F-4609-B560-327D5CF5BAC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED865E72-A19F-4609-B560-327D5CF5BAC7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
