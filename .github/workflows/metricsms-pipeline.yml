@@ -98,7 +98,7 @@ jobs:
 
       - name: Apply migrations
         run: |
-          cd MetricsPython
+          cd MetricsPython/migrations
           flask db migrate upgrade head
         env:
           METRICS_DB_CONNECTION_STRING_SQLALCHEMY: MagoDBAdmin:Test123*@test-mago-database-server.database.windows.net:1433/MetricsDB?driver=ODBC+Driver+18+for+SQL+Server
