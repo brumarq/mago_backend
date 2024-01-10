@@ -107,6 +107,8 @@ jobs:
           Auth0__Audience=${{ env.AUTH0_TEST_AUDIENCE }} \
           Auth0__ClientId=${{ env.AUTH0_TEST_CLIENT_ID }} \
           Auth0__ClientSecret=${{ env.AUTH0_TEST_CLIENT_SECRET }} \
+          ApiRequestUris__FirmwareBaseUri=${{ secrets.APIREQUESTURIS_FIRMWAREBASEURI }} \
+          ApiRequestUris__DeviceBaseUri=${{ secrets.APIREQUESTURIS_DEVICEBASEURI }} \
 
           if [ -n "$SERVICE_EXISTS" ]; then
             oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
@@ -177,6 +179,8 @@ jobs:
           Auth0__Audience=${{ env.AUTH0_AUDIENCE }} \
           Auth0__ClientId=${{ env.AUTH0_CLIENT_ID }} \
           Auth0__ClientSecret=${{ env.AUTH0_CLIENT_SECRET }} \
+          ApiRequestUris__FirmwareBaseUri=${{ secrets.APIREQUESTURIS_FIRMWAREBASEURI }} \
+          ApiRequestUris__DeviceBaseUri=${{ secrets.APIREQUESTURIS_DEVICEBASEURI }} \
 
           if [ -n "$SERVICE_EXISTS" ]; then
             oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
