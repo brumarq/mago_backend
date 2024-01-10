@@ -105,6 +105,7 @@ jobs:
   deploy-test-env:
     runs-on: ubuntu-20.04
     # needs: apply-migrations-test-environment
+    needs: docker-upload
     name: Deploy Test Environment
     environment: devicems-test
 
@@ -180,6 +181,7 @@ jobs:
   build-deploy:
     runs-on: ubuntu-20.04
     # needs: apply-migrations-production-environment
+    needs: deploy-test-env
     name: Deploy to Openshift
     environment: devicems-production
 
