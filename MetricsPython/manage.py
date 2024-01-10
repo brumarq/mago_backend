@@ -7,7 +7,7 @@ from app.main import create_app, db
 from app.main.domain.entities import field, log_value, log_collection, log_collection_type, weekly_average, monthly_average, yearly_average
 from app.main.config import env
 
-app = create_app(env or 'dev')
+app = create_app(env or 'prod')
 
 app.register_blueprint(blueprint)
 app.app_context().push()
