@@ -35,6 +35,20 @@ func (m *MockIRepository) EXPECT() *MockIRepositoryMockRecorder {
 	return m.recorder
 }
 
+// IsDatabaseConnected mocks base method.
+func (m *MockIRepository) IsDatabaseConnected() bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsDatabaseConnected")
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsDatabaseConnected indicates an expected call of IsDatabaseConnected.
+func (mr *MockIRepositoryMockRecorder) IsDatabaseConnected() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsDatabaseConnected", reflect.TypeOf((*MockIRepository)(nil).IsDatabaseConnected))
+}
+
 // Create mocks base method.
 func (m *MockIRepository) Create(ctx context.Context, entity **entities.FileSend) error {
 	m.ctrl.T.Helper()

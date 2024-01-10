@@ -31,7 +31,11 @@ func (controller *FirmwareController) RegisterRoutes(router *gin.Engine) {
 }
 
 func (controller *FirmwareController) HealthCheck(context *gin.Context) {
-	context.JSON(http.StatusOK, gin.H{"status": "up"})
+	if controller.FirmwareService.DbIsHealthy() {
+		context.JSON(http.StatusOK, gin.H{"status": "up"})
+	} else {
+		context.JSON(http.StatusServiceUnavailable, gin.H{"status": "database is not connected"})
+	}
 }
 
 func (controller *FirmwareController) ReadyCheck(context *gin.Context) {

@@ -16,6 +16,15 @@ func NewRepository[T IEntity](db *gorm.DB) *Repository[T] {
 	return &Repository[T]{DB: db}
 }
 
+func (r *Repository[T]) IsDatabaseConnected() bool {
+	sqlServerDb, err := r.DB.DB()
+	if err != nil {
+		return false
+	}
+
+	return sqlServerDb.Ping() == nil
+}
+
 // Create adds a new entity to the database
 func (r *Repository[T]) Create(ctx context.Context, entity *T) error {
 	return r.DB.WithContext(ctx).Create(entity).Error
