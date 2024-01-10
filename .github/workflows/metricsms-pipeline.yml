@@ -75,6 +75,36 @@ jobs:
         run: |
           buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
 
+  apply-migrations-test-environment:
+    name: Apply Flask Migrations Testing
+    needs: docker-upload
+    runs-on: ubuntu-latest
+    environment: metricsms-test  # Change this to your specific environment
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      # - name: Install dependencies
+      #   run: |
+      #     cd MetricsPython
+      #     python -m pip install --upgrade pip
+      #     pip install -r requirements.txt
+
+      - name: Apply migrations
+        run: |
+          cd MetricsPython
+          flask db upgrade --directory=migrations
+        env:
+          METRICS_DB_CONNECTION_STRING_SQLALCHEMY: ${{ secrets.METRICS_DB_CONNECTION_STRING_SQLALCHEMY }}
+          FLASK_APP: manage:app
+
+
   deploy-test-env:
     runs-on: ubuntu-20.04
     needs: docker-upload
@@ -118,35 +148,6 @@ jobs:
             oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-
-  apply-migrations-test-environment:
-    name: Apply Flask Migrations Testing
-    needs: docker-upload
-    runs-on: ubuntu-latest
-    environment: metricsms-test  # Change this to your specific environment
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.11
-
-      # - name: Install dependencies
-      #   run: |
-      #     cd MetricsPython
-      #     python -m pip install --upgrade pip
-      #     pip install -r requirements.txt
-
-      - name: Apply migrations
-        env:
-          METRICS_DB_CONNECTION_STRING_SQLALCHEMY: ${{ secrets.METRICS_DB_CONNECTION_STRING_SQLALCHEMY }}
-          FLASK_APP: manage:app
-        run: |
-          cd MetricsPython
-          flask db upgrade       
 
   build-deploy:
     runs-on: ubuntu-20.04
