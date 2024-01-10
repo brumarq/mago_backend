@@ -25,8 +25,8 @@ env:
   OPENSHIFT_TEST_NAMESPACE: mago-backend-test
   APP_NAME: metrics-microservice
   APP_PORT: 5000
-  METRICS_DB_CONNECTION_STRING_SQLALCHEMY: "MagoDBAdmin:Test123*@test-mago-database-server.database.windows.net:1433/MetricsDB?driver=ODBC+Driver+18+for+SQL+Server"
-  FLASK_APP: manage:app
+  # METRICS_DB_CONNECTION_STRING_SQLALCHEMY: "MagoDBAdmin:Test123*@test-mago-database-server.database.windows.net:1433/MetricsDB?driver=ODBC+Driver+18+for+SQL+Server"
+  # FLASK_APP: manage:app
 
 jobs:
   flask-app-unit-tests:
@@ -77,47 +77,47 @@ jobs:
         run: |
           buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
 
-  apply-migrations-test-environment:
-    name: Apply Flask Migrations Testing
-    needs: docker-upload
-    runs-on: ubuntu-latest
-    environment: metricsms-test  # Change this to your specific environment
+  # apply-migrations-test-environment:
+  #   name: Apply Flask Migrations Testing
+  #   needs: docker-upload
+  #   runs-on: ubuntu-latest
+  #   environment: metricsms-test  # Change this to your specific environment
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.11
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v2
+  #       with:
+  #         python-version: 3.11
 
-      - name: Install dependencies
-        run: |
-          cd MetricsPython
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+  #     - name: Install dependencies
+  #       run: |
+  #         cd MetricsPython
+  #         python -m pip install --upgrade pip
+  #         pip install -r requirements.txt
 
-      - name: Install ODBC Driver 18 for SQL Server
-        run: |
-          sudo curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-          sudo curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
-          sudo apt-get update
-          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
+  #     - name: Install ODBC Driver 18 for SQL Server
+  #       run: |
+  #         sudo curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+  #         sudo curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+  #         sudo apt-get update
+  #         sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
 
-      - name: Display ODBC Driver Version
-        run: |
-          isql --version
+  #     - name: Display ODBC Driver Version
+  #       run: |
+  #         isql --version
 
-      - name: Display Environment Variables
-        run: |
-          echo "METRICS_DB_CONNECTION_STRING_SQLALCHEMY: $METRICS_DB_CONNECTION_STRING_SQLALCHEMY"
-          echo "FLASK_APP: $FLASK_APP"
+  #     - name: Display Environment Variables
+  #       run: |
+  #         echo "METRICS_DB_CONNECTION_STRING_SQLALCHEMY: $METRICS_DB_CONNECTION_STRING_SQLALCHEMY"
+  #         echo "FLASK_APP: $FLASK_APP"
 
-      - name: Apply migrations
-        run: |
-          cd MetricsPython
-          flask db upgrade --directory=migrations
+  #     - name: Apply migrations
+  #       run: |
+  #         cd MetricsPython
+  #         flask db upgrade --directory=migrations
 
 
   deploy-test-env:
