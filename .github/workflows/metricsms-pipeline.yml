@@ -98,8 +98,8 @@ jobs:
 
       - name: Display Environment Variables
         run: |
-          echo "METRICS_DB_CONNECTION_STRING_SQLALCHEMY: $METRICS_DB_CONNECTION_STRING_SQLALCHEMY"
-          echo "FLASK_APP: $FLASK_APP"
+          echo "METRICS_DB_CONNECTION_STRING_SQLALCHEMY: ${{ env.METRICS_DB_CONNECTION_STRING_SQLALCHEMY }}"
+          echo "FLASK_APP: ${{ env.FLASK_APP }}"
 
       - name: Apply migrations
         run: |
