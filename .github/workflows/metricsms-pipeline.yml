@@ -101,7 +101,7 @@ jobs:
           FLASK_APP: "manage:app"
           METRICS_DB_CONNECTION_STRING_SQLALCHEMY: "MagoDBAdmin:Test123*@test-mago-database-server.database.windows.net:1433/MetricsDB?driver=ODBC+Driver+18+for+SQL+Server"
         run: |
-          flask db upgrade --directory=migrations --database-uri="${{ env.DATABASE_URI }}"
+          flask db upgrade --directory=migrations
 
   deploy-test-env:
     runs-on: ubuntu-20.04
