@@ -74,37 +74,37 @@ jobs:
         run: |
           buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
 
-  apply-migrations-test-environment:
-    name: Apply EF Core Migration Testing
-    needs: docker-upload
-    runs-on: ubuntu-latest
-    environment: devicems-test  # Change this to your specific environment
-  
-    steps:
-      - uses: actions/checkout@v3
-  
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '6.0.x'  # Specify your .NET version
-  
-      - name: Restore dependencies
-        run: dotnet restore DeviceMS/DeviceMS.sln  # Adjust path as needed
+  # apply-migrations-test-environment:
+  #   name: Apply EF Core Migration Testing
+  #   needs: docker-upload
+  #   runs-on: ubuntu-latest
+  #   environment: devicems-test  # Change this to your specific environment
 
-      - name: Install EF Core CLI
-        run: dotnet tool install --global dotnet-ef
-  
-      - name: Apply Specific Migration
-        run: |
-          dotnet ef database update \
-            --project DeviceMS/Infrastructure/Infrastructure.csproj \
-            --startup-project DeviceMS/WebApp/WebApp.csproj \
-            --context Infrastructure.Data.Context.DevicesDbContext \
-            --connection ${{ secrets.DEVICE_DB_CONNECTION_STRING }}
+  #   steps:
+  #     - uses: actions/checkout@v3
+
+  #     - name: Setup .NET
+  #       uses: actions/setup-dotnet@v3
+  #       with:
+  #         dotnet-version: '6.0.x'  # Specify your .NET version
+
+  #     - name: Restore dependencies
+  #       run: dotnet restore DeviceMS/DeviceMS.sln  # Adjust path as needed
+
+  #     - name: Install EF Core CLI
+  #       run: dotnet tool install --global dotnet-ef
+
+  #     - name: Apply Specific Migration
+  #       run: |
+  #         dotnet ef database update \
+  #           --project DeviceMS/Infrastructure/Infrastructure.csproj \
+  #           --startup-project DeviceMS/WebApp/WebApp.csproj \
+  #           --context Infrastructure.Data.Context.DevicesDbContext \
+  #           --connection ${{ secrets.DEVICE_DB_CONNECTION_STRING }}
 
   deploy-test-env:
     runs-on: ubuntu-20.04
-    needs: apply-migrations-test-environment
+    # needs: apply-migrations-test-environment
     name: Deploy Test Environment
     environment: devicems-test
 
@@ -149,37 +149,37 @@ jobs:
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
-  apply-migrations-production-environment:
-    name: Apply EF Core Migration Production
-    needs: deploy-test-env
-    runs-on: ubuntu-latest
-    environment: devicems-production  # Change this to your specific environment
-  
-    steps:
-      - uses: actions/checkout@v3
-  
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '6.0.x'  # Specify your .NET version
-  
-      - name: Restore dependencies
-        run: dotnet restore DeviceMS/DeviceMS.sln  # Adjust path as needed
+  # apply-migrations-production-environment:
+  #   name: Apply EF Core Migration Production
+  #   needs: deploy-test-env
+  #   runs-on: ubuntu-latest
+  #   environment: devicems-production  # Change this to your specific environment
 
-      - name: Install EF Core CLI
-        run: dotnet tool install --global dotnet-ef
-  
-      - name: Apply Specific Migration
-        run: |
-          dotnet ef database update \
-            --project DeviceMS/Infrastructure/Infrastructure.csproj \
-            --startup-project DeviceMS/WebApp/WebApp.csproj \
-            --context Infrastructure.Data.Context.DevicesDbContext \
-            --connection ${{ secrets.DEVICE_DB_CONNECTION_STRING }}
+  #   steps:
+  #     - uses: actions/checkout@v3
+
+  #     - name: Setup .NET
+  #       uses: actions/setup-dotnet@v3
+  #       with:
+  #         dotnet-version: '6.0.x'  # Specify your .NET version
+
+  #     - name: Restore dependencies
+  #       run: dotnet restore DeviceMS/DeviceMS.sln  # Adjust path as needed
+
+  #     - name: Install EF Core CLI
+  #       run: dotnet tool install --global dotnet-ef
+
+  #     - name: Apply Specific Migration
+  #       run: |
+  #         dotnet ef database update \
+  #           --project DeviceMS/Infrastructure/Infrastructure.csproj \
+  #           --startup-project DeviceMS/WebApp/WebApp.csproj \
+  #           --context Infrastructure.Data.Context.DevicesDbContext \
+  #           --connection ${{ secrets.DEVICE_DB_CONNECTION_STRING }}
 
   build-deploy:
     runs-on: ubuntu-20.04
-    needs: apply-migrations-production-environment
+    # needs: apply-migrations-production-environment
     name: Deploy to Openshift
     environment: devicems-production
 
