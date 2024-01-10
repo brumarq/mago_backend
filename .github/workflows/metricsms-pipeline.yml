@@ -116,6 +116,7 @@ jobs:
 
       - name: Run migrations
         run: |
+          cd MetricsPython
           flask db upgrade
 
 
