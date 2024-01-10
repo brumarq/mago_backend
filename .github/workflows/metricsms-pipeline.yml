@@ -123,7 +123,7 @@ jobs:
 
       - name: Execute Flask-Migrate commands within the pod on test environment
         run: |
-          pod_name=$(oc get pods -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} -l app=${{ env.APP_NAME }} -o jsonpath='{.items[0].metadata.name}')
+          pod_name=$(oc get pods -n mago-backend-test -o jsonpath='{.items[?(@.metadata.labels.app=="metrics-microservice")].metadata.name}')
           oc exec -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} $pod_name -- /bin/sh -c 'FLASK_APP=manage.py flask db upgrade'
 
 
@@ -179,5 +179,7 @@ jobs:
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
 
-          pod_name=$(oc get pods -n ${{ env.OPENSHIFT_NAMESPACE }} -l app=${{ env.APP_NAME }} -o jsonpath='{.items[0].metadata.name}')
+      - name: Execute Flask-Migrate commands within the pod on test environment
+        run: |
+          pod_name=$(oc get pods -n mago-backend-test -o jsonpath='{.items[?(@.metadata.labels.app=="metrics-microservice")].metadata.name}')
           oc exec -n ${{ env.OPENSHIFT_NAMESPACE }} $pod_name -- /bin/sh -c 'FLASK_APP=manage.py flask db upgrade'
