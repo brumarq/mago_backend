@@ -117,7 +117,7 @@ jobs:
       - name: Run migrations
         run: |
           cd MetricsPython
-          flask db upgrade
+          flask db upgrade -d migrations
 
 
   deploy-test-env:
