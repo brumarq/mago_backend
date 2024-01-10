@@ -125,7 +125,8 @@ jobs:
         run: |
           POD_NAME=$(oc get pods -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --selector=app=${{ env.APP_NAME }} --output=jsonpath='{.items[0].metadata.name}')
           echo "Pod Name: $POD_NAME"
-          oc exec -it -t $POD_NAME -- env FLASK_APP=manage.py flask db upgrade
+          oc exec $POD_NAME -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} -- FLASK_APP=manage.py
+          oc exec $POD_NAME -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} -- flask db upgrade
 
 
   build-deploy:
@@ -184,4 +185,5 @@ jobs:
         run: |
           POD_NAME=$(oc get pods -n ${{ env.OPENSHIFT_NAMESPACE }} --selector=app=${{ env.APP_NAME }} --output=jsonpath='{.items[0].metadata.name}')
           echo "Pod Name: $POD_NAME"
-          oc exec -it -t $POD_NAME -- env FLASK_APP=manage.py flask db upgrade
+          oc exec $POD_NAME -n ${{ env.OPENSHIFT_NAMESPACE }} -- FLASK_APP=manage.py
+          oc exec $POD_NAME -n ${{ env.OPENSHIFT_NAMESPACE }} -- flask db upgrade
