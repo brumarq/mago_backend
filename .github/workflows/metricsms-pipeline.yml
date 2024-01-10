@@ -77,30 +77,30 @@ jobs:
 
 
     apply-migrations-test-environment:
-    name: Apply Flask Migrations Testing
-    needs: docker-upload
-    runs-on: ubuntu-latest
-    environment: metricsms-test  # Change this to your specific environment
+      name: Apply Flask Migrations Testing
+      needs: docker-upload
+      runs-on: ubuntu-latest
+      environment: metricsms-test  # Change this to your specific environment
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.11
+        - name: Set up Python
+          uses: actions/setup-python@v2
+          with:
+            python-version: 3.11
 
-      - name: Install dependencies
-        run: |
-          cd MetricsPython
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+        - name: Install dependencies
+          run: |
+            cd MetricsPython
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
 
-      - name: Apply migrations
-        env:
-          METRICS_DB_CONNECTION_STRING_SQLALCHEMY: "MagoDBAdmin:Test123*@test-mago-database-server.database.windows.net:1433/MetricsDB?driver=ODBC+Driver+18+for+SQL+Server"
-        run: flask db upgrade
+        - name: Apply migrations
+          env:
+            METRICS_DB_CONNECTION_STRING_SQLALCHEMY: "MagoDBAdmin:Test123*@test-mago-database-server.database.windows.net:1433/MetricsDB?driver=ODBC+Driver+18+for+SQL+Server"
+          run: flask db upgrade
 
   deploy-test-env:
     runs-on: ubuntu-20.04
