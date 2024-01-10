@@ -102,7 +102,7 @@ jobs:
           METRICS_DB_CONNECTION_STRING_SQLALCHEMY: "MagoDBAdmin:Test123*@test-mago-database-server.database.windows.net:1433/MetricsDB?driver=ODBC+Driver+18+for+SQL+Server"
         run: |
           cd MetricsPython
-          flask db upgrade --directory=migrations
+          flask db upgrade
 
   deploy-test-env:
     runs-on: ubuntu-20.04
