@@ -215,3 +215,46 @@ jobs:
             oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+
+  apply-migrations-test-environment:
+    name: Apply Flask Migrations Testing
+    needs: docker-upload
+    runs-on: ubuntu-latest
+    environment: metricsms-test  # Change this to your specific environment
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          cd MetricsPython
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install ODBC Driver 18 for SQL Server
+        run: |
+          sudo curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          sudo curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
+
+      - name: Display Installed ODBC Drivers
+        run: |
+          odbcinst -q -d
+
+      - name: Display Environment Variables
+        run: |
+          echo "METRICS_DB_CONNECTION_STRING_SQLALCHEMY: $METRICS_DB_CONNECTION_STRING_SQLALCHEMY"
+          echo "FLASK_APP: $FLASK_APP"
+
+      - name: Run migrations
+        run: |
+          cd MetricsPython
+          flask db upgrade 
