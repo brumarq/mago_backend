@@ -102,7 +102,7 @@ jobs:
           flask db upgrade --directory=migrations
         env:
           METRICS_DB_CONNECTION_STRING_SQLALCHEMY: ${{ secrets.METRICS_DB_CONNECTION_STRING_SQLALCHEMY }}
-          FLASK_APP: manage:app
+          FLASK_APP: manage.py
 
 
   deploy-test-env:
