@@ -102,11 +102,12 @@ jobs:
       - name: Apply migrations
         run: |
           cd MetricsPython
+          export METRICS_DB_CONNECTION_STRING_SQLALCHEMY="${{ env.METRICS_DB_CONNECTION_STRING_SQLALCHEMY }}"
+          export FLASK_APP="${{ env.FLASK_APP }}"
+          flask db upgrade --directory=migrations
         env:
           METRICS_DB_CONNECTION_STRING_SQLALCHEMY: ${{ env.METRICS_DB_CONNECTION_STRING_SQLALCHEMY }}
           FLASK_APP: ${{ env.FLASK_APP }}
-        run : |
-          flask db upgrade --directory=migrations
 
   deploy-test-env:
     runs-on: ubuntu-20.04
