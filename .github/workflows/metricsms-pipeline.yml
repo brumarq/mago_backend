@@ -98,12 +98,12 @@ jobs:
 
       - name: Apply migrations
         run: |
-          cd ./MetricsPython
+          cd MetricsPython
           export METRICS_DB_CONNECTION_STRING_SQLALCHEMY="${{ env.METRICS_DB_CONNECTION_STRING_SQLALCHEMY }}"
-          export FLASK_APP="${{ env.FLASK_APP }}"
-          flask db upgrade
+          export FLASK_APP="manage:app"
+          flask db upgrade --directory=migrations
         env:
-          METRICS_DB_CONNECTION_STRING_SQLALCHEMY: MagoDBAdmin:Test123*@test-mago-database-server.database.windows.net:1433/MetricsDB?driver=ODBC+Driver+18+for+SQL+Server
+          METRICS_DB_CONNECTION_STRING_SQLALCHEMY: ${{ env.METRICS_DB_CONNECTION_STRING_SQLALCHEMY }}
           FLASK_APP: manage:app
 
   deploy-test-env:
