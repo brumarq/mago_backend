@@ -77,10 +77,10 @@ jobs:
 
 
     apply-migrations-test-environment:
-    name: Apply Flask Migrations Testing
-    needs: docker-upload
-    runs-on: ubuntu-latest
-    environment: metricsms-test  # Change this to your specific environment
+      name: Apply Flask Migrations Testing
+      needs: docker-upload
+      runs-on: ubuntu-latest
+      environment: metricsms-test  # Change this to your specific environment
   
     steps:
       - name: Checkout Repository
