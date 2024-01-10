@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceFirmwareOrchestratorT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceMetricsOrchestratorsTests", "DeviceMetricsOrchestratorsTests\DeviceMetricsOrchestratorsTests.csproj", "{ED865E72-A19F-4609-B560-327D5CF5BAC7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDomain", "TestDomain\TestDomain.csproj", "{F177CC27-821B-41BD-8B22-F536957EDA83}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{ED865E72-A19F-4609-B560-327D5CF5BAC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED865E72-A19F-4609-B560-327D5CF5BAC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED865E72-A19F-4609-B560-327D5CF5BAC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F177CC27-821B-41BD-8B22-F536957EDA83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F177CC27-821B-41BD-8B22-F536957EDA83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F177CC27-821B-41BD-8B22-F536957EDA83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F177CC27-821B-41BD-8B22-F536957EDA83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

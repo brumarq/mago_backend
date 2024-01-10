@@ -73,7 +73,7 @@ namespace WebApp.Controllers
             try
             {
                 var device = await _deviceService.GetDeviceByIdAsync(id);
-                return (device == null) ? NotFound() : Ok(device);
+                return (device == null) ? NotFound("The selected device does not exist") : Ok(device);
             }
             catch (Exception e)
             {
