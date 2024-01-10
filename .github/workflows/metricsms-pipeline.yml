@@ -98,7 +98,7 @@ jobs:
 
       - name: Apply migrations
         run: |
-          cd ./MetricsPython/migrations
+          cd ./MetricsPython
           export METRICS_DB_CONNECTION_STRING_SQLALCHEMY="${{ env.METRICS_DB_CONNECTION_STRING_SQLALCHEMY }}"
           export FLASK_APP="${{ env.FLASK_APP }}"
           flask db upgrade
