@@ -56,7 +56,7 @@ namespace Application.ApplicationServices
                 else
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    throw new HttpRequestException($"Get notifications request failed {(int)response.StatusCode}: {errorContent}");
+                    throw new CustomException(errorContent, response.StatusCode);
                 }
             }
             catch (HttpRequestException e)
@@ -90,7 +90,7 @@ namespace Application.ApplicationServices
                 else
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    throw new HttpRequestException($"Get notification by id request failed {(int)response.StatusCode}: {errorContent}");
+                    throw new CustomException(errorContent, response.StatusCode);
                 }
             }
             catch (HttpRequestException e)
@@ -125,7 +125,7 @@ namespace Application.ApplicationServices
                 else
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    throw new HttpRequestException($"Create notification request failed {(int)response.StatusCode}: {errorContent}");
+                    throw new CustomException(errorContent, response.StatusCode);
                 }
             }
             catch (HttpRequestException e)
