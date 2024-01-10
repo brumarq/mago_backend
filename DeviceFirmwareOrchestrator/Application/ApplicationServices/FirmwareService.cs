@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
@@ -42,6 +43,21 @@ public class FirmwareService : IFirmwareService
         request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
         var response = await _httpClient.SendAsync(request);
+        
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorMessage = await response.Content.ReadAsStringAsync();
+            
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.ServiceUnavailable:
+                    throw new ServiceUnavailableException($"Service Unavailable - Firmware Microservice: {errorMessage}");
+                case HttpStatusCode.Unauthorized:
+                    throw new UnauthorizedException($"Unauthorized - Firmware Microservice: {errorMessage}");
+                default:
+                    throw new CustomException($"An error occured while creating the new FileSend: {errorMessage}", response.StatusCode);
+            }
+        }
 
         var body = await response.Content.ReadFromJsonAsync<FileSendResponseDTO>();
         return body!;
@@ -52,7 +68,7 @@ public class FirmwareService : IFirmwareService
         _logger.LogError($" The given FirmwareURL: {_baseUri}");
         await _deviceService.EnsureDeviceExists(deviceId);
 
-        var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}devices/{deviceId}");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}/devices/{deviceId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
         var response = await _httpClient.SendAsync(request);
         

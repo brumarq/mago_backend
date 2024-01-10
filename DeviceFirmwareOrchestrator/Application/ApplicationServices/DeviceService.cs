@@ -25,21 +25,24 @@ public class DeviceService : IDeviceService
     {
         try
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{deviceId}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}/{deviceId}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
             var response = await _httpClient.SendAsync(request);
             
             if (!response.IsSuccessStatusCode)
             {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                
                 switch (response.StatusCode)
                 {
                     case HttpStatusCode.NotFound:
-                        throw new NotFoundException("The selected device does not exist.");
+                        throw new NotFoundException($"Not Found - Device Microservice: {errorMessage}");
                     case HttpStatusCode.ServiceUnavailable:
-                        throw new ServiceUnavailableException("The Device Microservice is not available right now.");
+                        throw new ServiceUnavailableException($"Service Unavailable - Device Microservice: {errorMessage}");
+                    case HttpStatusCode.Unauthorized:
+                        throw new UnauthorizedException($"Unauthorized - Device Microservice: {errorMessage}");
                     default:
-                        response.EnsureSuccessStatusCode();
-                        break;
+                        throw new CustomException($"An error occured while checking device existence: {errorMessage}", response.StatusCode);
                 }
             }
         }
