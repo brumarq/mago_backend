@@ -179,7 +179,7 @@ jobs:
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
 
-      - name: Execute Flask-Migrate commands within the pod on test environment
+      - name: Execute Flask-Migrate commands within the pod on production environment
         run: |
           POD_NAME=$(oc get pods -n ${{ env.OPENSHIFT_NAMESPACE }} --selector=app=${{ env.APP_NAME }} --output=jsonpath='{.items[0].metadata.name}')
           echo "Pod Name: $POD_NAME"
