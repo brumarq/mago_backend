@@ -98,16 +98,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # - name: Install ODBC Driver 18 for SQL Server
-      #   run: |
-      #     sudo curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-      #     sudo curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
-      #     sudo apt-get update
-      #     sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
+      - name: Install ODBC Driver 18 for SQL Server
+        run: |
+          sudo curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          sudo curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
 
-      # - name: Display ODBC Driver Version
-      #   run: |
-      #     isql --version
+      - name: Display Installed ODBC Drivers
+        run: |
+          odbcinst -q -d
 
       - name: Display Environment Variables
         run: |
