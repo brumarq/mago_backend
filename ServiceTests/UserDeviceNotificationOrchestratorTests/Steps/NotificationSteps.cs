@@ -53,7 +53,7 @@ public sealed class NotificationSteps
         _httpClient.BaseAddress = new Uri(_baseUrl);
     }
 
-    [When("a get request is made to get a notification")]
+    [When("a get request is made to get notification by device")]
     public async Task WhenTheTwoNumbersAreAdded()
     {
         try
@@ -62,6 +62,53 @@ public sealed class NotificationSteps
             _lastResponse.EnsureSuccessStatusCode();
             string responseBody = await _lastResponse.Content.ReadAsStringAsync();
             _jsonArrayResult = JArray.Parse(responseBody);
+        }
+        catch (HttpRequestException e)
+        {
+            _scenarioContext["error"] = e.Message;
+        }
+    }
+    
+    [When("a get request is made to get notification by device when device does not exist")]
+    public async Task WhenTheTwoNumbersAreAdded1()
+    {
+        try
+        {
+            _lastResponse = await _httpClient.GetAsync($"/orchestrator/notification/device/2");
+            _lastResponse.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException e)
+        {
+            _scenarioContext["error"] = e.Message;
+        }
+    }
+    
+    
+    [When("a get request is made to get notification")]
+    public async Task WhenTheTwoNumbersAreAdded2()
+    {
+        try
+        {
+            _lastResponse = await _httpClient.GetAsync($"/orchestrator/notification/1");
+            _lastResponse.EnsureSuccessStatusCode();
+            string responseBody = await _lastResponse.Content.ReadAsStringAsync();
+            _jsonObjectResult = JObject.Parse(responseBody);
+        }
+        catch (HttpRequestException e)
+        {
+            _scenarioContext["error"] = e.Message;
+        }
+    }
+    
+    [When("a get request is made to get notification that does not exist")]
+    public async Task WhenTheTwoNumbersAreAdded3()
+    {
+        try
+        {
+            _lastResponse = await _httpClient.GetAsync($"/orchestrator/notification/0");
+            _lastResponse.EnsureSuccessStatusCode();
+            string responseBody = await _lastResponse.Content.ReadAsStringAsync();
+            _jsonObjectResult = JObject.Parse(responseBody);
         }
         catch (HttpRequestException e)
         {
@@ -83,10 +130,9 @@ public sealed class NotificationSteps
             Assert.IsTrue(idExists, "No item with id 1 was found in the response.");
         }
     }
-
     
-    [Then("the response code should be (.*)")]
-    public void ThenTheResponseCodeShouldBe(int expectedStatusCode)
+    [Then("an object with id 1 should exist")]
+    public void ThenAnObjectWithId1ShouldExist()
     {
         if (_scenarioContext.ContainsKey("error"))
         {
@@ -94,8 +140,17 @@ public sealed class NotificationSteps
         }
         else
         {
-            Assert.AreEqual(expectedStatusCode, (int)_lastResponse.StatusCode, "The response status code is not as expected.");
+            bool idExists = _jsonObjectResult["id"]?.Value<int>() == 1;
+            Assert.IsTrue(idExists, "No object with id 1 was found in the response.");
         }
+    }
+
+
+    
+    [Then("the response code should be (.*)")]
+    public void ThenTheResponseCodeShouldBe(int expectedStatusCode)
+    {
+            Assert.AreEqual(expectedStatusCode, (int)_lastResponse.StatusCode, "The response status code is not as expected.");
     }
 
 }
