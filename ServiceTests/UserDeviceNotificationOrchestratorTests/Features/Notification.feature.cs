@@ -104,13 +104,13 @@ namespace ServiceTests.Features
         testRunner.Given("the request is set to User Device Notification Orchestrator", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 5
-        testRunner.When("a get request is made to \"/orchestrator/notification/device/1\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+        testRunner.When("a get request is made to /orchestrator/notification/device/1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 6
         testRunner.Then("the response code should be 200", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
 #line 7
-        testRunner.And("an item with id 1 should exist in array", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+        testRunner.And("an item with id 1 should exist", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -147,8 +147,7 @@ namespace ServiceTests.Features
         testRunner.Given("the request is set to User Device Notification Orchestrator", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 11
-        testRunner.When("a get request is made to \"/orchestrator/notification/device/99999\" # Assuming 999" +
-                        "99 is a non-existent device ID", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+        testRunner.When("a get request is made to /orchestrator/notification/device/99999", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 12
         testRunner.Then("the response code should be 404", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
@@ -188,7 +187,7 @@ namespace ServiceTests.Features
         testRunner.Given("the request is set to User Device Notification Orchestrator", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 16
-        testRunner.When("a get request is made to \"/orchestrator/notification/1\"", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+        testRunner.When("a get request is made to /orchestrator/notification/1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 17
         testRunner.Then("the response code should be 200", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
@@ -201,12 +200,12 @@ namespace ServiceTests.Features
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Retrieve notification that does not exists")]
-        public virtual void RetrieveNotificationThatDoesNotExists()
+        [NUnit.Framework.DescriptionAttribute("Retrieve notification that does not exist")]
+        public virtual void RetrieveNotificationThatDoesNotExist()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Retrieve notification that does not exists", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Retrieve notification that does not exist", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
 #line 20
     this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -231,8 +230,7 @@ namespace ServiceTests.Features
         testRunner.Given("the request is set to User Device Notification Orchestrator", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 22
-        testRunner.When("a get request is made to \"/orchestrator/notification/99999\" # Assuming 99999 is a" +
-                        " non-existent notification ID", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+        testRunner.When("a get request is made to /orchestrator/notification/99999", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 23
         testRunner.Then("the response code should be 404", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
@@ -272,7 +270,7 @@ namespace ServiceTests.Features
         testRunner.Given("the request is set to User Device Notification Orchestrator", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 27
-        testRunner.When("a post request is made to \"/orchestrator/notification\" with payload:", "{\r\n    \"deviceID\": 1,\r\n    \"statusTypeID\": 1,\r\n    \"message\": \"Machine is down\"\r\n" +
+        testRunner.When("a post request is made to /orchestrator/notification with payload:", "{\r\n    \"deviceID\": 1,\r\n    \"statusTypeID\": 1,\r\n    \"message\": \"Machine is down\"\r\n" +
                         "}", ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 35
@@ -322,7 +320,7 @@ namespace ServiceTests.Features
         testRunner.Given("the request is set to User Device Notification Orchestrator", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 42
-        testRunner.When("a post request is made to \"/orchestrator/notification\" with payload:", "{\r\n    \"deviceID\": 99999,\r\n    \"statusTypeID\": 1,\r\n    \"message\": \"Machine is dow" +
+        testRunner.When("a post request is made to /orchestrator/notification with payload:", "{\r\n    \"deviceID\": 99999,\r\n    \"statusTypeID\": 1,\r\n    \"message\": \"Machine is dow" +
                         "n\"\r\n}", ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 50
@@ -363,7 +361,7 @@ namespace ServiceTests.Features
         testRunner.Given("the request is set to User Device Notification Orchestrator", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 54
-        testRunner.When("a post request is made to \"/orchestrator/notification\" with payload:", "{\r\n    \"deviceID\": 1,\r\n    \"statusTypeID\": 99999,\r\n    \"message\": \"Machine is dow" +
+        testRunner.When("a post request is made to /orchestrator/notification with payload:", "{\r\n    \"deviceID\": 1,\r\n    \"statusTypeID\": 99999,\r\n    \"message\": \"Machine is dow" +
                         "n\"\r\n}", ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 62
