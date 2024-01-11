@@ -166,7 +166,6 @@ public class Auth0ServiceTests
             FamilyName = "Doe",
             GivenName = "John",
             Email = "johnDoe@gmail.com",
-            SysAdmin = true,
             Password = "Test..123"
         };
 
@@ -186,7 +185,6 @@ public class Auth0ServiceTests
             GivenName = "John",
             Email = "JohnDoe@yahoo.com",
             Password = "",
-            SysAdmin = true // Assuming this results in a role change to 'admin'
         };
 
         // Mock GetRole
@@ -249,7 +247,6 @@ public class Auth0ServiceTests
             GivenName = "John",
             Email = "",
             Password = "Test..123",
-            SysAdmin = true // Assuming this results in a role change to 'admin'
         };
 
         // Mock GetRole
@@ -311,7 +308,6 @@ public class Auth0ServiceTests
             GivenName = "John",
             Email = "JohnDoe@yahoo.com",
             Password = "Test..123",
-            SysAdmin = true
         };
         
         var exception = Assert.ThrowsAsync<BadRequestException>(
