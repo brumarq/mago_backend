@@ -1,23 +1,18 @@
 ﻿Feature: Metrics
 
-Scenario: Retrieve device metrics by device id
-    Given the device id provided is 1
-    When a get request is called to retrieve device metrics
-    Then the result should return 200
-    And the result should contain 1 entry
+    Scenario: Creating a field as an admin
+        Given the user is logged in as an admin
+        When the user tries to create a field object for unit id 1 and device type 1
+        Then the response should return 201
 
 
-Scenario: Retrieve aggregated logs by aggregation date, device id and field id
-    Given the aggregation date Yearly is provided
-    And device id of 1 is provided
-    And field id of 1 is provided
-    When a get request is called to retrieved aggregated logs
-    Then the result should return 200
-    And result should contain 8 entries
+    Scenario: Creating a field as a client
+        Given the user is logged in as a client
+        When the user tries to create a field object for unit id 1 and device type id 1
+        Then the response should return 403
 
 
-Scenario: Creating a field in metrics
-    Given a field object is provided
-    When a post request is called to create a field
-    Then the result should return 201
-    And a new object has to be added to the list
+    Scenario: Creating a field as a client for invalid unit id
+        Given the user is logged in as a client
+        When the user tries to create a field object for unit id -10 and device type 1
+        Then the response should return 400
