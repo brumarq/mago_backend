@@ -1,5 +1,4 @@
 ﻿using TestDomain.Metrics.Field;
-using TestDomain.Metrics.Log;
 
 namespace TestDomain.Metrics
 {
