@@ -11,7 +11,7 @@ using Microsoft.Extensions.Configuration;
 namespace ServiceTests.Steps;
 
 [Binding]
-public sealed class NotificationSteps
+public sealed class DeviceSteps
 {
     private readonly ScenarioContext _scenarioContext;
     private readonly HttpClient _httpClient;
@@ -33,18 +33,11 @@ public sealed class NotificationSteps
             .Build();
     }
 
-    public NotificationSteps(ScenarioContext scenarioContext, HttpClient httpClient)
+    public DeviceSteps(ScenarioContext scenarioContext, HttpClient httpClient)
     {
         _scenarioContext = scenarioContext;
         _httpClient = httpClient;
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _configuration["AdminJWTToken"]);
-    }
-    
-    [Given(@"the request is set to localhost on port 8080")]
-    public void GivenTheRequestIsSetToLocalhostOnPort8080()
-    {
-        _baseUrl = "http://localhost:8080";
-        _httpClient.BaseAddress = new Uri(_baseUrl);
     }
 
     [Given(@"the request is set to User Device Notification Orchestrator")]
