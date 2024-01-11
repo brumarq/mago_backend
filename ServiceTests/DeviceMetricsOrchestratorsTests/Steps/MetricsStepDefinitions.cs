@@ -37,7 +37,7 @@ public sealed class MetricsStepDefinitions
     }
 
 
-    [Given(@"a user is logged in as an admin")]
+    [Given(@"the user is logged in as an admin")]
     public void GivenTheUserIsLoggedInAsAnAdmin()
     {
         _httpClient.DefaultRequestHeaders.Authorization =
@@ -61,14 +61,16 @@ public sealed class MetricsStepDefinitions
                     UnitId = unitId,
                     DeviceTypeId = deviceTypeId,
                     Name = "Awesome field name",
-                    Loggable = true
-                    
+                    Loggable = true     
                 }),
                 Encoding.UTF8,
                 "application/json"
             );
 
         _httpResponseMessage = await _httpClient.PostAsync("/orchestrate/fields/Field", content);
+
+        if (_httpResponseMessage.StatusCode != HttpStatusCode.Created)
+            return;
 
         var response = await _httpResponseMessage.Content.ReadFromJsonAsync<CreateFieldDTO>();
         createdFieldObject = response!;
@@ -95,5 +97,11 @@ public sealed class MetricsStepDefinitions
                 Assert.AreEqual(HttpStatusCode.Forbidden, _httpResponseMessage.StatusCode);
                 break;
         }
+    }
+
+    [Then(@"the created field object should be returned")]
+    public void AndTheCreatedFieldObjectShouldBeReturned()
+    {
+        Assert.IsNotNull(createdFieldObject);
     }
 }
