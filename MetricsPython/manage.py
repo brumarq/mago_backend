@@ -1,7 +1,7 @@
 import sys
 sys.dont_write_bytecode = True
 import pytest
-from flask_migrate import Migrate
+from flask_migrate import Migrate, upgrade
 from app import blueprint
 from app.main import create_app, db
 from app.main.domain.entities import field, log_value, log_collection, log_collection_type, weekly_average, monthly_average, yearly_average
@@ -13,6 +13,13 @@ app.register_blueprint(blueprint)
 app.app_context().push()
 
 migrate = Migrate(app, db)
+
+# Run migrations on run
+def run_migrations():
+    with app.app_context():
+        upgrade()
+
+run_migrations()
 
 @app.shell_context_processor
 def make_shell_context():

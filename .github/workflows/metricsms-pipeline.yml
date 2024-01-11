@@ -121,11 +121,11 @@ jobs:
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
-      - name: Execute Flask-Migrate commands within the pod on test environment
-        run: |
-          POD_NAME=$(oc get pods -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --selector=app=${{ env.APP_NAME }} --output=jsonpath='{.items[0].metadata.name}')
-          echo "Pod Name: $POD_NAME"
-          oc exec $POD_NAME -- sh -c "export FLASK_APP=manage.py && flask db upgrade"
+      # - name: Execute Flask-Migrate commands within the pod on test environment
+      #   run: |
+      #     POD_NAME=$(oc get pods -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --selector=app=${{ env.APP_NAME }} --output=jsonpath='{.items[0].metadata.name}')
+      #     echo "Pod Name: $POD_NAME"
+      #     oc exec $POD_NAME -- sh -c "export FLASK_APP=manage.py && flask db upgrade"
 
 
   build-deploy:
@@ -180,8 +180,8 @@ jobs:
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
 
-      - name: Execute Flask-Migrate commands within the pod on production environment
-        run: |
-          POD_NAME=$(oc get pods -n ${{ env.OPENSHIFT_NAMESPACE }} --selector=app=${{ env.APP_NAME }} --output=jsonpath='{.items[0].metadata.name}')
-          echo "Pod Name: $POD_NAME"
-          oc exec $POD_NAME -- sh -c "export FLASK_APP=manage.py && flask db upgrade"
+      # - name: Execute Flask-Migrate commands within the pod on production environment
+      #   run: |
+      #     POD_NAME=$(oc get pods -n ${{ env.OPENSHIFT_NAMESPACE }} --selector=app=${{ env.APP_NAME }} --output=jsonpath='{.items[0].metadata.name}')
+      #     echo "Pod Name: $POD_NAME"
+      #     oc exec $POD_NAME -- sh -c "export FLASK_APP=manage.py && flask db upgrade"
