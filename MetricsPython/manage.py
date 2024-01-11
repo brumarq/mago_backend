@@ -7,7 +7,9 @@ from app.main import create_app, db
 from app.main.domain.entities import field, log_value, log_collection, log_collection_type, weekly_average, monthly_average, yearly_average
 from app.main.config import env
 
-app = create_app(env or 'prod')
+env = env or 'prod' # if no env, assume its production
+
+app = create_app(env)
 
 app.register_blueprint(blueprint)
 app.app_context().push()
@@ -18,7 +20,7 @@ def run_migrations():
     with app.app_context():
         upgrade()
 
-if not any("pytest" in arg.lower() for arg in sys.argv): #if its a pytest, then ignore the migrations (bc it uses a diff database)
+if not any("pytest" in arg.lower() for arg in sys.argv) and env == 'prod': #if its a pytest or not production, then ignore the migrations (bc it uses a diff database)
     run_migrations()
 
 @app.shell_context_processor
