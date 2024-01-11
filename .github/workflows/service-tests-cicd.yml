@@ -29,5 +29,5 @@ jobs:
       - name: Test
         run: dotnet test ServiceTests/ServiceTests.sln --no-build --verbosity normal
         env:
-          AdminJWTToken: ${{ JWT_ADMIN_TEST_TOKEN }}
-          ClientJWTToken: ${{ JWT_CLIENT_TEST_TOKEN }}
+          AdminJWTToken: ${{ secrets.JWT_ADMIN_TEST_TOKEN }}
+          ClientJWTToken: ${{ secrets.JWT_CLIENT_TEST_TOKEN }}
