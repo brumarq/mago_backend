@@ -14,12 +14,12 @@ app.app_context().push()
 
 migrate = Migrate(app, db)
 
-# Run migrations on run
 def run_migrations():
     with app.app_context():
         upgrade()
 
-run_migrations()
+if not any("pytest" in arg.lower() for arg in sys.argv): #if its a pytest, then ignore the migrations (bc it uses a diff database)
+    run_migrations()
 
 @app.shell_context_processor
 def make_shell_context():
