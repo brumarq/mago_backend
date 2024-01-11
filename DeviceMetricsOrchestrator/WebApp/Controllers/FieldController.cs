@@ -43,7 +43,7 @@ public class FieldController : ControllerBase
         {
             var createField = await _fieldService.CreateFieldAsync(createFieldDTO);
 
-            return Ok(createField);
+            return Created("", createField);
         }
         catch (CustomException ce)
         {

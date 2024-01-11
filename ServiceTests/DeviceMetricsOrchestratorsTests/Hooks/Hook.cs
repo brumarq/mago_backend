@@ -1,6 +1,4 @@
-using System;
 using BoDi;
-using TechTalk.SpecFlow;
 
 namespace DeviceMetricsOrchestratorsTests.Hooks
 {
@@ -18,7 +16,6 @@ namespace DeviceMetricsOrchestratorsTests.Hooks
         public void CreateHttpClient()
         {
             var httpClient = new HttpClient();
-            // Configure your HttpClient here (e.g., headers, base address, etc.)
             _objectContainer.RegisterInstanceAs<HttpClient>(httpClient);
         }
     }
