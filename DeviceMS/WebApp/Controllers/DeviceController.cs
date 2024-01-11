@@ -36,7 +36,7 @@ namespace WebApp.Controllers
 
                 return (newDevice == null)
                     ? StatusCode(500, "The Device could not be created.")
-                    : CreatedAtAction(nameof(GetDeviceByIdAsync), new { id = newDevice.Id }, newDevice);
+                    : CreatedAtAction(nameof(GetDeviceByIdAsync),"Device", new { id = newDevice.Id }, newDevice);
             }
             catch (Exception e)
             {
