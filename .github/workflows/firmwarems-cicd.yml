@@ -199,26 +199,3 @@ jobs:
             oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
-
-  teardown-test-env:
-      runs-on: ubuntu-latest
-      needs: build-deploy
-      name: Teardown Test Environment
-  
-      steps:
-        - name: Log in to Openshift
-          uses: redhat-actions/oc-login@v1
-          with:
-            openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
-            openshift_token: ${{ env.OPENSHIFT_TEST_TOKEN }}
-            insecure_skip_tls_verify: true
-            namespace: ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-  
-        - name: Delete test deployment
-          run: oc delete deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-  
-        - name: Delete test service
-          run: oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-  
-        - name: Delete test route
-          run: oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
