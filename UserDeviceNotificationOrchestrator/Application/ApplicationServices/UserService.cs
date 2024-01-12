@@ -32,8 +32,6 @@ namespace Application.ApplicationServices
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 var response = await _httpClient.SendAsync(request);
                 
-                response.EnsureSuccessStatusCode();
-
                 return response;
             }
             catch (HttpRequestException e)
