@@ -32,7 +32,7 @@ namespace WebApp.Controllers
 
             if (!await _authorizationService.IsDeviceAccessibleToUser(loggedUserId, newSettingDto.DeviceId))
             {
-                return Forbid($"The logged user cannot access this device.");
+                return StatusCode(403, $"The logged in user cannot access device with id {newSettingDto.DeviceId}");
             }
             
             try
@@ -54,13 +54,12 @@ namespace WebApp.Controllers
         [HttpGet("{deviceId}")]
         [Authorize("All")]
         public async Task<ActionResult<IEnumerable<SettingValueResponseDTO>>> GetDeviceSettingsAsync(int deviceId)
-        {
-            
+        {  
             var loggedUserId = _authenticationService.GetUserId();
 
             if (!await _authorizationService.IsDeviceAccessibleToUser(loggedUserId, deviceId))
             {
-                return Forbid($"The logged user cannot access this device.");
+                return StatusCode(403, $"The logged in user cannot access device with id {deviceId}");
             }
             
             if (deviceId <= 0)

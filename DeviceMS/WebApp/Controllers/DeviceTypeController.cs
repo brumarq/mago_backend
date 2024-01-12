@@ -58,10 +58,7 @@ namespace WebApp.Controllers
         [HttpGet("{id}")]
         [Authorize("Admin")]
         public async Task<ActionResult<DeviceTypeResponseDTO>> GetDeviceTypeByIdAsync(int id)
-        {
-            // if (id <= 0)
-            //     return BadRequest();
-            
+        {        
             try
             {
                 var deviceType = await _deviceTypeService.GetDeviceTypeByIdAsync(id);

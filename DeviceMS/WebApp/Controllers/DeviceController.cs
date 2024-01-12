@@ -64,7 +64,7 @@ namespace WebApp.Controllers
 
             if (!await _authorizationService.IsDeviceAccessibleToUser(loggedUserId, id))
             {
-                return Forbid($"The logged in user cannot access this device.");
+                return StatusCode(403, $"The logged in user cannot access device with id {id}");
             }
 
             try
