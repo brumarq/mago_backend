@@ -60,6 +60,9 @@ jobs:
     environment: userms-test
 
     steps:
+      - name: Check Out Repository
+        uses: actions/checkout@v2
+      
       - name: Log in to Openshift
         uses: redhat-actions/oc-login@v1
         with:
