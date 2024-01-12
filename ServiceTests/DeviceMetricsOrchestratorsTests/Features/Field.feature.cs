@@ -101,7 +101,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 4
-        testRunner.Given("the user is not a valid user", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as invalidUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 5
         testRunner.When("the user tries to create a field object for unit id 1 and device type id 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
@@ -141,7 +141,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 9
-        testRunner.Given("the user is logged in as a client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 10
         testRunner.When("the user tries to create a field object for unit id 1 and device type id 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
@@ -181,7 +181,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 14
-        testRunner.Given("the user is logged in as an admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 15
         testRunner.When("the user tries to create a field object for unit id -10 and device type id 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
@@ -221,7 +221,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 19
-        testRunner.Given("the user is logged in as an admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 20
         testRunner.When("the user tries to create a field object for unit id 1 and device type id -10", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
@@ -261,7 +261,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 24
-        testRunner.Given("the user is logged in as an admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 25
         testRunner.When("the user tries to create a field object for unit id 1 and device type id 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");

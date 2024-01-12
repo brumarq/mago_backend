@@ -101,7 +101,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 4
-        testRunner.Given("the user is logged in as an admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 5
         testRunner.When("the user tries to retrieve aggregated logs for Weekly with device id 1 and field " +
@@ -145,7 +145,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 10
-        testRunner.Given("the user is logged in as a client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 11
         testRunner.When("the user tries to retrieve aggregated logs for Monthly with device id 1 and field" +
@@ -189,7 +189,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 16
-        testRunner.Given("the user is logged in as a client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 17
         testRunner.When("the user tries to retrieve aggregated logs for Yearly with device id 1 and field " +
@@ -235,7 +235,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 22
-        testRunner.Given("the user is logged in as an admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 23
         testRunner.When("the user tries to retrieve aggregated logs for Weekly with device id 1 and field " +
@@ -281,7 +281,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 28
-        testRunner.Given("the user is logged in as an admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 29
         testRunner.When("the user tries to retrieve aggregated logs for Monthly with device id 1 and field" +
@@ -325,7 +325,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 34
-        testRunner.Given("the user is logged in as an admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 35
         testRunner.When("the user tries to retrieve aggregated logs for InvalidDate with device id 1 and f" +
@@ -366,7 +366,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 39
-        testRunner.Given("the user is logged in as an admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 40
         testRunner.When("the user tries to retrieve aggregated logs for Weekly with device id -10 and fiel" +
@@ -407,7 +407,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 44
-        testRunner.Given("the user is logged in as an admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 45
         testRunner.When("the user tries to retrieve aggregated logs for Weekly with device id 1 and field " +
@@ -448,7 +448,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 49
-        testRunner.Given("the user is logged in as an admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 50
         testRunner.When("the user tries to retrieve aggregated logs for Weekly with device id 1 and field " +
@@ -489,7 +489,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 54
-        testRunner.Given("the user is logged in as an admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 55
         testRunner.When("the user tries to retrieve aggregated logs for Weekly with device id 1 and field " +
@@ -532,7 +532,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 59
-        testRunner.Given("the user is logged in as a client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 60
         testRunner.When("the user tries to retrieve aggregated logs for Weekly with device id 1 and field " +
@@ -573,7 +573,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 64
-        testRunner.Given("the user is not a valid user", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as invalidUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 65
         testRunner.When("the user tries to retrieve aggregated logs for Weekly with device id 1 and field " +
@@ -614,7 +614,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 69
-        testRunner.Given("the user is logged in as a forbidden client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as forbiddenClient", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 70
         testRunner.When("the user tries to retrieve aggregated logs for Weekly with device id 1 and field " +
