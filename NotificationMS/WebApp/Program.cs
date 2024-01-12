@@ -93,6 +93,11 @@ builder.Configuration.AddEnvironmentVariables();
 var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8282";
 builder.WebHost.UseUrls($"http://*:{httpPort}");
 
+// Migration on boot-up
+var serviceProvider = builder.Services.BuildServiceProvider();
+var context = serviceProvider.GetRequiredService<NotificationsDbContext>();
+context.Database.Migrate();
+
 var app = builder.Build();
 
 app.UseMetricServer(url: "/metrics");
