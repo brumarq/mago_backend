@@ -44,7 +44,7 @@ namespace Application.ApplicationServices
             }
             catch (CustomException e)
             {
-                throw new Exception($"Request failed: {e.Message}");
+                throw new CustomException(e.Message, e.StatusCode);
             }
             catch (HttpRequestException e)
             {
@@ -135,7 +135,7 @@ namespace Application.ApplicationServices
             }
             catch (CustomException e)
             {
-                throw new Exception($"Request failed: {e.Message}");
+                throw new CustomException(e.Message, e.StatusCode);
             }
             catch (HttpRequestException e)
             {
@@ -194,7 +194,7 @@ namespace Application.ApplicationServices
             }
             catch (CustomException e)
             {
-                throw new Exception($"Request failed: {e.Message}");
+                throw new CustomException(e.Message, e.StatusCode);
             }
             catch (HttpRequestException e)
             {
