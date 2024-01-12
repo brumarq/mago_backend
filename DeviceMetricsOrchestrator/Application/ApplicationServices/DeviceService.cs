@@ -40,7 +40,7 @@ public class DeviceService : IDeviceService
         var response = await _httpClient.SendAsync(request);
 
         if (response.StatusCode == HttpStatusCode.Forbidden)
-            throw new ForbiddenException($"This user does not have access to view device {deviceId}");
+            throw new ForbiddenException($"This user doe snot have access to view device {deviceId}");
 
         if (!response.IsSuccessStatusCode || response == null)
             throw new NotFoundException($"Device with id {deviceId} does not exist.");

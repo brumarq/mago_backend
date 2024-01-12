@@ -1,11 +1,8 @@
 using Application.ApplicationServices.Interfaces;
-using Application.DTOs;
 using Application.DTOs.Device;
-using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using Application.Exceptions;
 
 namespace WebApp.Controllers
 {
@@ -67,7 +64,7 @@ namespace WebApp.Controllers
 
             if (!await _authorizationService.IsDeviceAccessibleToUser(loggedUserId, id))
             {
-                return Unauthorized($"The logged user cannot access this device.");
+                return Forbid($"The logged in user cannot access this device.");
             }
 
             try
