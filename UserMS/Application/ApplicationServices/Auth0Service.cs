@@ -113,19 +113,6 @@ public class Auth0Service : IAuth0Service
             await UpdateUserDetailsInAuth0(userId, updateDetails);
         }
 
-        // Check and update the user role if needed
-        var currentRole = await _auth0RolesService.GetRole(userId);
-        var newRoleName = updateUserDto.SysAdmin ? "admin" : "client";
-
-        if (newRoleName != currentRole)
-        {
-            if (!string.IsNullOrEmpty(currentRole))
-            {
-                await _auth0RolesService.UnassignRoleAsync(currentRole, userId);
-            }
-            await _auth0RolesService.AssignRole(newRoleName, userId);
-        }
-
         return await GetUser(userId);
     }
     
