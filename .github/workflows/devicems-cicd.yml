@@ -151,7 +151,6 @@ jobs:
   build-deploy:
     runs-on: ubuntu-20.04
     needs: run-integration-tests
-    # needs: run-integration-test
     name: Deploy to Openshift
     environment: devicems-production
 
