@@ -24,7 +24,10 @@ namespace Application.ApplicationServices
 
         public string GetToken()
         {
-            return _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Split(" ")[1];
+            var header = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(header))
+                throw new BadRequestException("Invalid or missing Authorization header.");
+            return header.Split(" ")[1];
         }
 
         public bool IsLoggedInUser()
