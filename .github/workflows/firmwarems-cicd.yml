@@ -126,31 +126,30 @@ jobs:
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
-  # run-integration-tests:
-  #   name: Integration Tests
-  #   runs-on: ubuntu-latest
+  run-integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-  #     - name: Setup .NET
-  #       uses: actions/setup-dotnet@v3
-  #       with:
-  #         dotnet-version: 6.0.x
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
 
-  #     - name: Restore dependencies
-  #       run: dotnet restore ServiceTests/ServiceTests.sln
+      - name: Restore dependencies
+        run: dotnet restore ServiceTests/ServiceTests.sln
 
-  #     - name: Build
-  #       run: dotnet build ServiceTests/ServiceTests.sln --no-restore
+      - name: Build
+        run: dotnet build ServiceTests/ServiceTests.sln --no-restore
 
-  #     - name: Test
-  #       run: dotnet test ServiceTests/ServiceTests.sln --no-build --verbosity normal
+      - name: Test
+        run: dotnet test ServiceTests/ServiceTests.sln --no-build --verbosity normal
 
   build-deploy:
     runs-on: ubuntu-20.04
-    needs: deploy-test-env
-    # needs: integration-tests
+    needs: run-integration-tests
     name: Deploy to Openshift
     environment: firmwarems-production
 
