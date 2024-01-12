@@ -45,15 +45,18 @@ jobs:
     name: Build and Push Docker Image
     environment: userms-production
     steps:
-      - uses: actions/checkout@v3
-      - uses: redhat-actions/buildah-build@v2
+      - uses: actions/checkout@v3 # Check Out Code
+      - uses: redhat-actions/buildah-build@v2 # Install buildah
         with:
           image: ${{ env.APP_NAME }}
           tags: latest
           dockerfiles: ./UserMS/Dockerfile
           context: ./UserMS/
-      - run: buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
-      - run: buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
+      - name: Login to Docker Registry
+        run: buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
+        
+      - name: Push new image to repository
+        run: buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
         
   deploy-test-env:
     runs-on: ubuntu-20.04
@@ -61,17 +64,20 @@ jobs:
     name: Deploy to Test Environment
     environment: userms-test
     steps:
-      - uses: actions/checkout@v2
-      - uses: redhat-actions/oc-login@v1
+      - uses: actions/checkout@v2 # Check Out Code
+      - uses: redhat-actions/oc-login@v1 # Install OC cli
         with:
           openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
           openshift_token: ${{ env.OPENSHIFT_TEST_TOKEN }}
           insecure_skip_tls_verify: true
           namespace: ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-      - run: |
+      - name: Deploy to test environment 
+        run: |
           oc apply -f ./oc-deployments/user-microservice.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
           oc rollout status deployment/user-microservice -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
+      - name: Set environment variables 
+        run: |
           oc set env deployment/${{ env.APP_NAME }} \
           Auth0__Domain=${{ env.AUTH0_TEST_DOMAIN }} \
           Auth0__Audience=${{ env.AUTH0_TEST_AUDIENCE }} \
@@ -85,11 +91,15 @@ jobs:
           Auth0-Roles__client=${{ secrets.AUTH0_ROLE_CLIENT }} \
           OrchestratorApiKey=${{ secrets.ORCHESTRATORAPIKEY }}
 
+      - name: Create service if non-existent
+        run: |
           SERVICE_EXISTS=$(oc get svc user-microservice-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
           if [ -z "$SERVICE_EXISTS" ]; then
             oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
           fi
 
+      - name: Create oute if non-existent
+        run: |    
           ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
           if [ -z "$ROUTE_EXISTS" ]; then
             oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
@@ -100,13 +110,16 @@ jobs:
     needs: deploy-test-env
     name: Execute Integration Tests
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-dotnet@v3
+      - uses: actions/checkout@v3 # Check Out Code
+      - uses: actions/setup-dotnet@v3 # Setup .NET Environment
         with:
           dotnet-version: 6.0.x
-      - run: dotnet restore ServiceTests/ServiceTests.sln
-      - run: dotnet build ServiceTests/ServiceTests.sln --no-restore
-      - run: dotnet test ServiceTests/ServiceTests.sln --no-build --verbosity normal
+      - name: Restore .NET Dependencies
+        run: dotnet restore ServiceTests/ServiceTests.sln
+      - name: Build .NET Project
+        run: dotnet build ServiceTests/ServiceTests.sln --no-restore
+      - name: Run .NET Integration Tests
+        run: dotnet test ServiceTests/ServiceTests.sln --no-build --verbosity normal
         env:
           AdminJWTToken: ${{ secrets.JWT_ADMIN_TEST_TOKEN }}
           ClientJWTToken: ${{ secrets.JWT_CLIENT_TEST_TOKEN }}
@@ -131,6 +144,8 @@ jobs:
           oc apply -f ./oc-deployments/user-microservice.yaml -n ${{ env.OPENSHIFT_NAMESPACE }}
           oc rollout status deployment/user-microservice -n ${{ env.OPENSHIFT_NAMESPACE }}
 
+      - name: Set environment variables 
+        run: |
           oc set env deployment/${{ env.APP_NAME }} \
           Auth0__Domain=${{ env.AUTH0_DOMAIN }} \
           Auth0__Audience=${{ env.AUTH0_AUDIENCE }} \
@@ -144,11 +159,15 @@ jobs:
           Auth0-Roles__client=${{ secrets.AUTH0_ROLE_CLIENT }} \
           OrchestratorApiKey=${{ secrets.ORCHESTRATORAPIKEY }}
 
+      - name: Create service if non-existent
+        run: |
           SERVICE_EXISTS=$(oc get svc user-microservice-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
           if [ -z "$SERVICE_EXISTS" ]; then
             oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
           fi
 
+      - name: Create oute if non-existent
+        run: |   
           ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
           if [ -z "$ROUTE_EXISTS" ]; then
             oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
