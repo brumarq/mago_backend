@@ -147,6 +147,11 @@ jobs:
 
       - name: Test
         run: dotnet test ServiceTests/ServiceTests.sln --no-build --verbosity normal
+        env:
+          AdminJWTToken: ${{ secrets.JWT_ADMIN_TEST_TOKEN }}
+          ClientJWTToken: ${{ secrets.JWT_CLIENT_TEST_TOKEN }}
+          ForbiddenClientJWTToken: ${{ secrets.JWT_CLIENT_FORBIDDEN_TEST_TOKEN }}
+          InvalidToken: ${{secrets.JWT_INVALID_TEST_TOKEN}}
 
   build-deploy:
     runs-on: ubuntu-20.04
