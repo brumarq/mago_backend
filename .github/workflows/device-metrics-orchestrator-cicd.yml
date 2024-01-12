@@ -73,6 +73,7 @@ jobs:
     - name: Push image to Docker Hub
       run: |
         buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
+        
   deploy-test-env:
     runs-on: ubuntu-20.04
     needs: docker-upload
