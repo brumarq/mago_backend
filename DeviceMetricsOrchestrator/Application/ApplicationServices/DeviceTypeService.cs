@@ -39,8 +39,8 @@ namespace Application.ApplicationServices
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
             var response = await _httpClient.SendAsync(request);
 
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
-                throw new UnauthorizedException($"This user does not have access to view device type {deviceTypeId}");
+            if (response.StatusCode == HttpStatusCode.Forbidden)
+                throw new ForbiddenException($"This user does not have access to view device type {deviceTypeId}");
 
             if (!response.IsSuccessStatusCode || response == null)
                 throw new NotFoundException($"Device type with id {deviceTypeId} does not exist.");
