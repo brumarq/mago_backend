@@ -40,15 +40,14 @@ namespace ServiceTests.Steps
             _httpClient.BaseAddress = new Uri(baseUrl);
         }
         
-        [Given(@"I am logged in as (admin|client1|client2|client3)")]
+        [Given(@"I am logged in as (admin|client|forbiddenClient)")]
         public void GivenIAmLoggedInAs(string role)
         {
             var tokenKey = role switch
             {
                 "admin" => "AdminJWTToken",
-                "client1" => "Client1JWTToken",
-                "client2" => "Client2JWTToken",
-                "client3" => "Client3JWTToken",
+                "client" => "ClientJWTToken",
+                "forbiddenClient" => "ForbiddenClientJWTToken",
                 _ => throw new InvalidOperationException($"Unrecognized role: {role}")
             };
 

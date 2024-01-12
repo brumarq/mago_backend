@@ -19,7 +19,7 @@ Feature: Device
         Then the response code should be 200
         
     Scenario: 3. Assign user to device as client
-        Given I am logged in as client1
+        Given I am logged in as client
         Given the request is set to User Device Notification Orchestrator
         When a post request is made to /orchestrator/device/user-on-device with payload:
         """
@@ -31,7 +31,7 @@ Feature: Device
         Then the response code should be 403
     
     Scenario: 4. Un-assign user to device as a client
-        Given I am logged in as client1
+        Given I am logged in as client
         Given the request is set to User Device Notification Orchestrator
         When a delete request is made to /orchestrator/device/user-on-device/auth0%7C65a132fad4b8f0d7b40e6e8a/5
         Then the response code should be 403

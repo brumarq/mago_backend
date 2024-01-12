@@ -147,7 +147,7 @@ namespace ServiceTests.Features
             {
                 this.ScenarioStart();
 #line 11
-        testRunner.Given("I am logged in as client3", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("I am logged in as client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 12
         testRunner.Given("the request is set to User Device Notification Orchestrator", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
@@ -193,7 +193,7 @@ namespace ServiceTests.Features
             {
                 this.ScenarioStart();
 #line 18
-        testRunner.Given("I am logged in as client1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("I am logged in as forbiddenClient", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 19
         testRunner.Given("the request is set to User Device Notification Orchestrator", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
@@ -368,7 +368,7 @@ namespace ServiceTests.Features
             {
                 this.ScenarioStart();
 #line 43
-        testRunner.Given("I am logged in as client3", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("I am logged in as client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 44
         testRunner.Given("the request is set to User Device Notification Orchestrator", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
@@ -411,7 +411,7 @@ namespace ServiceTests.Features
             {
                 this.ScenarioStart();
 #line 49
-        testRunner.Given("I am logged in as client1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("I am logged in as forbiddenClient", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 50
         testRunner.Given("the request is set to User Device Notification Orchestrator", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");

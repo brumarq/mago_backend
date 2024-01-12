@@ -8,14 +8,14 @@
         And an item with id 1 should exist
     
     Scenario: Retrieve notifications for Device as client
-        Given I am logged in as client3
+        Given I am logged in as client
         Given the request is set to User Device Notification Orchestrator
         When a get request is made to /orchestrator/notification/device/1
         Then the response code should be 200
         And an item with id 1 should exist
         
     Scenario: Retrieve notifications for Device as client unauthorized
-        Given I am logged in as client1
+        Given I am logged in as forbiddenClient
         Given the request is set to User Device Notification Orchestrator
         When a get request is made to /orchestrator/notification/device/1
         Then the response code should be 401
@@ -40,13 +40,13 @@
         Then the response code should be 404
         
     Scenario: Retrieve notification that exists as client
-        Given I am logged in as client3
+        Given I am logged in as client
         Given the request is set to User Device Notification Orchestrator
         When a get request is made to /orchestrator/notification/1
         Then the response code should be 200
     
     Scenario: Retrieve notification that exists as client unauthorized
-        Given I am logged in as client1
+        Given I am logged in as forbiddenClient
         Given the request is set to User Device Notification Orchestrator
         When a get request is made to /orchestrator/notification/1
         Then the response code should be 403
