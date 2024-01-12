@@ -1,4 +1,4 @@
-from flask import request, _request_ctx_stack, abort
+from flask import request, abort
 from flask.globals import request_ctx
 from six.moves.urllib.request import urlopen
 from functools import wraps
@@ -59,8 +59,9 @@ def requires_auth(f):
                 abort(401, "Incorrect claims: please check the audience and issuer")
             except Exception:
                 abort(401, "Unable to parse authentication token")
-
-            _request_ctx_stack.top.current_user = payload
+            
+            ctx = request_ctx
+            ctx.current_user = payload
             return f(*args, **kwargs)
         abort(401, "Unable to find appropriate key")
     return decorated

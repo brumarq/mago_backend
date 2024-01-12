@@ -1,0 +1,33 @@
+name: Integration Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "ServiceTests/**/*"
+
+jobs:
+  run-integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore ServiceTests/ServiceTests.sln
+
+      - name: Build
+        run: dotnet build ServiceTests/ServiceTests.sln --no-restore
+
+      - name: Test
+        run: dotnet test ServiceTests/ServiceTests.sln --no-build --verbosity normal
+        env:
+          AdminJWTToken: ${{ secrets.JWT_ADMIN_TEST_TOKEN }}
+          ClientJWTToken: ${{ secrets.JWT_CLIENT_TEST_TOKEN }}

@@ -18,7 +18,8 @@ namespace WebApp.Controllers
         private readonly IAuthorizationsService _authorizationService;
 
 
-        public DeviceController(IDeviceService deviceService, IAuthenticationService authenticationService, IAuthorizationsService authorizationService)
+        public DeviceController(IDeviceService deviceService, IAuthenticationService authenticationService,
+            IAuthorizationsService authorizationService)
         {
             _deviceService = deviceService;
             _authenticationService = authenticationService;
@@ -35,8 +36,7 @@ namespace WebApp.Controllers
 
                 return (newDevice == null)
                     ? StatusCode(500, "The Device could not be created.")
-                    : Ok(newDevice);
-                //TODO: replace OK with CreatedAtAction(nameof(GetDeviceByIdAsync), new { id = newDevice.Id }, newDevice);
+                    : Created("", newDevice);
             }
             catch (Exception e)
             {
@@ -69,31 +69,17 @@ namespace WebApp.Controllers
             {
                 return Unauthorized($"The logged user cannot access this device.");
             }
-            
+
             try
             {
                 var device = await _deviceService.GetDeviceByIdAsync(id);
-                return (device == null) ? NotFound() : Ok(device);
+                return (device == null) ? NotFound("The selected device does not exist") : Ok(device);
             }
             catch (Exception e)
             {
                 return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
-
-        // [HttpGet("exists/{deviceId}")]
-        // public async Task<ActionResult<bool>> DeviceExists(int deviceId)
-        // {
-        //     try
-        //     {
-        //         var deviceExists = await _deviceService.DeviceExistsAsync(deviceId);
-        //         return (!deviceExists) ? NotFound() : Ok(deviceExists);
-        //     }
-        //     catch (Exception e)
-        //     {
-        //         return StatusCode(500, $"Internal server error: {e.Message}");
-        //     }
-        // }
 
         [HttpPut("{id}")]
         [Authorize("Admin")]
@@ -117,7 +103,7 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
-        
+
         private string? GetUserId()
         {
             return User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -127,7 +113,5 @@ namespace WebApp.Controllers
         {
             return User.HasClaim(c => c.Type == "permissions" && c.Value == permission);
         }
-
     }
-    
 }

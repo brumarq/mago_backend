@@ -25,6 +25,8 @@ env:
   OPENSHIFT_TEST_NAMESPACE: mago-backend-test
   APP_NAME: metrics-microservice
   APP_PORT: 5000
+  # METRICS_DB_CONNECTION_STRING_SQLALCHEMY: "MagoDBAdmin:Test123*@test-mago-database-server.database.windows.net:1433/MetricsDB?driver=ODBC+Driver+18+for+SQL+Server"
+  # FLASK_APP: manage:app
 
 jobs:
   flask-app-unit-tests:
@@ -104,7 +106,7 @@ jobs:
           fi
 
           oc set env deployment/${{ env.APP_NAME }} \
-          METRICS_DB_CONNECTION_STRING_SQLALCHEMY=${{ secrets.METRICS_DB_CONNECTION_STRING_SQLALCHEMY }} \
+          METRICS_DB_CONNECTION_STRING_SQLALCHEMY="MagoDBAdmin:Test123*@test-mago-database-server.database.windows.net:1433/MetricsDB?driver=ODBC+Driver+18+for+SQL+Server" \
           AUTH0_DOMAIN=${{ env.AUTH0_TEST_DOMAIN }} \
           AUTH0_AUDIENCE=${{ env.AUTH0_TEST_AUDIENCE }}
 
@@ -118,6 +120,13 @@ jobs:
             oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+
+      # - name: Execute Flask-Migrate commands within the pod on test environment
+      #   run: |
+      #     POD_NAME=$(oc get pods -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --selector=app=${{ env.APP_NAME }} --output=jsonpath='{.items[0].metadata.name}')
+      #     echo "Pod Name: $POD_NAME"
+      #     oc exec $POD_NAME -- sh -c "export FLASK_APP=manage.py && flask db upgrade"
+
 
   build-deploy:
     runs-on: ubuntu-20.04
@@ -170,3 +179,9 @@ jobs:
             oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      # - name: Execute Flask-Migrate commands within the pod on production environment
+      #   run: |
+      #     POD_NAME=$(oc get pods -n ${{ env.OPENSHIFT_NAMESPACE }} --selector=app=${{ env.APP_NAME }} --output=jsonpath='{.items[0].metadata.name}')
+      #     echo "Pod Name: $POD_NAME"
+      #     oc exec $POD_NAME -- sh -c "export FLASK_APP=manage.py && flask db upgrade"

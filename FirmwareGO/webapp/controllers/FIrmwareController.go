@@ -65,10 +65,12 @@ func (controller *FirmwareController) CreateFirmwareFileSend(context *gin.Contex
 	result, err := controller.FirmwareService.CreateFileSend(context, createFileSendDTO)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"Internal server error": err.Error()})
+		return
 	}
 
 	if result == nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"Internal server error": "The Firmware Record could not be created."})
+		return
 	}
 
 	context.JSON(http.StatusCreated, result)
