@@ -1,17 +1,13 @@
-﻿using System.Net.Http;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
-using TechTalk.SpecFlow;
 using Microsoft.Extensions.Configuration;
 
 namespace ServiceTests.Steps
 {
     [Binding]
-    [Scope(Feature = "Notifications")]
-    public sealed class NotificationSteps
+    public sealed class Steps
     {
         private readonly ScenarioContext _scenarioContext;
         private readonly HttpClient _httpClient;
@@ -20,12 +16,11 @@ namespace ServiceTests.Steps
         private HttpResponseMessage _lastResponse;
         private static IConfiguration _configuration;
 
-        public NotificationSteps(ScenarioContext scenarioContext, HttpClient httpClient, IConfiguration configuration)
+        public Steps(ScenarioContext scenarioContext, HttpClient httpClient, IConfiguration configuration)
         {
             _scenarioContext = scenarioContext;
             _httpClient = httpClient;
             _configuration = configuration;
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _configuration["AdminJWTToken"]);
         }
 
         [Given(@"the request is set to User Device Notification Orchestrator")]
@@ -43,6 +38,28 @@ namespace ServiceTests.Steps
             }
 
             _httpClient.BaseAddress = new Uri(baseUrl);
+        }
+        
+        [Given(@"I am logged in as (admin|client1|client2|client3)")]
+        public void GivenIAmLoggedInAs(string role)
+        {
+            var tokenKey = role switch
+            {
+                "admin" => "AdminJWTToken",
+                "client1" => "Client1JWTToken",
+                "client2" => "Client2JWTToken",
+                "client3" => "Client3JWTToken",
+                _ => throw new InvalidOperationException($"Unrecognized role: {role}")
+            };
+
+            var token = _configuration[tokenKey];
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new InvalidOperationException($"JWT token for role '{role}' is not set in the appsettings.json file.");
+            }
+
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            _scenarioContext["AuthToken"] = token;
         }
 
         [When(@"a get request is made to (.*)")]
@@ -67,6 +84,19 @@ namespace ServiceTests.Steps
                 var jsonContent = new StringContent(payload, Encoding.UTF8, "application/json");
                 _lastResponse = await _httpClient.PostAsync(endpoint, jsonContent);
                 ProcessResponse();
+            }
+            catch (HttpRequestException e)
+            {
+                _scenarioContext["error"] = e.Message;
+            }
+        }
+        
+        [When(@"a delete request is made to (.*)")]
+        public async Task WhenDeleteRequestIsMade(string endpoint)
+        {
+            try
+            {
+                _lastResponse = await _httpClient.DeleteAsync(endpoint);
             }
             catch (HttpRequestException e)
             {
