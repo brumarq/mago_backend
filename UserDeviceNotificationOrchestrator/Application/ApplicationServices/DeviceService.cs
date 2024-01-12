@@ -81,7 +81,7 @@ namespace Application.ApplicationServices
 
         public async Task<IEnumerable<UserOnDeviceResponseDTO>> GetUserOnDeviceEntryByUserId(string userId)
         {
-            _userService.CheckUserExistence(userId);
+            await _userService.CheckUserExistence(userId);
 
             var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUriUserOnDevice}{userId}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
