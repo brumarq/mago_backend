@@ -20,50 +20,41 @@ public sealed class DeviceMetricsStepDefinitions
     private List<DeviceMetricsResponseDTO> deviceMetricsList = new List<DeviceMetricsResponseDTO>();
     private List<DeviceAggregatedLogsResponseDTO> aggregatedLogsList = new List<DeviceAggregatedLogsResponseDTO>();
 
-    private static IConfiguration? _configuration;
+    private static IConfiguration _configuration;
 
-    [BeforeTestRun]
-    public static void InitializeConfiguration()
+    public DeviceMetricsStepDefinitions(IConfiguration configuration, HttpClient httpClient)
     {
-        _configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddEnvironmentVariables()
-            .Build();
-    }
-
-    public DeviceMetricsStepDefinitions(HttpClient httpClient)
-    {
+        _configuration = configuration;
         _httpClient = httpClient;
         _httpClient.BaseAddress = new Uri(_configuration["DeviceMetricsUrl"]!);
     }
 
-
-    [Given(@"the user is logged in as an admin")]
-    public void GivenTheUserIsLoggedInAsAnAdmin()
+    [Given(@"the user is logged in as (admin|client|forbiddenClient|invalidUser)")]
+    public void GivenTheUserIsLoggedInAsX(string role)
     {
-        _httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", _configuration["AdminJWTToken"]);
-    }
+        var tokenKeyName = "";
+        switch (role)
+        {
+            case "admin":
+                tokenKeyName = "AdminJWTToken";
+                break;
+            case "client":
+                tokenKeyName = "ClientJWTToken";
+                break;
+            case "forbiddenClient":
+                tokenKeyName = "ForbiddenClientJWTToken";
+                break;
+            case "invalidUser":
+                tokenKeyName = "InvalidToken";
+                break;
+            default:
+                throw new InvalidOperationException("Invalid role provided");
+        }
 
-    [Given(@"the user is logged in as a client")]
-    public void GivenTheUserIsLoggedInAsAClient()
-    {
-        _httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", _configuration["ClientJWTToken"]);
-    }
+        var token = _configuration[tokenKeyName];
 
-    [Given(@"the user is logged in as a forbidden client")]
-    public void GivenTheUserIsLoggedInAsAForbiddenClient()
-    {
         _httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", _configuration["ForbiddenClientJWTToken"]);
-    }
-
-    [Given(@"the user is not a valid user")]
-    public void GivenTheUserIsNotAValidUser()
-    {
-        _httpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", _configuration["InvalidToken"]);
+            new AuthenticationHeaderValue("Bearer", token);
     }
 
     [When(@"the user tries to create a field object for unit id (.*) and device type id (.*)")]

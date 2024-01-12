@@ -101,7 +101,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 6
-        testRunner.Given("the user is logged in as an admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 7
         testRunner.When("the user tries to retrieve latest device metrics for device id 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
@@ -144,7 +144,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 12
-        testRunner.Given("the user is logged in as a client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 13
         testRunner.When("the user tries to retrieve latest device metrics for device id 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
@@ -187,7 +187,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 18
-        testRunner.Given("the user is not a valid user", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as invalidUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 19
         testRunner.When("the user tries to retrieve latest device metrics for device id 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
@@ -229,7 +229,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 23
-        testRunner.Given("the user is logged in as a client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 24
         testRunner.When("the user tries to retrieve latest device metrics for device id -10", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
@@ -269,7 +269,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 28
-        testRunner.Given("the user is logged in as a forbidden client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as forbiddenClient", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 29
         testRunner.When("the user tries to retrieve latest device metrics for device id 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
