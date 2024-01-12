@@ -15,7 +15,7 @@ class MetricsService(BaseMetricsService):
         if not (has_required_permission("client") or has_required_permission("admin")):
             abort(401, "This user does not have sufficient permissions")
 
-        if device_id == 0 or device_id < 0:
+        if device_id <= 0:
             abort(400, "Device id cannot be 0 or negative!")
 
         device_metrics = self.metrics_repository.get_latest_log_values_by_device_id(device_id)
