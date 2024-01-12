@@ -20,22 +20,22 @@ namespace DeviceMetricsOrchestratorsTests.Features
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "3.9.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [NUnit.Framework.TestFixtureAttribute()]
-    [NUnit.Framework.DescriptionAttribute("Metrics")]
-    public partial class MetricsFeature
+    [NUnit.Framework.DescriptionAttribute("Field")]
+    public partial class FieldFeature
     {
         
         private TechTalk.SpecFlow.ITestRunner testRunner;
         
         private string[] _featureTags = ((string[])(null));
         
-#line 1 "Metrics.feature"
+#line 1 "Field.feature"
 #line hidden
         
         [NUnit.Framework.OneTimeSetUpAttribute()]
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "Metrics", null, ProgrammingLanguage.CSharp, ((string[])(null)));
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Features", "Field", null, ProgrammingLanguage.CSharp, ((string[])(null)));
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -74,13 +74,13 @@ namespace DeviceMetricsOrchestratorsTests.Features
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Retrieving latest device metrics as an admin")]
-        public virtual void RetrievingLatestDeviceMetricsAsAnAdmin()
+        [NUnit.Framework.DescriptionAttribute("Creating a field as a an invalid user")]
+        public virtual void CreatingAFieldAsAAnInvalidUser()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Retrieving latest device metrics as an admin", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
-#line 5
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Creating a field as a an invalid user", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
+#line 3
     this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -100,99 +100,13 @@ namespace DeviceMetricsOrchestratorsTests.Features
             else
             {
                 this.ScenarioStart();
-#line 6
-        testRunner.Given("the user is logged in as an admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line hidden
-#line 7
-        testRunner.When("the user tries to retrieve latest device metrics for device id 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-#line hidden
-#line 8
-        testRunner.Then("the response should return 200", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
-#line hidden
-#line 9
-        testRunner.And("the response should return a list of latest device metrics with 2 entries", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line hidden
-            }
-            this.ScenarioCleanup();
-        }
-        
-        [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Retrieving latest device metrics as a client owner of device")]
-        public virtual void RetrievingLatestDeviceMetricsAsAClientOwnerOfDevice()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Retrieving latest device metrics as a client owner of device", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
-#line 11
-    this.ScenarioInitialize(scenarioInfo);
-#line hidden
-            bool isScenarioIgnored = default(bool);
-            bool isFeatureIgnored = default(bool);
-            if ((tagsOfScenario != null))
-            {
-                isScenarioIgnored = tagsOfScenario.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
-            }
-            if ((this._featureTags != null))
-            {
-                isFeatureIgnored = this._featureTags.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
-            }
-            if ((isScenarioIgnored || isFeatureIgnored))
-            {
-                testRunner.SkipScenario();
-            }
-            else
-            {
-                this.ScenarioStart();
-#line 12
-        testRunner.Given("the user is logged in as a client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line hidden
-#line 13
-        testRunner.When("the user tries to retrieve latest device metrics for device id 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-#line hidden
-#line 14
-        testRunner.Then("the response should return 200", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
-#line hidden
-#line 15
-        testRunner.And("the response should return a list of latest device metrics with 2 entries", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line hidden
-            }
-            this.ScenarioCleanup();
-        }
-        
-        [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Retrieving latest device metrics as an invalid user")]
-        public virtual void RetrievingLatestDeviceMetricsAsAnInvalidUser()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Retrieving latest device metrics as an invalid user", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
-#line 17
-    this.ScenarioInitialize(scenarioInfo);
-#line hidden
-            bool isScenarioIgnored = default(bool);
-            bool isFeatureIgnored = default(bool);
-            if ((tagsOfScenario != null))
-            {
-                isScenarioIgnored = tagsOfScenario.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
-            }
-            if ((this._featureTags != null))
-            {
-                isFeatureIgnored = this._featureTags.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
-            }
-            if ((isScenarioIgnored || isFeatureIgnored))
-            {
-                testRunner.SkipScenario();
-            }
-            else
-            {
-                this.ScenarioStart();
-#line 18
+#line 4
         testRunner.Given("the user is not a valid user", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 19
-        testRunner.When("the user tries to retrieve latest device metrics for device id 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 5
+        testRunner.When("the user tries to create a field object for unit id 1 and device type id 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 20
+#line 6
         testRunner.Then("the response should return 401", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
@@ -200,15 +114,13 @@ namespace DeviceMetricsOrchestratorsTests.Features
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Retrieving latest device metrics as a client owner of device with invalid device " +
-            "id")]
-        public virtual void RetrievingLatestDeviceMetricsAsAClientOwnerOfDeviceWithInvalidDeviceId()
+        [NUnit.Framework.DescriptionAttribute("Creating a field as a client")]
+        public virtual void CreatingAFieldAsAClient()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Retrieving latest device metrics as a client owner of device with invalid device " +
-                    "id", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
-#line 22
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Creating a field as a client", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
+#line 8
     this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -228,13 +140,53 @@ namespace DeviceMetricsOrchestratorsTests.Features
             else
             {
                 this.ScenarioStart();
-#line 23
+#line 9
         testRunner.Given("the user is logged in as a client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 24
-        testRunner.When("the user tries to retrieve latest device metrics for device id -10", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 10
+        testRunner.When("the user tries to create a field object for unit id 1 and device type id 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 25
+#line 11
+        testRunner.Then("the response should return 403", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Creating a field as an admin for invalid unit id")]
+        public virtual void CreatingAFieldAsAnAdminForInvalidUnitId()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Creating a field as an admin for invalid unit id", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
+#line 13
+    this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            bool isScenarioIgnored = default(bool);
+            bool isFeatureIgnored = default(bool);
+            if ((tagsOfScenario != null))
+            {
+                isScenarioIgnored = tagsOfScenario.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
+            }
+            if ((this._featureTags != null))
+            {
+                isFeatureIgnored = this._featureTags.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
+            }
+            if ((isScenarioIgnored || isFeatureIgnored))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 14
+        testRunner.Given("the user is logged in as an admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line hidden
+#line 15
+        testRunner.When("the user tries to create a field object for unit id -10 and device type id 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 16
         testRunner.Then("the response should return 404", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
@@ -242,13 +194,13 @@ namespace DeviceMetricsOrchestratorsTests.Features
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Retrieving latest device metrics as a client that does not own the device")]
-        public virtual void RetrievingLatestDeviceMetricsAsAClientThatDoesNotOwnTheDevice()
+        [NUnit.Framework.DescriptionAttribute("Creating a field as an admin for invalid device type id")]
+        public virtual void CreatingAFieldAsAnAdminForInvalidDeviceTypeId()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Retrieving latest device metrics as a client that does not own the device", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
-#line 27
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Creating a field as an admin for invalid device type id", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
+#line 18
     this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -268,14 +220,57 @@ namespace DeviceMetricsOrchestratorsTests.Features
             else
             {
                 this.ScenarioStart();
-#line 28
-        testRunner.Given("the user is logged in as a forbidden client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 19
+        testRunner.Given("the user is logged in as an admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 29
-        testRunner.When("the user tries to retrieve latest device metrics for device id 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 20
+        testRunner.When("the user tries to create a field object for unit id 1 and device type id -10", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 30
-        testRunner.Then("the response should return 403", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line 21
+        testRunner.Then("the response should return 404", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Creating a field as an admin")]
+        public virtual void CreatingAFieldAsAnAdmin()
+        {
+            string[] tagsOfScenario = ((string[])(null));
+            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Creating a field as an admin", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
+#line 23
+    this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            bool isScenarioIgnored = default(bool);
+            bool isFeatureIgnored = default(bool);
+            if ((tagsOfScenario != null))
+            {
+                isScenarioIgnored = tagsOfScenario.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
+            }
+            if ((this._featureTags != null))
+            {
+                isFeatureIgnored = this._featureTags.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
+            }
+            if ((isScenarioIgnored || isFeatureIgnored))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 24
+        testRunner.Given("the user is logged in as an admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line hidden
+#line 25
+        testRunner.When("the user tries to create a field object for unit id 1 and device type id 1", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 26
+        testRunner.Then("the response should return 201", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+#line 27
+        testRunner.And("the created field object should be returned", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             }
             this.ScenarioCleanup();

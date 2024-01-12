@@ -7,6 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <SpecFlowObsoleteCodeBehindFiles Remove="Features\Metrics - Copy.feature.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Using Include="TechTalk.SpecFlow" />
     </ItemGroup>
 
@@ -29,12 +33,32 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Features\Field.feature.cs">
+	    <DependentUpon>Field.feature</DependentUpon>
+	  </Compile>
+	  <Compile Update="Features\AggregatedLogs.feature.cs">
+	    <DependentUpon>AggregatedLogs.feature</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Update="appsettings.Development.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	  <None Update="appsettings.json">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <SpecFlowFeatureFiles Update="Features\Field.feature">
+	    <Visible>$(UsingMicrosoftNETSdk)</Visible>
+	    <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>
+	  </SpecFlowFeatureFiles>
+	  <SpecFlowFeatureFiles Update="Features\AggregatedLogs.feature">
+	    <Visible>$(UsingMicrosoftNETSdk)</Visible>
+	    <CodeBehindFile>%(RelativeDir)%(Filename).feature$(DefaultLanguageSourceExtension)</CodeBehindFile>
+	  </SpecFlowFeatureFiles>
 	</ItemGroup>
 
 </Project>

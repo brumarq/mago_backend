@@ -5,18 +5,20 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
+using TestDomain.Metrics;
 using TestDomain.Metrics.Field;
 
 namespace DeviceMetricsOrchestratorsTests.Steps;
 
 [Binding]
-public sealed class MetricsStepDefinitions
+public sealed class DeviceMetricsStepDefinitions
 {
     private HttpClient _httpClient;
     private HttpResponseMessage _httpResponseMessage;
-    private readonly ScenarioContext _scenarioContext;
 
     private CreateFieldDTO createdFieldObject = new CreateFieldDTO();
+    private List<DeviceMetricsResponseDTO> deviceMetricsList = new List<DeviceMetricsResponseDTO>();
+    private List<DeviceAggregatedLogsResponseDTO> aggregatedLogsList = new List<DeviceAggregatedLogsResponseDTO>();
 
     private static IConfiguration? _configuration;
 
@@ -29,11 +31,10 @@ public sealed class MetricsStepDefinitions
             .Build();
     }
 
-    public MetricsStepDefinitions(ScenarioContext scenarioContext, HttpClient httpClient)
+    public DeviceMetricsStepDefinitions(HttpClient httpClient)
     {
         _httpClient = httpClient;
         _httpClient.BaseAddress = new Uri(_configuration["DeviceMetricsUrl"]!);
-        _scenarioContext = scenarioContext;
     }
 
 
@@ -47,9 +48,22 @@ public sealed class MetricsStepDefinitions
     [Given(@"the user is logged in as a client")]
     public void GivenTheUserIsLoggedInAsAClient()
     {
-        // Add JWT token for role client to the request headers
         _httpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", _configuration["ClientJWTToken"]);
+    }
+
+    [Given(@"the user is logged in as a forbidden client")]
+    public void GivenTheUserIsLoggedInAsAForbiddenClient()
+    {
+        _httpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", _configuration["ForbiddenClientJWTToken"]);
+    }
+
+    [Given(@"the user is not a valid user")]
+    public void GivenTheUserIsNotAValidUser()
+    {
+        _httpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", _configuration["InvalidToken"]);
     }
 
     [When(@"the user tries to create a field object for unit id (.*) and device type id (.*)")]
@@ -74,6 +88,38 @@ public sealed class MetricsStepDefinitions
 
         var response = await _httpResponseMessage.Content.ReadFromJsonAsync<CreateFieldDTO>();
         createdFieldObject = response!;
+    }
+
+    [When(@"the user tries to retrieve latest device metrics for device id (.*)")]
+    public async Task WhenTheUserTriesToRetrieveLatestDeviceMetricsForDevice(int deviceId)
+    {
+        _httpResponseMessage = await _httpClient.GetAsync($"/orchestrate/device-metrics/DeviceMetrics/{deviceId}");
+
+        if (_httpResponseMessage.StatusCode != HttpStatusCode.OK)
+            return;
+
+        var response = await _httpResponseMessage.Content.ReadFromJsonAsync<IEnumerable<DeviceMetricsResponseDTO>>();
+        deviceMetricsList = response.ToList()!;
+    }
+
+    [When(@"the user tries to retrieve aggregated logs for (.*) with device id (.*) and field id (.*) and startDate (.*) and endDate (.*)")]
+    public async Task WhenTheUserTriesToRetrieveAggregatedLogsForXWithDeviceIdXAndFieldIdXAndStartDateXAndEndDateX(string aggregatedLogsDateType, int deviceId, int fieldId, string startDate, string endDate)
+    {
+        if (startDate.Equals("empty"))
+            startDate = "";
+        if (endDate.Equals("empty"))
+            endDate = "";
+
+        if (!string.IsNullOrEmpty(startDate) || !string.IsNullOrEmpty(endDate))
+            _httpResponseMessage = await _httpClient.GetAsync($"/orchestrate/device-metrics/DeviceMetrics/{aggregatedLogsDateType}/{deviceId}/{fieldId}?startDate={startDate}&endDate={endDate}");
+        else
+            _httpResponseMessage = await _httpClient.GetAsync($"/orchestrate/device-metrics/DeviceMetrics/{aggregatedLogsDateType}/{deviceId}/{fieldId}");
+
+        if (_httpResponseMessage.StatusCode != HttpStatusCode.OK)
+            return;
+
+        var response = await _httpResponseMessage.Content.ReadFromJsonAsync<IEnumerable<DeviceAggregatedLogsResponseDTO>>();
+        aggregatedLogsList = response.ToList()!;
     }
 
     [Then(@"the response should return (.*)")]
@@ -103,5 +149,19 @@ public sealed class MetricsStepDefinitions
     public void AndTheCreatedFieldObjectShouldBeReturned()
     {
         Assert.IsNotNull(createdFieldObject);
+    }
+
+    [Then(@"the response should return a list of latest device metrics with (.*) entries")]
+    public void AndTheResponseShouldReturnAListOfLatestDeviceMetricsWithXEntries(int nrOfEntries)
+    {
+        Assert.IsNotNull(deviceMetricsList);
+        Assert.AreEqual(deviceMetricsList.Count, nrOfEntries);
+    }
+
+    [Then(@"the response should return a list of aggregated logs with (.*) entries")]
+    public void AndTheResponseShouldReturnAListOfAggregatedLogsWithXEntries(int nrOfEntries)
+    {
+        Assert.IsNotNull(aggregatedLogsList);
+        Assert.AreEqual(aggregatedLogsList.Count, nrOfEntries);
     }
 }
