@@ -1,11 +1,7 @@
 ﻿using Application.ApplicationServices.Interfaces;
+using Application.Exceptions;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.ApplicationServices
 {
@@ -28,7 +24,10 @@ namespace Application.ApplicationServices
 
         public string GetToken()
         {
-            return _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString().Split(" ")[1];
+            var headers = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(headers))
+                throw new BadRequestException("Invalid or missing Authorization header.");
+            return headers.Split(" ")[1];
         }
 
         public bool IsLoggedInUser()
