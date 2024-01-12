@@ -53,37 +53,9 @@ jobs:
       run: |
         buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
 
-  apply-migrations-test-environment:
-    name: Apply EF Core Migration Testing
-    needs: docker-upload
-    runs-on: ubuntu-latest
-    environment: notificationsms-test  # Change this to your specific environment
-  
-    steps:
-      - uses: actions/checkout@v3
-  
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '6.0.x'  # Specify your .NET version
-  
-      - name: Restore dependencies
-        run: dotnet restore NotificationMS/NotificationMS.sln  # Adjust path as needed
-
-      - name: Install EF Core CLI
-        run: dotnet tool install --global dotnet-ef
-  
-      - name: Apply Specific Migration
-        run: |
-          dotnet ef database update \
-            --project NotificationMS/Infrastructure/Infrastructure.csproj \
-            --startup-project NotificationMS/WebApp/WebApp.csproj \
-            --context Infrastructure.Data.Context.NotificationsDbContext \
-            --connection ${{ secrets.NOTIFICATIONS_DB_CONNECTION_STRING }}
-
   deploy-test-env:
     runs-on: ubuntu-20.04
-    needs: apply-migrations-test-environment
+    needs: docker-upload
     name: Deploy Test Environment
     environment: notificationsms-test
 
@@ -128,35 +100,6 @@ jobs:
           fi
           oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
-  
-
-  apply-migrations-production-environment:
-    name: Apply EF Core Migration Production
-    needs: deploy-test-env
-    runs-on: ubuntu-latest
-    environment: notificationsms-production
-  
-    steps:
-      - uses: actions/checkout@v3
-  
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '6.0.x'
-  
-      - name: Restore dependencies
-        run: dotnet restore NotificationMS/NotificationMS.sln
-
-      - name: Install EF Core CLI
-        run: dotnet tool install --global dotnet-ef
-  
-      - name: Apply Specific Migration
-        run: |
-          dotnet ef database update \
-            --project NotificationMS/Infrastructure/Infrastructure.csproj \
-            --startup-project NotificationMS/WebApp/WebApp.csproj \
-            --context Infrastructure.Data.Context.NotificationsDbContext \
-            --connection ${{ secrets.NOTIFICATIONS_DB_CONNECTION_STRING }}
 
   run-integration-tests:
     name: Integration Tests
