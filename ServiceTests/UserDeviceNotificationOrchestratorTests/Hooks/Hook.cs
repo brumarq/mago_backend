@@ -20,6 +20,8 @@ namespace ServiceTests.Hooks
         {
             var configurationBuilder = new ConfigurationBuilder();
             configurationBuilder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            configurationBuilder.AddEnvironmentVariables();
+            
             var configuration = configurationBuilder.Build();
 
             container.RegisterInstanceAs<IConfiguration>(configuration);
