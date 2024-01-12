@@ -32,7 +32,7 @@ namespace WebApp.Controllers
 
             if (!await _authorizationService.IsDeviceAccessibleToUser(loggedUserId, newSettingDto.DeviceId))
             {
-                return Unauthorized($"The logged user cannot access this device.");
+                return Forbid($"The logged user cannot access this device.");
             }
             
             try
@@ -60,7 +60,7 @@ namespace WebApp.Controllers
 
             if (!await _authorizationService.IsDeviceAccessibleToUser(loggedUserId, deviceId))
             {
-                return Unauthorized($"The logged user cannot access this device.");
+                return Forbid($"The logged user cannot access this device.");
             }
             
             if (deviceId <= 0)
