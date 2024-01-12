@@ -81,7 +81,7 @@ namespace Application.ApplicationServices
 
         public async Task<IEnumerable<UserOnDeviceResponseDTO>> GetUserOnDeviceEntryByUserId(string userId)
         {
-            _userService.CheckUserExistence(userId);
+            await _userService.CheckUserExistence(userId);
 
             var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUriUserOnDevice}{userId}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
@@ -103,15 +103,15 @@ namespace Application.ApplicationServices
 
         public async Task<UserOnDeviceResponseDTO> CreateUserOnDeviceEntryAsync(CreateUserOnDeviceDTO createUserOnDeviceDTO)
         {
-            await _userService.CheckUserExistence(createUserOnDeviceDTO.UserId);
-            await CheckDeviceExistence(createUserOnDeviceDTO.DeviceId);
-
-            var jsonCreateUserOnDeviceDTO = JsonConvert.SerializeObject(createUserOnDeviceDTO);
-            var content = new StringContent(jsonCreateUserOnDeviceDTO, Encoding.UTF8, "application/json");
-
-
+           
             try
             {
+                await _userService.CheckUserExistence(createUserOnDeviceDTO.UserId);
+                await CheckDeviceExistence(createUserOnDeviceDTO.DeviceId);
+
+                var jsonCreateUserOnDeviceDTO = JsonConvert.SerializeObject(createUserOnDeviceDTO);
+                var content = new StringContent(jsonCreateUserOnDeviceDTO, Encoding.UTF8, "application/json");
+                
                 var request = new HttpRequestMessage(HttpMethod.Post, _baseUriUserOnDevice) { Content = content };
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 request.Headers.Add("X-Orchestrator-Key", _orchestratorApiKey);
@@ -126,6 +126,9 @@ namespace Application.ApplicationServices
                 }
                 else
                 {
+                    if (response.StatusCode == HttpStatusCode.NotFound)
+                        throw new NotFoundException("UserOnDevice check failed: not found");
+                    
                     var errorContent = await response.Content.ReadAsStringAsync();
                     throw new HttpRequestException($"Create UsersOnDevices entry request failed {(int)response.StatusCode}: {errorContent}");
                 }

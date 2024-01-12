@@ -55,7 +55,7 @@ namespace Application.ApplicationServices
                     if (userResponseStatus.StatusCode == HttpStatusCode.NotFound)
                         throw new NotFoundException("User check failed: not found");
                     else
-                        throw new Exception($"User check failed: {userResponseStatus.StatusCode}: {userResponseStatus.ReasonPhrase}");
+                        throw new CustomException($"{userResponseStatus.ReasonPhrase}.", userResponseStatus.StatusCode);
                 }
             }
             catch (CustomException e)
