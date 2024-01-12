@@ -73,7 +73,7 @@ jobs:
 
       - name: Deploy test env to Openshift
         run: |
-          oc apply -f ./oc-deployments/user-microservice.yaml
+          oc apply -f ./oc-deployments/user-microservice.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
           oc rollout status deployment/user-microservice -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
           oc set env deployment/${{ env.APP_NAME }} \
