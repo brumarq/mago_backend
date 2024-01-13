@@ -25,6 +25,17 @@ spec:
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 6969
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            httpGet: /ready
+            port: 6969
+          initialDelaySeconds: 5
+          periodSeconds: 10
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
       dnsPolicy: ClusterFirst
