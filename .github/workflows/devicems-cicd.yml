@@ -160,10 +160,10 @@ jobs:
         run: |
           oc set env deployment/${{ env.APP_NAME }} \
           ConnectionStrings__DevicesDb=${{ secrets.DEVICE_DB_CONNECTION_STRING }} \
-          Auth0__Domain=${{ env.AUTH0_TEST_DOMAIN }} \
-          Auth0__Audience=${{ env.AUTH0_TEST_AUDIENCE }} \
-          Auth0__ClientId=${{ env.AUTH0_TEST_CLIENT_ID }} \
-          Auth0__ClientSecret=${{ env.AUTH0_TEST_CLIENT_SECRET }} \
+          Auth0__Domain=${{ env.AUTH0_DOMAIN }} \
+          Auth0__Audience=${{ env.AUTH0_AUDIENCE }} \
+          Auth0__ClientId=${{ env.AUTH0_CLIENT_ID }} \
+          Auth0__ClientSecret=${{ env.AUTH0_CLIENT_SECRET }} \
           OrchestratorApiKey=${{ secrets.ORCHESTRATORAPIKEY }}
 
       - name: Create service if non-existent
