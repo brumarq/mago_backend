@@ -17,7 +17,7 @@ func NewFirmwareService(repo IRepository[*FileSend]) *FirmwareService {
 	return &FirmwareService{Repo: repo}
 }
 
-func (s *FirmwareService) DbIsHealthy() bool {
+func (s *FirmwareService) DbIsConnected() bool {
 	return s.Repo.IsDatabaseConnected()
 }
 
