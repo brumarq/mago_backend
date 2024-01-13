@@ -17,11 +17,7 @@ spec:
       containers:
         - name: device-firmware-orchestrator
           image: 'docker.io/brumarq/device-firmware-orchestrator:latest'
-          resources:
-            requests:
-              cpu: "100m"
-            limits:
-              cpu: "400m"
+          resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           imagePullPolicy: Always

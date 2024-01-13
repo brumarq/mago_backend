@@ -17,10 +17,6 @@ func NewFirmwareService(repo IRepository[*FileSend]) *FirmwareService {
 	return &FirmwareService{Repo: repo}
 }
 
-func (s *FirmwareService) DbIsConnected() bool {
-	return s.Repo.IsDatabaseConnected()
-}
-
 func (service *FirmwareService) CreateFileSend(ctx context.Context, newFileSendDto CreateFileSendDTO) (*FileSendResponseDTO, error) {
 	// Validate DTO before proceeding
 	if err := validateFileSendDTO(newFileSendDto); err != nil {

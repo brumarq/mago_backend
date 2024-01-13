@@ -68,8 +68,8 @@ jobs:
           namespace: ${{ env.OPENSHIFT_TEST_NAMESPACE }}
       - name: Deploy to test environment 
         run: |
-          oc apply -f ./oc-deployments/user-microservice.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-          oc rollout status deployment/user-microservice -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+          oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+          oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
       - name: Set environment variables 
         run: |
@@ -88,7 +88,7 @@ jobs:
 
       - name: Create service if non-existent
         run: |
-          SERVICE_EXISTS=$(oc get svc user-microservice-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
+          SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
           if [ -z "$SERVICE_EXISTS" ]; then
             oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
           fi

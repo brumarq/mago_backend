@@ -17,14 +17,22 @@ spec:
       containers:
         - name: firmware-microservice
           image: 'docker.io/brumarq/firmware-microservice:latest'
-          resources:
-            requests:
-              cpu: "100m"
-            limits:
-              cpu: "400m"
+          resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 6969
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 6969
+            initialDelaySeconds: 5
+            periodSeconds: 10
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
       dnsPolicy: ClusterFirst

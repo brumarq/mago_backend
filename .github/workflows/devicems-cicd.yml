@@ -142,7 +142,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: run-integration-tests
     name: Deploy to Production Environment
-    environment: userms-production
+    environment: devicems-production
     steps:
       - uses: actions/checkout@v2
       - uses: redhat-actions/oc-login@v1
@@ -159,16 +159,11 @@ jobs:
       - name: Set environment variables 
         run: |
           oc set env deployment/${{ env.APP_NAME }} \
+          ConnectionStrings__DevicesDb=${{ secrets.DEVICE_DB_CONNECTION_STRING }} \
           Auth0__Domain=${{ env.AUTH0_DOMAIN }} \
           Auth0__Audience=${{ env.AUTH0_AUDIENCE }} \
           Auth0__ClientId=${{ env.AUTH0_CLIENT_ID }} \
           Auth0__ClientSecret=${{ env.AUTH0_CLIENT_SECRET }} \
-          Auth0-Management__Domain=${{ secrets.AUTH0_MGMT_DOMAIN }} \
-          Auth0-Management__Audience=${{ secrets.AUTH0_MGMT_AUDIENCE }} \
-          Auth0-Management__ClientId=${{ secrets.AUTH0_MGMT_CLIENT_ID }} \
-          Auth0-Management__ClientSecret=${{ secrets.AUTH0_MGMT_CLIENT_SECRET }} \
-          Auth0-Roles__admin=${{ secrets.AUTH0_ROLE_ADMIN }} \
-          Auth0-Roles__client=${{ secrets.AUTH0_ROLE_CLIENT }} \
           OrchestratorApiKey=${{ secrets.ORCHESTRATORAPIKEY }}
 
       - name: Create service if non-existent

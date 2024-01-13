@@ -8,11 +8,20 @@ on:
       - 'NotificationMS/**/*'
 
 env:
+  # OpenShift Configuration
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
   OPENSHIFT_TEST_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_TEST }}
+  OPENSHIFT_NAMESPACE: mago-backend
+  OPENSHIFT_TEST_NAMESPACE: mago-backend-test
+  APP_NAME: notifications-microservice
+  APP_PORT: 8282
+
+  # Docker Configuration
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }}
   DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }}
+
+  # Auth0 Configuration
   AUTH0_DOMAIN: ${{secrets.AUTH0_DOMAIN}}
   AUTH0_TEST_DOMAIN: ${{secrets.AUTH0_DOMAIN_TEST}}
   AUTH0_AUDIENCE: ${{secrets.AUTH0_AUDIENCE}}
@@ -21,16 +30,33 @@ env:
   AUTH0_TEST_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID_TEST }}
   AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
   AUTH0_TEST_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET_TEST }}
-  OPENSHIFT_NAMESPACE: mago-backend
-  OPENSHIFT_TEST_NAMESPACE: mago-backend-test
-  APP_NAME: notifications-microservice
-  APP_PORT: 8282
 
 jobs:
+
+  notificationms-unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore NotificationMS/NotificationMS.sln
+
+      - name: Build
+        run: dotnet build NotificationMS/NotificationMS.sln --no-restore
+
+      - name: Test
+        run: dotnet test NotificationMS/NotificationMS.sln --no-build --verbosity normal
+
 
   docker-upload:
     name: Deploy docker container
     runs-on: ubuntu-20.04
+    needs: notificationms-unit-tests
     environment: notificationsms-production
 
     steps:
@@ -46,12 +72,10 @@ jobs:
         context: ./NotificationMS/
         
     - name: Login to Docker Hub with Buildah
-      run: |
-        buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
+      run: buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
         
     - name: Push image to Docker Hub
-      run: |
-        buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
+      run: buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
 
   deploy-test-env:
     runs-on: ubuntu-20.04
@@ -60,27 +84,20 @@ jobs:
     environment: notificationsms-test
 
     steps:
-      - name: Log in to Openshift
-        uses: redhat-actions/oc-login@v1
+      - uses: actions/checkout@v2 # Check Out Code
+      - uses: redhat-actions/oc-login@v1 # Install OC cli and login
         with:
           openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
           openshift_token: ${{ env.OPENSHIFT_TEST_TOKEN }}
           insecure_skip_tls_verify: true
           namespace: ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-
-      - name: Deploy test env to Openshift
+      - name: Deploy to test environment 
         run: |
-          DEPLOYMENT_EXISTS=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
-          SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
-
-          if [ -n "$DEPLOYMENT_EXISTS" ]; then
-            CONTAINER_NAME=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} -o=jsonpath='{.spec.template.spec.containers[0].name}')
-            oc set image deployment/${{ env.APP_NAME }} $CONTAINER_NAME=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-            oc rollout restart deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-          else
-            oc create deployment ${{ env.APP_NAME }} --image=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-          fi
-
+          oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+          oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+  
+      - name: Set environment variables 
+        run: |
           oc set env deployment/${{ env.APP_NAME }} \
           ConnectionStrings__NotificationsDb=${{ secrets.NOTIFICATIONS_DB_CONNECTION_STRING }} \
           Auth0__Domain=${{ env.AUTH0_TEST_DOMAIN }} \
@@ -89,107 +106,80 @@ jobs:
           Auth0__ClientSecret=${{ env.AUTH0_TEST_CLIENT_SECRET }} \
           OrchestratorApiKey=${{ secrets.ORCHESTRATORAPIKEY }}
 
-          if [ -n "$SERVICE_EXISTS" ]; then
-            oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-          fi
-          oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-
-          ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
-          if [ -n "$ROUTE_EXISTS" ]; then
-            oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-          fi
-          oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-
+      - name: Create service if non-existent
+        run: |
+            SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
+            if [ -z "$SERVICE_EXISTS" ]; then
+              oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+            fi
+  
+      - name: Create route if non-existent
+        run: |    
+            ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
+            if [ -z "$ROUTE_EXISTS" ]; then
+              oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+            fi
 
   run-integration-tests:
-    name: Integration Tests
     runs-on: ubuntu-latest
     needs: deploy-test-env
-
+    name: Execute Integration Tests
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+      - uses: actions/checkout@v3 # Check Out Code
+      - uses: actions/setup-dotnet@v3 # Setup .NET Environment
         with:
           dotnet-version: 6.0.x
-
-      - name: Restore dependencies
+      - name: Restore .NET Dependencies
         run: dotnet restore ServiceTests/ServiceTests.sln
-
-      - name: Build
+      - name: Build .NET Project
         run: dotnet build ServiceTests/ServiceTests.sln --no-restore
-
-      - name: Test
+      - name: Run .NET Integration Tests
         run: dotnet test ServiceTests/ServiceTests.sln --no-build --verbosity normal
         env:
           AdminJWTToken: ${{ secrets.JWT_ADMIN_TEST_TOKEN }}
           ClientJWTToken: ${{ secrets.JWT_CLIENT_TEST_TOKEN }}
           ForbiddenClientJWTToken: ${{ secrets.JWT_CLIENT_FORBIDDEN_TEST_TOKEN }}
           InvalidToken: ${{secrets.JWT_INVALID_TEST_TOKEN}}
-        
-  build-deploy:
+
+  deploy-production-env:
     runs-on: ubuntu-20.04
-    #needs: apply-migrations-production-environment
     needs: run-integration-tests
-    name: Deploy to Openshift
+    name: Deploy Production Environment
     environment: notificationsms-production
 
     steps:
-    - name: Check out repository
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v2 # Check Out Code
+      - uses: redhat-actions/oc-login@v1 # Install OC cli and login
+        with:
+          openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+          openshift_token: ${{ env.OPENSHIFT_TOKEN }}
+          insecure_skip_tls_verify: true
+          namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+      - name: Deploy to production environment 
+        run: |
+          oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_NAMESPACE }}
+          oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
 
-    - name: Install oc CLI
-      uses: redhat-actions/openshift-tools-installer@v1
-      with:
-        oc: 4
-        
-    - name: Log in to OpenShift
-      uses: redhat-actions/oc-login@v1
-      with:
-        openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
-        openshift_token: ${{ env.OPENSHIFT_TOKEN }}
-        insecure_skip_tls_verify: true
-        namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+      - name: Set environment variables 
+        run: |
+          oc set env deployment/${{ env.APP_NAME }} \
+          ConnectionStrings__NotificationsDb=${{ secrets.NOTIFICATIONS_DB_CONNECTION_STRING }} \
+          Auth0__Domain=${{ env.AUTH0_DOMAIN }} \
+          Auth0__Audience=${{ env.AUTH0_AUDIENCE }} \
+          Auth0__ClientId=${{ env.AUTH0_CLIENT_ID }} \
+          Auth0__ClientSecret=${{ env.AUTH0_CLIENT_SECRET }} \
+          OrchestratorApiKey=${{ secrets.ORCHESTRATORAPIKEY }}
 
-    - name: Deploy to OpenShift
-      run: |
-        DEPLOYMENT_EXISTS=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
-        SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
-    
-        if [ -n "$DEPLOYMENT_EXISTS" ]; then
-          CONTAINER_NAME=$(oc get deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -o=jsonpath='{.spec.template.spec.containers[0].name}')
-          oc set image deployment/${{ env.APP_NAME }} $CONTAINER_NAME=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
-          oc rollout restart deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
-        else
-          oc create deployment ${{ env.APP_NAME }} --image=docker.io/brumarq/${{ env.APP_NAME }}:latest -n ${{ env.OPENSHIFT_NAMESPACE }}
-        fi
+      - name: Create service if non-existent
+        run: |
+            SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+            if [ -z "$SERVICE_EXISTS" ]; then
+              oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+            fi
 
-        oc set env deployment/${{ env.APP_NAME }} \
-        ConnectionStrings__NotificationsDb=${{ secrets.NOTIFICATIONS_DB_CONNECTION_STRING }} \
-        Auth0__Domain=${{ env.AUTH0_DOMAIN }} \
-        Auth0__Audience=${{ env.AUTH0_AUDIENCE }} \
-        Auth0__ClientId=${{ env.AUTH0_CLIENT_ID }} \
-        Auth0__ClientSecret=${{ env.AUTH0_CLIENT_SECRET }} \
-        OrchestratorApiKey=${{ secrets.ORCHESTRATORAPIKEY }}
-        
-        if [ -n "$SERVICE_EXISTS" ]; then
-          oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
-        fi
-        oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
-
-    - name: Create Route
-      id: create_route
-      run: |
-        ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
-        if [ -n "$ROUTE_EXISTS" ]; then
-          oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
-        fi
-        oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
-
-        ROUTE_URL=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} -o=jsonpath='{.spec.host}')
-        echo "ROUTE_URL=$ROUTE_URL" >> $GITHUB_ENV
-
-    - name: Display Route URL
-      run: |
-        echo "The application is available at: ${{ env.ROUTE_URL }}"  
+      - name: Create route if non-existent
+        run: |    
+            ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+            if [ -z "$ROUTE_EXISTS" ]; then
+              oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+            fi
