@@ -18,7 +18,8 @@ class ReadyResource(Resource):
     @ready_api.doc('ready', doc=False)
     def get(self):
         is_database_up = probe_service.is_database_up()
-        return is_database_up
+        is_migration_successful = probe_service.is_migration_successful()
+        return is_database_up and is_migration_successful
         
 
 @health_api.route('', doc=False)
