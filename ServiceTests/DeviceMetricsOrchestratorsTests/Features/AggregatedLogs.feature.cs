@@ -536,7 +536,7 @@ namespace DeviceMetricsOrchestratorsTests.Features
 #line hidden
 #line 60
         testRunner.When("the user tries to retrieve aggregated logs for Weekly with device id 1 and field " +
-                        "id 1 and startDate 1111-111-11 and endDate 22-222-22", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+                        "id 1 and startDate invalidStartDate and endDate invalidEndDate", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 61
         testRunner.Then("the response should return 400", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");

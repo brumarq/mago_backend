@@ -57,7 +57,7 @@
 
     Scenario: Retrieving aggregated logs as a client of device with invalid startDate and invalid endDate
         Given the user is logged in as client
-        When the user tries to retrieve aggregated logs for Weekly with device id 1 and field id 1 and startDate 1111-111-11 and endDate 22-222-22
+        When the user tries to retrieve aggregated logs for Weekly with device id 1 and field id 1 and startDate invalidStartDate and endDate invalidEndDate
         Then the response should return 400
 
     Scenario: Retrieving aggregated logs as an invalid user
