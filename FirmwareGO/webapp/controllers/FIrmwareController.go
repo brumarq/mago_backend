@@ -3,7 +3,9 @@ package controllers
 import (
 	. "FirmwareGO/application/dtos"
 	. "FirmwareGO/application/services"
+	"FirmwareGO/webapp/custommetrics"
 	. "FirmwareGO/webapp/middleware/auth"
+	"FirmwareGO/webapp/status"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -31,15 +33,23 @@ func (controller *FirmwareController) RegisterRoutes(router *gin.Engine) {
 }
 
 func (controller *FirmwareController) HealthCheck(context *gin.Context) {
-	if controller.FirmwareService.DbIsHealthy() {
-		context.JSON(http.StatusOK, gin.H{"status": "up"})
-	} else {
-		context.JSON(http.StatusServiceUnavailable, gin.H{"status": "database is not connected"})
-	}
+	custommetrics.SetHealthStatus(true)
+	context.JSON(http.StatusOK, gin.H{"status": "up"})
 }
 
 func (controller *FirmwareController) ReadyCheck(context *gin.Context) {
-	context.JSON(http.StatusOK, gin.H{"status": "ready"})
+	if controller.FirmwareService.DbIsConnected() {
+		if status.IsMigrationSuccessful() {
+			custommetrics.SetReadinessStatus(true)
+			context.JSON(http.StatusOK, gin.H{"status": "ready"})
+		} else {
+			custommetrics.SetReadinessStatus(false)
+			context.JSON(http.StatusServiceUnavailable, gin.H{"status": "failed to apply pending database migrations."})
+		}
+	} else {
+		custommetrics.SetReadinessStatus(false)
+		context.JSON(http.StatusServiceUnavailable, gin.H{"status": "could not connect to database."})
+	}
 }
 
 // CreateFirmwareFileSend godoc
