@@ -74,7 +74,7 @@ builder.Services.AddAuthorization(options =>
 // Authorization handler registration
 builder.Services.AddSingleton<IAuthorizationHandler, HasPermissionHandler>();
 
-builder.Services.AddScoped<IAuth0ManagementService, Auth0ManagementService>();
+builder.Services.AddSingleton<IAuth0ManagementService, Auth0ManagementService>();
 builder.Services.AddScoped<IAuth0Service, Auth0Service>();
 builder.Services.AddScoped<IAuth0RolesService, Auth0RolesService>();
 
