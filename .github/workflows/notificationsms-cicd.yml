@@ -143,7 +143,7 @@ jobs:
 
   deploy-production-env:
     runs-on: ubuntu-20.04
-    needs: docker-upload
+    needs: run-integration-tests
     name: Deploy Production Environment
     environment: notificationsms-production
 
