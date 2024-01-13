@@ -13,6 +13,7 @@ import (
 	. "FirmwareGO/domain/entities"
 	"FirmwareGO/infrastructure/repositories"
 	"FirmwareGO/webapp/controllers"
+	"FirmwareGO/webapp/status"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -20,7 +21,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
-	"gorm.io/plugin/prometheus"
+	gormPrometheus "gorm.io/plugin/prometheus"
 	"log"
 	"os"
 )
@@ -35,12 +36,18 @@ func main() {
 	}
 
 	// Configure Prometheus plugin
-	db.Use(prometheus.New(prometheus.Config{
+	db.Use(gormPrometheus.New(gormPrometheus.Config{
 		DBName:          "FirmwareDB", // Metrics label
 		RefreshInterval: 15,           // Refresh metrics interval (default 15 seconds)
 	}))
 
-	db.AutoMigrate(&FileSend{})
+	err = db.AutoMigrate(&FileSend{})
+	if err != nil {
+		log.Println("Migration failed:", err)
+		status.SetMigrationStatus(false)
+	} else {
+		status.SetMigrationStatus(true)
+	}
 
 	// Initialize Repository
 	repository := repositories.NewRepository[*FileSend](db)
