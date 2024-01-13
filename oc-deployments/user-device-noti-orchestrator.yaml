@@ -1,0 +1,55 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: user-device-noti-orchestrator
+  labels:
+    app: user-device-noti-orchestrator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-device-noti-orchestrator
+  template:
+    metadata:
+      labels:
+        app: user-device-noti-orchestrator
+    spec:
+      containers:
+        - name: user-device-noti-orchestrator
+          image: 'docker.io/brumarq/user-device-noti-orchestrator:latest'
+          resources:
+            requests:
+              cpu: "100m"
+            limits:
+              cpu: "400m"
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
+
+---
+
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: user-device-noti-orchestrator-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: user-device-noti-orchestrator
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
