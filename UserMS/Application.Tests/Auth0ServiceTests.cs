@@ -545,7 +545,7 @@ public class Auth0ServiceTests
         
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
         // Act & Assert
-        var ex = Assert.ThrowsAsync<Exception>(() => _auth0Service.GetAllUsers());
+        var ex = Assert.ThrowsAsync<CustomException>(() => _auth0Service.GetAllUsers());
         Assert.That(ex?.Message, Is.EqualTo("Server error"));
     }
     

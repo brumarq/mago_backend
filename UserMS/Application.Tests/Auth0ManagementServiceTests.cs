@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
+using Application.Exceptions;
 using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -84,9 +85,7 @@ public class Auth0ManagementServiceTests
         var fakeHttpClient = new HttpClient(fakeHttpMessageHandler);
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(fakeHttpClient);
 
-        var token = await _auth0ManagementService.GetToken();
-
-        Assert.That(token.Token, Is.Empty);
+        Assert.ThrowsAsync<BadRequestException>(async () => await _auth0ManagementService.GetToken());
     }
     
     private class FakeHttpMessageHandler : DelegatingHandler
