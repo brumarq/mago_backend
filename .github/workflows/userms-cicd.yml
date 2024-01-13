@@ -33,9 +33,29 @@ env:
 
 jobs:
 
+  userms-unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore UserMS/UserMS.sln
+
+      - name: Build
+        run: dotnet build UserMS/UserMS.sln --no-restore
+
+      - name: Test
+        run: dotnet test UserMS/UserMS.sln --no-build --verbosity normal
+
   docker-upload:
     runs-on: ubuntu-20.04
     name: Build and Push Docker Image
+    needs: userms-unit-tests
     environment: userms-production
     steps:
       - uses: actions/checkout@v3 # Check Out Code
