@@ -139,8 +139,8 @@ jobs:
   deploy-production-env:
     runs-on: ubuntu-20.04
     needs: run-integration-tests
-    name: Deploy Test Environment
-    environment: metricsms-test
+    name: Deploy Production Environment
+    environment: metricsms-production
 
     steps:
       - uses: actions/checkout@v2 # Check Out Code
