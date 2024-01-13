@@ -99,7 +99,7 @@ var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8181";
 builder.WebHost.UseUrls($"http://*:{httpPort}");
 
 
-// Migration on boot-up
+// Apply pending migrations on boot-up
 var serviceProvider = builder.Services.BuildServiceProvider();
 var context = serviceProvider.GetRequiredService<DevicesDbContext>();
 context.Database.Migrate();

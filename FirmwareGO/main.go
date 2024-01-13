@@ -50,13 +50,16 @@ func main() {
 	}
 
 	// Initialize Repository
-	repository := repositories.NewRepository[*FileSend](db)
+	firmwareRepository := repositories.NewRepository[*FileSend](db)
+	applicationStateRepository := repositories.NewRepository[*BaseEntity](db)
 
 	// Initialize Services
-	firmwareService := services.NewFirmwareService(repository)
+	firmwareService := services.NewFirmwareService(firmwareRepository)
+	applicationStateService := services.NewApplicationStateService(applicationStateRepository)
 
 	// Initialize Controller
 	firmwareController := controllers.NewFirmwareController(firmwareService)
+	applicationStateController := controllers.NewApplicationStateController(applicationStateService)
 
 	// Set up the router
 	router := gin.Default()
@@ -72,6 +75,7 @@ func main() {
 
 	// Register routes
 	firmwareController.RegisterRoutes(router)
+	applicationStateController.RegisterRoutes(router)
 
 	// Start the server
 	if err := router.Run(":6969"); err != nil {
