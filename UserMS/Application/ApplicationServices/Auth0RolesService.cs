@@ -1,10 +1,12 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
 using Application.Exceptions;
 using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Application.ApplicationServices;
 
@@ -41,12 +43,7 @@ public class Auth0RolesService: IAuth0RolesService
         };
 
         var response = await client.SendAsync(request);
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync();
-            _logger.LogError("Error unassigning role from user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
-            throw new BadRequestException($"{errorContent}");
-        }
+        if (!response.IsSuccessStatusCode) await HandleException(response);
     }
 
     
@@ -68,13 +65,7 @@ public class Auth0RolesService: IAuth0RolesService
         };
 
         var response = await client.SendAsync(request);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync();
-            _logger.LogError("Error assigning role to user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
-            throw new BadRequestException($"{errorContent}");
-        }
+        if (!response.IsSuccessStatusCode) await HandleException(response);
     }
     
     public async Task<string> GetRole(string userId)
@@ -92,12 +83,7 @@ public class Auth0RolesService: IAuth0RolesService
 
         var response = await client.SendAsync(request);
 
-        if (!response.IsSuccessStatusCode)
-        {
-            var errorContent = await response.Content.ReadAsStringAsync();
-            _logger.LogError("Error retrieving roles for user in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorContent);
-            throw new BadRequestException($"{errorContent}");
-        }
+        if (!response.IsSuccessStatusCode) await HandleException(response);
 
         var roles = await response.Content.ReadFromJsonAsync<List<Role>>();
 
@@ -109,4 +95,21 @@ public class Auth0RolesService: IAuth0RolesService
 
         return "";
     }
+    
+    private async Task HandleException(HttpResponseMessage response)
+    {
+        var errorContent = await response.Content.ReadAsStringAsync();
+        var errorResponse = JsonConvert.DeserializeObject<ErrorResponseDto>(errorContent);
+
+        var errorMessage = errorResponse?.Message ?? "An error occurred, but no detailed message was provided.";
+        _logger.LogError("Error in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorMessage);
+
+        throw response.StatusCode switch
+        {
+            HttpStatusCode.BadRequest => new BadRequestException(errorMessage),
+            HttpStatusCode.NotFound => new NotFoundException(errorMessage),
+            _ => new CustomException(errorMessage, response.StatusCode)
+        };
+    }
+
 }

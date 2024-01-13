@@ -30,8 +30,10 @@ public class Auth0Service : IAuth0Service
         _configuration = configuration;
         _auth0RolesService = auth0RolesService;
     }
-
+    
+    // 
     // Create User
+    //
     public async Task<UserDTO> CreateAuth0UserAsync(CreateUserDTO createUserDto)
     {
 
@@ -80,12 +82,14 @@ public class Auth0Service : IAuth0Service
         };
     }
     
+    // 
     // Update User
+    //
     public async Task<UserDTO> UpdateUserAsync(string userId, UpdateUserDTO updateUserDto)
     {
         var updateDetails = new Dictionary<string, object>();
         
-        // Check if both Email and Password are being updated simultaneously
+        // Validation for each propety in DTO
         if (!string.IsNullOrWhiteSpace(updateUserDto.Email) && !string.IsNullOrWhiteSpace(updateUserDto.Password))
         {
             throw new BadRequestException("Email and Password cannot be changed at the same time.");
@@ -108,28 +112,31 @@ public class Auth0Service : IAuth0Service
             ValidationUtils.ValidatePasswordStrength(updateUserDto.Password); // Validate password strength
             updateDetails.Add("password", updateUserDto.Password);
         }
+        
         if (updateDetails.Count > 0)
         {
             await UpdateUserDetailsInAuth0(userId, updateDetails);
         }
-
+        
+        // No data is return after updating, making a get request to get the updated user
         return await GetUser(userId);
     }
     
     public async Task<bool> UpdateUserDetailsInAuth0(string userId, object userDetails)
     {
         var token = await _auth0ManagementService.GetToken();
+        
         var client = _httpClientFactory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Patch, $"{_configuration["Auth0-Management:Audience"]}users/{userId}")
+        var request = new HttpRequestMessage(HttpMethod.Put, $"{_configuration["Auth0-Management:Audience"]}users/{userId}")
         {
             Content = JsonContent.Create(userDetails),
             Headers = { { "Authorization", $"Bearer {token.Token}" } }
         };
 
         var response = await client.SendAsync(request);
+        
         if (!response.IsSuccessStatusCode) await HandleException(response);
-
-
+        
         return true;
     }
     
@@ -168,17 +175,19 @@ public class Auth0Service : IAuth0Service
         var roleNames = new List<string> { "admin", "client" };
         var allUsersWithRoles = new List<UserCompressedDTO>();
 
+        // For each available role, get the users assigned to it
         foreach (var roleName in roleNames)
         {
             var roleId = _configuration[$"Auth0-Roles:{roleName}"];
             if (string.IsNullOrEmpty(roleId))
             {
                 _logger.LogError($"Role ID for {roleName} not found in configuration.");
-                continue;
+                continue; // Skip role, continue with the next one
             }
 
             var users = await GetUsersByRoleId(roleId);
 
+            // Transform each user into a UserCompressedDTO with the assigned role.
             var usersWithRole = users.Select(user => new UserCompressedDTO
             {
                 User = user,
@@ -208,8 +217,7 @@ public class Auth0Service : IAuth0Service
         var response = await client.SendAsync(request);
 
         if (!response.IsSuccessStatusCode) await HandleException(response);
-
-
+        
         var users = await response.Content.ReadFromJsonAsync<List<UserCompressed>>();
         return users ?? new List<UserCompressed>();
     }
@@ -238,17 +246,19 @@ public class Auth0Service : IAuth0Service
         return true;
     }
     
-    private async Task HandleException( HttpResponseMessage response)
+    private async Task HandleException(HttpResponseMessage response)
     {
         var errorContent = await response.Content.ReadAsStringAsync();
         var errorResponse = JsonConvert.DeserializeObject<ErrorResponseDto>(errorContent);
-            
-        _logger.LogError("Error in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorResponse.Message);
+
+        var errorMessage = errorResponse?.Message ?? "An error occurred, but no detailed message was provided.";
+        _logger.LogError("Error in Auth0. Status Code: {StatusCode}, Details: {Details}", response.StatusCode, errorMessage);
+
         throw response.StatusCode switch
         {
-            HttpStatusCode.BadRequest => new BadRequestException(errorResponse.Message),
-            HttpStatusCode.NotFound => new NotFoundException(errorResponse.Message),
-            _ => new Exception(errorResponse.Message)
+            HttpStatusCode.BadRequest => new BadRequestException(errorMessage),
+            HttpStatusCode.NotFound => new NotFoundException(errorMessage),
+            _ => new CustomException(errorMessage, response.StatusCode)
         };
     }
 }
