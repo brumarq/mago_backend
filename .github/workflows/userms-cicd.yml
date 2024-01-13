@@ -30,13 +30,6 @@ env:
   AUTH0_TEST_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID_TEST }}
   AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
   AUTH0_TEST_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET_TEST }}
-  Auth0-Management__Domain: ${{ secrets.AUTH0_MGMT_DOMAIN }}
-  Auth0-Management__Audience: ${{ secrets.AUTH0_MGMT_AUDIENCE }}
-  Auth0-Management__ClientId: ${{ secrets.AUTH0_MGMT_CLIENT_ID }}
-  Auth0-Management__ClientSecret: ${{ secrets.AUTH0_MGMT_CLIENT_SECRET }}
-  Auth0-Roles__admin: ${{ secrets.AUTH0_ROLE_ADMIN }}
-  Auth0-Roles__client: ${{ secrets.AUTH0_ROLE_CLIENT }}
-  OrchestratorApiKey: ${{ secrets.ORCHESTRATORAPIKEY }}
 
 jobs:
 
@@ -46,7 +39,9 @@ jobs:
     environment: userms-production
     steps:
       - uses: actions/checkout@v3 # Check Out Code
-      - uses: redhat-actions/buildah-build@v2 # Install buildah
+      
+      - name: Build from Dockerfile
+        uses: redhat-actions/buildah-build@v2
         with:
           image: ${{ env.APP_NAME }}
           tags: latest
@@ -65,7 +60,7 @@ jobs:
     environment: userms-test
     steps:
       - uses: actions/checkout@v2 # Check Out Code
-      - uses: redhat-actions/oc-login@v1 # Install OC cli
+      - uses: redhat-actions/oc-login@v1 # Install OC cli and login
         with:
           openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
           openshift_token: ${{ env.OPENSHIFT_TEST_TOKEN }}
@@ -98,7 +93,7 @@ jobs:
             oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
           fi
 
-      - name: Create oute if non-existent
+      - name: Create route if non-existent
         run: |    
           ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
           if [ -z "$ROUTE_EXISTS" ]; then
@@ -141,8 +136,8 @@ jobs:
           namespace: ${{ env.OPENSHIFT_NAMESPACE }}
       - name: Deploy to OpenShift
         run: |
-          oc apply -f ./oc-deployments/user-microservice.yaml -n ${{ env.OPENSHIFT_NAMESPACE }}
-          oc rollout status deployment/user-microservice -n ${{ env.OPENSHIFT_NAMESPACE }}
+          oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_NAMESPACE }}
+          oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
 
       - name: Set environment variables 
         run: |
@@ -161,7 +156,7 @@ jobs:
 
       - name: Create service if non-existent
         run: |
-          SERVICE_EXISTS=$(oc get svc user-microservice-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+          SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
           if [ -z "$SERVICE_EXISTS" ]; then
             oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
           fi
