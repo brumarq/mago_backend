@@ -1,5 +1,3 @@
-import sys
-sys.dont_write_bytecode = True
 import pytest
 from flask_migrate import Migrate, upgrade
 from app import blueprint
@@ -18,7 +16,7 @@ app.app_context().push()
 
 migrate = Migrate(app, db)
 
-def run_migrations():
+def run_migrations(): # migration on start-up
     with app.app_context():
         try:
             upgrade()

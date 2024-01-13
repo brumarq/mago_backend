@@ -12,7 +12,7 @@ def initialize_metrics_service():
 
 metrics_service = initialize_metrics_service()
 
-@api.route('/devices/<int:device_id>')
+@api.route('/devices/<int(signed=True):device_id>')
 @api.doc(params={'device_id': 'The device identifier'})
 @api.response(404, 'Device id not found')
 @api.response(200, 'Successfully retrieved device metrics')

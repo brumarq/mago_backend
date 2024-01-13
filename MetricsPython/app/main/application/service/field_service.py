@@ -12,6 +12,9 @@ class FieldService(BaseFieldService):
 
     def create_field(self, data) -> Tuple[Dict[str, str], int]:
         
+        if not (has_required_permission("admin")):
+            abort(401, "This user does not have sufficient permissions. Only admins allowed.")
+
         self.__validate_field_parameters(data)
 
         new_field = Field(
@@ -27,10 +30,7 @@ class FieldService(BaseFieldService):
   
 
     def __validate_field_parameters(self, data):
-
-        if not (has_required_permission("admin")):
-            abort(401, "This user does not have sufficient permissions. Only admins allowed.")
-
+       
         if not data["name"]:
             abort(400, "The field name is required.")
         
