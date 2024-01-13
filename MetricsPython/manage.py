@@ -6,6 +6,7 @@ from app.main.domain.entities import field, log_value, log_collection, log_colle
 from app.main.config import env
 from app.main.domain.migration_status import MigrationStatus
 import logging
+import sys
 
 env = env or 'prod' # if no env, assume its production
 
