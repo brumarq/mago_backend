@@ -1,7 +1,9 @@
 from flask_restx import Namespace, fields
 
-class AggregatedLogsDto:
+class AggregatedLogsNamespace:
     api = Namespace('AggregationLogs', description="Aggregation logs related operations")
+
+    # The objects below are the actual DTOs.
 
     field = api.model('Field', {
         'id': fields.Integer(required=True, description="Field identifier (int)", attribute="id"),

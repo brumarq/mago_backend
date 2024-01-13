@@ -1,7 +1,7 @@
 from flask_restx import Namespace
 
-class ReadyResourceNameSpace: 
+class ReadyNamespace: 
     api = Namespace('Ready', description="Ready related operations")
 
-class HealthResourceNameSpace: 
+class HealthNamespace: 
     api = Namespace('Health', description="Health related operations")

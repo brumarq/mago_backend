@@ -1,5 +1,5 @@
 from flask_restx import Resource, reqparse
-from app.main.application.dtos.aggregated_logs_dto import AggregatedLogsDto
+from app.main.application.namespaces.aggregated_logs_namespace import AggregatedLogsNamespace
 from app.main.application.service.aggregated_logs_service import AggregatedLogsService
 from app.main.domain.enums.aggregated_log_date_type import AggregatedLogDateType
 from app.main.infrastructure.repositories.repository import Repository
@@ -10,7 +10,7 @@ from app.main.domain.entities.yearly_average import YearlyAverage
 from app.main.application.service.aggregated_logs_service import AggregatedLogsService
 from app.main.webapp.middleware.authentication import requires_auth
 
-api = AggregatedLogsDto.api
+api = AggregatedLogsNamespace.api
 
 def initialize_aggregated_logs_service():
     return AggregatedLogsService(
@@ -48,7 +48,7 @@ class AggregatedLogList(Resource):
         'start_date': 'Start date for filtering (optional) | Format: YYYY-MM-DD',
         'end_date': 'End date for filtering (optional) | Format: YYYY-MM-DD'
     })
-    @api.marshal_list_with(AggregatedLogsDto.aggregated_logs_response_dto)
+    @api.marshal_list_with(AggregatedLogsNamespace.aggregated_logs_response_dto)
     @requires_auth
     def get(self, aggregated_log_date_type: str, device_id: int, field_id: int):
         """Provides list of aggregated logs based on date type"""
