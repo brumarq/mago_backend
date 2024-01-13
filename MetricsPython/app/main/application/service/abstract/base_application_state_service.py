@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class BaseProbeService(ABC):
+class ApplicationStateService(ABC):
     
     @abstractmethod
     def is_database_up() -> bool:

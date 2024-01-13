@@ -3,8 +3,8 @@ from flask import Blueprint
 from app.main.webapp.controller.metrics_controller import api as metrics_ns
 from app.main.webapp.controller.aggregated_logs_controller import api as aggregated_logs_ns
 from app.main.webapp.controller.field_controller import api as field_ns
-from app.main.webapp.controller.probe_controller import ready_api as ready_ns
-from app.main.webapp.controller.probe_controller import health_api as health_ns
+from app.main.webapp.controller.application_state_controller import ready_api as ready_ns
+from app.main.webapp.controller.application_state_controller import health_api as health_ns
 from prometheus_flask_exporter import PrometheusMetrics
 
 blueprint = Blueprint('api', __name__)

@@ -1,10 +1,10 @@
 from app.main import db
 from sqlalchemy import text
 import logging
-from app.main.application.service.abstract.base_probe_service import BaseProbeService
+from app.main.application.service.abstract.base_application_state_service import ApplicationStateService
 from app.main.domain.migration_status import MigrationStatus
 
-class ProbeService(BaseProbeService):
+class ApplicationStateService(ApplicationStateService):
     
     def is_database_up(self) -> bool:
         try:

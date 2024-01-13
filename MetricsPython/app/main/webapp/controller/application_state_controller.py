@@ -1,17 +1,16 @@
 from flask_restx import Resource
-from flask import jsonify
-from app.main.application.dtos.probe_resource_namespace import ReadyResourceNameSpace
-from app.main.application.dtos.probe_resource_namespace import HealthResourceNameSpace
-from app.main.application.service.probe_service import ProbeService
+from app.main.application.namespaces.application_state_namespace import ReadyNamespace
+from app.main.application.namespaces.application_state_namespace import HealthNamespace
+from app.main.application.service.application_state__service import ApplicationStateService
 from app.main.webapp.custommetrics.application_state import set_readiness_status, set_health_status
 
-health_api = HealthResourceNameSpace.api
-ready_api = ReadyResourceNameSpace.api
+health_api = ReadyNamespace.api
+ready_api = HealthNamespace.api
 
-def initialize_probe_service():
-    return ProbeService()
+def initialize_application_state_service():
+    return ApplicationStateService()
 
-probe_service = initialize_probe_service()
+probe_service = initialize_application_state_service()
 
 @ready_api.route('', doc=False)
 @ready_api.response(200, 'Successful ping to the database')

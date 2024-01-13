@@ -1,11 +1,11 @@
 from flask_restx import Resource
-from app.main.application.dtos.field_dto import FieldDto
+from app.main.application.namespaces.field_namespace import FieldNamespace
 from app.main.application.service.field_service import FieldService
 from app.main.infrastructure.repositories.repository import Repository
 from app.main.domain.entities.field import Field
 from app.main.webapp.middleware.authentication import requires_auth
 
-api = FieldDto.api
+api = FieldNamespace.api
 
 def initialize_field_service():
     return FieldService(Repository(Field))
@@ -18,7 +18,7 @@ class FieldCreation(Resource):
         super().__init__(*args, **kwargs)
         self.field_service = field_service
 
-    @api.expect(FieldDto.field_request_dto, validate=True)
+    @api.expect(FieldNamespace.field_request_dto, validate=True)
     @api.response(201, 'Field successfully created')
     @api.doc('Create new field')
     @requires_auth
