@@ -97,7 +97,7 @@ jobs:
       - name: Set environment variables 
         run: |
           oc set env deployment/${{ env.APP_NAME }} \
-          METRICS_DB_CONNECTION_STRING_SQLALCHEMY=${{secrets.METRICS_DB_CONNECTION_STRING_SQLALCHEMY}} \
+          METRICS_DB_CONNECTION_STRING_SQLALCHEMY="MagoDBAdmin:Test123*@test-mago-database-server.database.windows.net:1433/MetricsDB?driver=ODBC+Driver+18+for+SQL+Server" \
           AUTH0_DOMAIN=${{ env.AUTH0_TEST_DOMAIN }} \
           AUTH0_AUDIENCE=${{ env.AUTH0_TEST_AUDIENCE }}
 
