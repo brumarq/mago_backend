@@ -57,6 +57,7 @@ jobs:
   docker-upload:
     runs-on: ubuntu-20.04
     name: Build and Push Docker Image
+    needs: flask-app-unit-tests
     environment: metricsms-production
     steps:
       - uses: actions/checkout@v3 # Check Out Code
@@ -137,7 +138,7 @@ jobs:
                   
   deploy-production-env:
     runs-on: ubuntu-20.04
-    needs: docker-upload
+    needs: run-integration-tests
     name: Deploy Test Environment
     environment: metricsms-test
 
