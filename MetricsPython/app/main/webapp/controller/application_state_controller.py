@@ -10,15 +10,15 @@ ready_api = HealthNamespace.api
 def initialize_application_state_service():
     return ApplicationStateService()
 
-probe_service = initialize_application_state_service()
+application_state_service = initialize_application_state_service()
 
 @ready_api.route('', doc=False)
 @ready_api.response(200, 'Successful ping to the database')
 class ReadyResource(Resource):
     @ready_api.doc('ready', doc=False)
     def get(self):
-        is_database_up = probe_service.is_database_up()
-        is_migration_successful = probe_service.is_migration_successful()
+        is_database_up = application_state_service.is_database_up()
+        is_migration_successful = application_state_service.is_migration_successful()
 
         if not is_database_up:
             set_readiness_status(False)
