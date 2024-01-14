@@ -28,6 +28,4 @@ COPY . /app/
 # Expose the port on which the Flask app will run
 EXPOSE 5000
 
-#CMD ["uwsgi", "--http", ":5000", "--module", "manage:app"]
-#CMD ["twistd", "-n", "web", "--port", "5000", "--wsgi", "manage:app"]
 CMD ["gunicorn", "-b", "0.0.0.0:5000", "manage:app"]
