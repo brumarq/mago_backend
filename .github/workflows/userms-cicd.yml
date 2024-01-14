@@ -33,48 +33,48 @@ env:
 
 jobs:
 
-  # userms-unit-tests:
-  #   name: Unit Tests
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: actions/setup-dotnet@v3
-  #       with:
-  #         dotnet-version: 6.0.x
+  userms-unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
 
-  #     - name: Restore dependencies
-  #       run: dotnet restore UserMS/UserMS.sln
+      - name: Restore dependencies
+        run: dotnet restore UserMS/UserMS.sln
 
-  #     - name: Build
-  #       run: dotnet build UserMS/UserMS.sln --no-restore
+      - name: Build
+        run: dotnet build UserMS/UserMS.sln --no-restore
 
-  #     - name: Test
-  #       run: dotnet test UserMS/UserMS.sln --no-build --verbosity normal
+      - name: Test
+        run: dotnet test UserMS/UserMS.sln --no-build --verbosity normal
 
-  # docker-upload:
-  #   runs-on: ubuntu-20.04
-  #   name: Build and Push Docker Image
-  #   needs: userms-unit-tests
-  #   environment: userms-production
-  #   steps:
-  #     - uses: actions/checkout@v3 # Check Out Code
+  docker-upload:
+    runs-on: ubuntu-20.04
+    name: Build and Push Docker Image
+    needs: userms-unit-tests
+    environment: userms-production
+    steps:
+      - uses: actions/checkout@v3 # Check Out Code
       
-  #     - name: Build from Dockerfile
-  #       uses: redhat-actions/buildah-build@v2
-  #       with:
-  #         image: ${{ env.APP_NAME }}
-  #         tags: latest
-  #         dockerfiles: ./UserMS/Dockerfile
-  #         context: ./UserMS/
-  #     - name: Login to Docker Registry
-  #       run: buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
+      - name: Build from Dockerfile
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.APP_NAME }}
+          tags: latest
+          dockerfiles: ./UserMS/Dockerfile
+          context: ./UserMS/
+      - name: Login to Docker Registry
+        run: buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
         
-  #     - name: Push new image to repository
-  #       run: buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
+      - name: Push new image to repository
+        run: buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
         
   deploy-test-env:
     runs-on: ubuntu-20.04
-    # needs: docker-upload
+    needs: docker-upload
     name: Deploy to Test Environment
     environment: userms-test
     steps:
@@ -91,7 +91,7 @@ jobs:
           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
           oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
-      - name: Update deployment to new date
+      - name: Update deployment config to current date
         run: |
           oc patch deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
 
@@ -162,11 +162,10 @@ jobs:
         run: |
           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_NAMESPACE }}
           oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
-      
-      - name: Trigger New Deployment
+
+      - name: Update deployment config to current date
         run: |
-          oc rollout latest deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
-          oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+          oc patch deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
 
       - name: Set environment variables 
         run: |
