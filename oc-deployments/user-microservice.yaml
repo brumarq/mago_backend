@@ -1,5 +1,5 @@
-kind: DeploymentConfig
-apiVersion: apps.openshift.io/v1
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: user-microservice
   labels:
@@ -7,7 +7,8 @@ metadata:
 spec:
   replicas: 1
   selector:
-    name: user-microservice
+    matchLabels:
+      app: user-microservice
   template:
     metadata:
       labels:
@@ -41,8 +42,8 @@ metadata:
   name: user-microservice-hpa
 spec:
   scaleTargetRef:
-    apiVersion: apps.openshift.io/v1
-    kind: DeploymentConfig
+    apiVersion: apps/v1
+    kind: Deployment
     name: user-microservice
   minReplicas: 1
   maxReplicas: 10
