@@ -16,6 +16,7 @@ authorizations = {
     }
 }
 
+# Prometheus tracking
 metrics = PrometheusMetrics(blueprint, path="/metrics") # For metrics performance tracking
 
 api = Api(
@@ -27,6 +28,7 @@ api = Api(
     security='apikey'
 )
 
+# Registered endpoints
 api.add_namespace(field_ns, path="/fields")
 api.add_namespace(metrics_ns, path="/metrics")
 api.add_namespace(aggregated_logs_ns, path="/aggregated-logs")
