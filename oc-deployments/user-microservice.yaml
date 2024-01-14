@@ -42,8 +42,8 @@ metadata:
   name: user-microservice-hpa
 spec:
   scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
+    apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
     name: user-microservice
   minReplicas: 1
   maxReplicas: 10
