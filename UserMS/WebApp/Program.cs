@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using System.Security.Claims;
 using Application.ApplicationServices;
@@ -16,6 +17,24 @@ builder.Services.AddControllers();
 
 // AutoMapper configuration for dependency injection
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+// Create custom Prometheus metrics for HTTP requests
+var httpRequestDuration = Metrics.CreateHistogram(
+    "http_request_duration_seconds",
+    "Duration of HTTP requests in seconds",
+    new HistogramConfiguration
+    {
+        LabelNames = new[] { "method", "status_code" }
+    }
+);
+var httpRequestCounter = Metrics.CreateCounter(
+    "http_request_total",
+    "Total count of HTTP requests",
+    new CounterConfiguration
+    {
+        LabelNames = new[] { "method", "status_code" }
+    }
+);
 
 // Swagger/OpenAPI configuration
 builder.Services.AddEndpointsApiExplorer();
@@ -87,9 +106,29 @@ builder.Configuration.AddEnvironmentVariables();
 // Build the application
 var app = builder.Build();
 
+// Add custom metric instrumentation for HTTP requests
+app.Use(async (context, next) =>
+{
+    var stopwatch = Stopwatch.StartNew();
+    await next();
+    stopwatch.Stop();
+
+    var method = context.Request.Method;
+    var statusCode = context.Response.StatusCode.ToString();
+
+    // Update metrics
+    httpRequestDuration
+        .WithLabels(method, statusCode)
+        .Observe(stopwatch.Elapsed.TotalSeconds);
+
+    httpRequestCounter
+        .WithLabels(method, statusCode)
+        .Inc();
+});
+
 // Middleware configuration
-app.UseSwagger();
 app.UseMetricServer();
+app.UseSwagger();
 app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseAuthorization();
