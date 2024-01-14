@@ -2,7 +2,7 @@ from flask_restx import Resource
 from app.main.application.namespaces.application_state_namespace import ReadyNamespace
 from app.main.application.namespaces.application_state_namespace import HealthNamespace
 from app.main.application.service.application_state_service import ApplicationStateService
-from app.main.webapp.custommetrics.application_state import set_readiness_status, set_health_status
+from app.main.utils.application_state import set_readiness_status, set_health_status
 
 health_api = ReadyNamespace.api
 ready_api = HealthNamespace.api
