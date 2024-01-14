@@ -5,8 +5,10 @@ from app.main import create_app, db
 from app.main.domain.entities import field, log_value, log_collection, log_collection_type, weekly_average, monthly_average, yearly_average
 from app.main.config import env
 from app.main.domain.migration_status import MigrationStatus
+from app.main.utils.database_utils import ping_database_periodically
 import logging
 import sys
+import threading
 
 env = env or 'prod' # if no env, assume its production
 
@@ -16,6 +18,9 @@ app.register_blueprint(blueprint)
 app.app_context().push()
 
 migrate = Migrate(app, db)
+
+# Periodic pings to wake up Azure SQL from its idle state...
+#threading.Thread(target=ping_database_periodically).start()
 
 def run_migrations(): # migration on start-up
     with app.app_context():
