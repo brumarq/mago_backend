@@ -28,4 +28,5 @@ COPY . /app/
 # Expose the port on which the Flask app will run
 EXPOSE 5000
 
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "manage:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "--access-logfile", "-", "manage:app"]
+#CMD ["gunicorn", "-b", "0.0.0.0:5000", "manage:app"]
