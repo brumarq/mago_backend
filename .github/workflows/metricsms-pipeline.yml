@@ -97,7 +97,7 @@ jobs:
       - name: Deploy to test environment 
         run: |
           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-          oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+          #oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
       - name: Update deployment config to current date
         run: |
@@ -109,12 +109,6 @@ jobs:
           METRICS_DB_CONNECTION_STRING_SQLALCHEMY=${{secrets.METRICS_DB_CONNECTION_STRING_SQLALCHEMY}} \
           AUTH0_DOMAIN=${{ env.AUTH0_TEST_DOMAIN }} \
           AUTH0_AUDIENCE=${{ env.AUTH0_TEST_AUDIENCE }}
-
-      # TESTING THIS
-      # - name: Set probes
-      #   run: |
-      #     oc set probe deployment/${{ env.APP_NAME }} --readiness --get-url=http://:${{ env.APP_PORT }}/ready --initial-delay-seconds=5 --period-seconds=10 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-      #     oc set probe deployment/${{ env.APP_NAME }} --liveness --get-url=http://:${{ env.APP_PORT }}/health --initial-delay-seconds=15 --period-seconds=30 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
       - name: Create service if non-existent
         run: |
@@ -168,7 +162,7 @@ jobs:
       - name: Deploy to test environment 
         run: |
           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_NAMESPACE }}
-          oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+          #oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
       
       - name: Update deployment config to current date
         run: |
