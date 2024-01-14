@@ -61,6 +61,13 @@ var httpRequestCounter = Metrics.CreateCounter(
     }
 );
 
+// Create a gauge metric for process resident memory in bytes
+var processResidentMemoryBytes = Metrics.CreateGauge(
+    "process_resident_memory_bytes",
+    "Resident memory size of the process in bytes"
+);
+processResidentMemoryBytes.Set(Process.GetCurrentProcess().WorkingSet64);
+
 // Swagger/OpenAPI configuration
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
