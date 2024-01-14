@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Prometheus;
 using WebApp.Middleware.Authentication;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,13 @@ var httpRequestCounter = Metrics.CreateCounter(
         LabelNames = new[] { "method", "status_code" }
     }
 );
+
+// Create a gauge metric for process resident memory in bytes
+var processResidentMemoryBytes = Metrics.CreateGauge(
+    "process_resident_memory_bytes",
+    "Resident memory size of the process in bytes"
+);
+processResidentMemoryBytes.Set(Process.GetCurrentProcess().WorkingSet64);
 
 // Swagger/OpenAPI configuration
 builder.Services.AddEndpointsApiExplorer();
