@@ -75,7 +75,11 @@ jobs:
         run: |
           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
           oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-  
+      
+      - name: Update deployment config to current date
+        run: |
+          oc patch deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
+
       - name: Set environment variables 
         run: |
           oc set env deployment/${{ env.APP_NAME }} \
@@ -138,6 +142,11 @@ jobs:
         run: |
           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_NAMESPACE }}
           oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+      
+      - name: Update deployment config to current date
+        run: |
+          oc patch deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
+
       - name: Set environment variables 
         run: |
           oc set env deployment/${{ env.APP_NAME }} \

@@ -73,7 +73,11 @@ jobs:
         run: |
           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
           oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-      
+
+      - name: Update deployment config to current date
+        run: |
+          oc patch deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
+
       - name: Set environment variables 
         run: |
           oc set env deployment/${{ env.APP_NAME }} \
@@ -83,6 +87,7 @@ jobs:
           Auth0__ClientSecret=${{ env.AUTH0_TEST_CLIENT_SECRET }} \
           ApiRequestUris__FirmwareBaseUri=${{ secrets.APIREQUESTURIS_FIRMWAREBASEURI }} \
           ApiRequestUris__DeviceBaseUri=${{ secrets.APIREQUESTURIS_DEVICEBASEURI }} \
+          
       - name: Create service if non-existent
         run: |
           SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
@@ -136,6 +141,10 @@ jobs:
         run: |
           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_NAMESPACE }}
           oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Update deployment config to current date
+        run: |
+          oc patch deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
 
       - name: Set environment variables 
         run: |
