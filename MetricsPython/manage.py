@@ -5,10 +5,12 @@ from app.main import create_app, db
 from app.main.domain.entities import field, log_value, log_collection, log_collection_type, weekly_average, monthly_average, yearly_average
 from app.main.config import env
 from app.main.domain.migration_status import MigrationStatus
-from app.main.utils.database_utils import ping_database_periodically
+from app.main.utils.database_utils import ping_database
 import logging
 import sys
-import threading
+import atexit
+from apscheduler.schedulers.background import BackgroundScheduler
+#from app.main import scheduler
 
 env = env or 'prod' # if no env, assume its production
 
@@ -20,11 +22,13 @@ app.app_context().push()
 migrate = Migrate(app, db)
 
 # Periodic pings to wake up Azure SQL from its idle state (30 min) -> ping happens every 15 min
-# def thd_ping_database_periodically():
-#     with app.app_context():
-#         ping_database_periodically()
+def thd_ping_database_periodically():
+    with app.app_context():
+        ping_database()
 
-# threading.Thread(target=thd_ping_database_periodically).start()
+scheduler = BackgroundScheduler()
+scheduler.add_job(id="ping_job", func=thd_ping_database_periodically, trigger='interval', minutes=15)
+scheduler.start()
 
 # Migrations on start-up
 def run_migrations(): 
@@ -51,3 +55,5 @@ def test():
     """Runs the unit tests."""
     result_code = pytest.main(['-v', 'app/test'])
     return result_code
+
+atexit.register(lambda: scheduler.shutdown())

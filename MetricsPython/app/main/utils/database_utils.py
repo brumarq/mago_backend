@@ -7,16 +7,17 @@ def ping_database() -> None:
         try:
             db.session.execute(text('SELECT 1')) 
             db.session.commit()
+            logging.info("Database ping successful.")
         except Exception as e:
             logging.error(f"Error checking database status: {e}")
             db.session.rollback()
             raise
 
-def ping_database_periodically():
-    while True:
-        try:
-            ping_database()
-            logging.info("Database ping successful.")
-        except Exception as e:
-            logging.error(f"Error during periodic database ping: {e}")
-        time.sleep(900)  # ping every 15 min
+# def ping_database_periodically():
+#     while True:
+#         try:
+#             ping_database()
+#             logging.info("Database ping successful.")
+#         except Exception as e:
+#             logging.error(f"Error during periodic database ping: {e}")
+#         time.sleep(900)  # ping every 15 min
