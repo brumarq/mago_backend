@@ -24,9 +24,8 @@ class FieldService(BaseFieldService):
             loggable=data["loggable"]
         )
 
-        self.field_repository.create(new_field) 
+        self.field_repository.create(new_field)
 
-        return jsonify(data)
   
 
     def __validate_field_parameters(self, data):

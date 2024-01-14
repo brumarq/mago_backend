@@ -4,6 +4,8 @@ from app.main.application.service.field_service import FieldService
 from app.main.infrastructure.repositories.repository import Repository
 from app.main.domain.entities.field import Field
 from app.main.webapp.middleware.authentication import requires_auth
+from flask import Response
+import json
 
 api = FieldNamespace.api
 
@@ -26,4 +28,6 @@ class FieldCreation(Resource):
         """Creates a field"""
         data = api.payload
 
-        return self.field_service.create_field(data=data)
+        self.field_service.create_field(data=data)
+
+        return Response(json.dumps(data), status=201, mimetype="application/json")
