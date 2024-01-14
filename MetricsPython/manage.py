@@ -19,10 +19,15 @@ app.app_context().push()
 
 migrate = Migrate(app, db)
 
-# Periodic pings to wake up Azure SQL from its idle state...
-#threading.Thread(target=ping_database_periodically).start()
+# Periodic pings to wake up Azure SQL from its idle state (30 min) -> ping happens every 15 min
+def thd_ping_database_periodically():
+    with app.app_context():
+        ping_database_periodically()
 
-def run_migrations(): # migration on start-up
+threading.Thread(target=thd_ping_database_periodically).start()
+
+# Migrations on start-up
+def run_migrations(): 
     with app.app_context():
         try:
             upgrade()

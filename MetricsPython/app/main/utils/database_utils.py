@@ -19,4 +19,4 @@ def ping_database_periodically():
             logging.info("Database ping successful.")
         except Exception as e:
             logging.error(f"Error during periodic database ping: {e}")
-        time.sleep(10)  # ping every 5
+        time.sleep(900)  # ping every 15 min
