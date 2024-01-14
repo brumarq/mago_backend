@@ -29,5 +29,5 @@ COPY . /app/
 EXPOSE 5000
 
 # Use uWSGI to run the application
-CMD ["uwsgi", "--http", ":5000", "--module", "manage:app", "--processes", "4"]
+CMD ["uwsgi", "--http", ":5000", "--module", "manage:app"]
 #CMD ["gunicorn", "-b", "0.0.0.0:5000", "manage:app"]
