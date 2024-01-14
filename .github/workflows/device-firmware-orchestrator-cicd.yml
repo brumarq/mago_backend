@@ -72,7 +72,6 @@ jobs:
       - name: Deploy to test environment 
         run: |
           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-          oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
       - name: Update deployment config to current date
         run: |
