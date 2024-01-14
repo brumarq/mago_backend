@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import patch
 import json
-from flask import jsonify
 
 @patch('app.main.application.service.field_service.has_required_permission', return_value=False)
 def test_post_field_invalid_permissions(app, field_service):
@@ -73,9 +72,10 @@ def test_post_field_valid_data(app, field_service, name, unit_id, device_type_id
             "deviceTypeId": device_type_id,
             "loggable": loggable
         }
+
         response = field_service.create_field(data)
 
-        expected_response = jsonify(data)
+        expected_response = json.dumps(data)
 
         # Compare expected json with current json
-        assert json.loads(response.get_data(as_text=True)) == json.loads(expected_response.get_data(as_text=True))
+        assert json.loads(response) == json.loads(expected_response)

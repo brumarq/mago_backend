@@ -8,8 +8,8 @@ class Repository(BaseRepository):
 
     def create(self, entity):
         try:
-            with db.session.begin():
-                db.session.add(entity)
+            db.session.add(entity)
+            db.session.commit()
             return entity
         except SQLAlchemyError as e:
             db.session.rollback()
@@ -38,23 +38,23 @@ class Repository(BaseRepository):
 
     def update(self, entity):
         try:
-            with db.session.begin():
-                existing_entity = db.session.get(self.model, entity.id)
-                if existing_entity is None:
-                    return False
-                db.session.merge(entity)
+            existing_entity = db.session.get(self.model, entity.id)
+            if existing_entity is None:
+                return False
+            db.session.merge(entity)
+            db.session.commit()
             return True
         except SQLAlchemyError as e:
             db.session.rollback()
             raise e
 
-    def delete(self, entity_id):
+    def delete(self, entity_id) -> bool:
         try:
-            with db.session.begin():
-                entity = db.session.get(self.model, entity_id)
-                if entity is None:
-                    return False
-                db.session.delete(entity)
+            entity = db.session.get(self.model, entity_id)
+            if entity is None:
+                return False
+            db.session.delete(entity)
+            db.session.commit()
             return True
         except SQLAlchemyError as e:
             db.session.rollback()
@@ -62,8 +62,7 @@ class Repository(BaseRepository):
         
     def exists_by_id(self, record_id):
         try:
-            with db.session.begin():
-                return db.session.get(self.model, record_id) is not None
+            return db.session.get(self.model, record_id) is not None
         except SQLAlchemyError as e:
             db.session.rollback()
             raise e

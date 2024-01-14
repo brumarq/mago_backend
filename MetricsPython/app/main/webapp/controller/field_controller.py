@@ -28,6 +28,6 @@ class FieldCreation(Resource):
         """Creates a field"""
         data = api.payload
 
-        self.field_service.create_field(data=data)
+        field_json_data = self.field_service.create_field(data=data)
 
-        return Response(json.dumps(data), status=201, mimetype="application/json")
+        return Response(field_json_data, status=201, mimetype="application/json")

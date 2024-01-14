@@ -8,12 +8,12 @@ class ApplicationStateService(ApplicationStateService):
     
     def is_database_up(self) -> bool:
         try:
-            with db.session.begin():
-                db.session.execute(text('SELECT 1')) 
-                db.session.commit()
+            db.session.execute(text('SELECT 1')) 
+            db.session.commit()
             return True
         except Exception as e:
             logging.error(f"Error checking database status: {e}")
+            db.session.rollback()
             return False
         
     def is_migration_successful(self) -> bool:
