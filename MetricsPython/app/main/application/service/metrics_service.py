@@ -12,11 +12,11 @@ class MetricsService(BaseMetricsService):
 
     def get_latest_device_metrics_by_device_id(self, device_id) -> List[LogValue]:   
         
-        if not (has_required_permission("client") or has_required_permission("admin")):
-            abort(401, "This user does not have sufficient permissions")
-
         if device_id <= 0:
             abort(400, "Device id cannot be 0 or negative!")
+
+        if not (has_required_permission("client") or has_required_permission("admin")):
+            abort(401, "This user does not have sufficient permissions")  
 
         device_metrics = self.metrics_repository.get_latest_log_values_by_device_id(device_id)
 

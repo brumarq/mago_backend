@@ -1,5 +1,9 @@
 from prometheus_client import Gauge
 
+"""
+Methods for setting health and readiness status | Application state tracking
+"""
+
 HEALTH_STATUS = Gauge('application_health_status', 'Health status of the application (1 for healthy, 0 for unhealthy)')
 READINESS_STATUS = Gauge('application_readiness_status', 'Readiness status of the application (1 for ready, 0 for not ready)')
 

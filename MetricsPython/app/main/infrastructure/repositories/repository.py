@@ -48,7 +48,7 @@ class Repository(BaseRepository):
             db.session.rollback()
             raise e
 
-    def delete(self, entity_id):
+    def delete(self, entity_id) -> bool:
         try:
             entity = db.session.get(self.model, entity_id)
             if entity is None:

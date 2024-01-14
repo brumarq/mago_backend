@@ -17,8 +17,8 @@ class MetricsNamespace:
 
     log_collection_type_dto = api.model('LogCollectionType', {
         'id': fields.Integer(required=True, description='Log Collection Type identifier (int)', attribute="id"),
-        'createdAt': fields.DateTime(required=True, description="Log Collection created at (datetime)", attribute="created_at"),
-        'updatedAt': fields.DateTime(required=True, description="Log Collection updated at (datetime)", attribute="updated_at")
+        'createdAt': fields.DateTime(required=True, description="Log Collection Type created at (datetime)", attribute="created_at"),
+        'updatedAt': fields.DateTime(required=True, description="Log Collection Type updated at (datetime)", attribute="updated_at")
     })
 
     log_collection_dto = api.model('LogCollection', {
@@ -29,7 +29,6 @@ class MetricsNamespace:
         'logCollectionType': fields.Nested(log_collection_type_dto, required=True, description="Log Collection Type object", attribute="log_collection_type"),
     })
 
-    
     metrics_response_dto = api.model('MetricsResponseDto', {
         'id': fields.Integer(required=True, description="Log Value identifier", attribute="id"),
         'createdAt': fields.DateTime(required=True, description="LogValue creation datetime", attribute="created_at"),

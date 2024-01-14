@@ -13,6 +13,7 @@ class ApplicationStateService(ApplicationStateService):
             return True
         except Exception as e:
             logging.error(f"Error checking database status: {e}")
+            db.session.rollback()
             return False
         
     def is_migration_successful(self) -> bool:

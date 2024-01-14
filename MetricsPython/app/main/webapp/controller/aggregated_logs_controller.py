@@ -25,7 +25,7 @@ parser = reqparse.RequestParser()
 parser.add_argument('start_date', type=str, help='Start date for filtering (optional) | Format: YYYY-MM-DD')
 parser.add_argument('end_date', type=str, help='End date for filtering (optional) | Format: YYYY-MM-DD')
 
-@api.route('/<string:aggregated_log_date_type>/<int:device_id>/<int:field_id>')
+@api.route('/<string:aggregated_log_date_type>/<int(signed=True):device_id>/<int(signed=True):field_id>')
 @api.doc(params={'aggregated_log_date_type': 'Aggregation log date type',
                  'start_date': 'Start date for filtering (optional)',
                  'end_date': 'End date for filtering (optional)'})
