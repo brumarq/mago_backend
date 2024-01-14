@@ -91,7 +91,6 @@ jobs:
       - name: Deploy to test environment 
         run: |
           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-          oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
       - name: Update deployment config to current date
         run: |
@@ -158,7 +157,6 @@ jobs:
       - name: Deploy to OpenShift
         run: |
           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_NAMESPACE }}
-          oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
           
       - name: Update deployment config to current date
         run: |
@@ -187,26 +185,3 @@ jobs:
           if [ -z "$ROUTE_EXISTS" ]; then
             oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
           fi
-
-  # teardown-test-env:
-  #   runs-on: ubuntu-latest
-  #   needs: build-deploy
-  #   name: Teardown Test Environment
-
-  #   steps:
-  #     - name: Log in to Openshift
-  #       uses: redhat-actions/oc-login@v1
-  #       with:
-  #         openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
-  #         openshift_token: ${{ env.OPENSHIFT_TEST_TOKEN }}
-  #         insecure_skip_tls_verify: true
-  #         namespace: ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-
-  #     - name: Delete test deployment
-  #       run: oc delete deployment ${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-
-  #     - name: Delete test service
-  #       run: oc delete svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-
-  #     - name: Delete test route
-  #       run: oc delete route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
