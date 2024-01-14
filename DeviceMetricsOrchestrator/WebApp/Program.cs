@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Security.Claims;
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
@@ -38,6 +39,24 @@ builder.Services.AddScoped<IAggregatedLogsService, AggregatedLogsService>();
 builder.Services.AddScoped<IUnitService, UnitService>();
 builder.Services.AddScoped<IUsersOnDevicesService, UsersOnDevicesService>();
 builder.Services.AddScoped<IDeviceMetricsService, DeviceMetricsService>();
+
+// Create custom Prometheus metrics for HTTP requests
+var httpRequestDuration = Metrics.CreateHistogram(
+    "http_request_duration_seconds",
+    "Duration of HTTP requests in seconds",
+    new HistogramConfiguration
+    {
+        LabelNames = new[] { "method", "status_code" }
+    }
+);
+var httpRequestCounter = Metrics.CreateCounter(
+    "http_request_total",
+    "Total count of HTTP requests",
+    new CounterConfiguration
+    {
+        LabelNames = new[] { "method", "status_code" }
+    }
+);
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -105,6 +124,24 @@ builder.WebHost.UseUrls($"http://*:{httpPort}");
 builder.Configuration.AddEnvironmentVariables();
 
 var app = builder.Build();
+app.Use(async (context, next) =>
+{
+    var stopwatch = Stopwatch.StartNew();
+    await next();
+    stopwatch.Stop();
+
+    var method = context.Request.Method;
+    var statusCode = context.Response.StatusCode.ToString();
+
+    // Update metrics
+    httpRequestDuration
+        .WithLabels(method, statusCode)
+        .Observe(stopwatch.Elapsed.TotalSeconds);
+
+    httpRequestCounter
+        .WithLabels(method, statusCode)
+        .Inc();
+});
 
 app.UseSwagger();
 app.UseSwaggerUI();
