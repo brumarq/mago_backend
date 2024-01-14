@@ -65,8 +65,7 @@
         When the user tries to retrieve aggregated logs for Weekly with device id 1 and field id 1 and startDate empty and endDate empty
         Then the response should return 403
 
-   # This test is cursed
-   #Scenario: Retrieving aggregated logs as an admin with invalid startDate and invalid endDate
-        #Given the user is logged in as admin
-        #When the user tries to retrieve aggregated logs for Weekly with device id 1 and field id 1 and startDate invalidStartDate and endDate invalidEndDate
-        #Then the response should return 400
+   Scenario: Retrieving aggregated logs as an admin with invalid startDate and invalid endDate
+        Given the user is logged in as admin
+        When the user tries to retrieve aggregated logs for Weekly with device id 1 and field id 1 and startDate invalidStartDate and endDate invalidEndDate
+        Then the response should return 400

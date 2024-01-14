@@ -30,7 +30,7 @@ public class FieldController : ControllerBase
     /// </summary>
     /// <param name="createFieldDTO">Body for creation of a field</param>
     /// <returns>List of device metrics</returns>
-    /// <response code="200">Returns the user details.</response>
+    /// <response code="201">Creates a field successfully</response>
     /// <response code="401">Unauthorized access.</response>
     /// <response code="403">Forbidden access.</response>
     /// <response code="400">Bad request.</response>
