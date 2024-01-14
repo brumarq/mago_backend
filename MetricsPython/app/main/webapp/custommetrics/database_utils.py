@@ -1,7 +1,6 @@
 from sqlalchemy import text
 from app.main import db
 import logging
-import time
 
 def ping_database() -> None:
         try:
@@ -12,12 +11,3 @@ def ping_database() -> None:
             logging.error(f"Error checking database status: {e}")
             db.session.rollback()
             raise
-
-# def ping_database_periodically():
-#     while True:
-#         try:
-#             ping_database()
-#             logging.info("Database ping successful.")
-#         except Exception as e:
-#             logging.error(f"Error during periodic database ping: {e}")
-#         time.sleep(900)  # ping every 15 min

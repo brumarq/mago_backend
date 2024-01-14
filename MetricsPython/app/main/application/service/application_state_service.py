@@ -1,6 +1,6 @@
 from app.main.application.service.abstract.base_application_state_service import ApplicationStateService
 from app.main.domain.migration_status import MigrationStatus
-from app.main.utils.database_utils import ping_database
+from app.main.webapp.custommetrics.database_utils import ping_database
 
 class ApplicationStateService(ApplicationStateService):
     

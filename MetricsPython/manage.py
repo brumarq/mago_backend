@@ -5,12 +5,11 @@ from app.main import create_app, db
 from app.main.domain.entities import field, log_value, log_collection, log_collection_type, weekly_average, monthly_average, yearly_average
 from app.main.config import env
 from app.main.domain.migration_status import MigrationStatus
-from app.main.utils.database_utils import ping_database
+from app.main.webapp.custommetrics.database_utils import ping_database
 import logging
 import sys
 import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
-#from app.main import scheduler
 
 env = env or 'prod' # if no env, assume its production
 
