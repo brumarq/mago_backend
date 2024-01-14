@@ -5,6 +5,10 @@ class Config:
     DEBUG = False
     RESTX_MASK_SWAGGER = False
     SQLALCHEMY_DATABASE_URI = f"mssql+pyodbc://{os.environ.get('METRICS_DB_CONNECTION_STRING_SQLALCHEMY')}"
+    SQLALCHEMY_POOL_SIZE = 10  # Set the number of connections in the pool
+    SQLALCHEMY_POOL_TIMEOUT = 30  # Set the maximum time to wait for a connection from the pool
+    SQLALCHEMY_POOL_RECYCLE = 3600  # Set the maximum age (in seconds) of a connection
+    SQLALCHEMY_POOL_PRE_PING = True  # Enable pool pre-pinging
     FLASK_ENV=os.environ.get('FLASK_ENV')
     RESTX_ERROR_404_HELP = False
     PYTHONDONTWRITEBYTECODE = True
