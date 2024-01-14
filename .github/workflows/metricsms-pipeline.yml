@@ -113,8 +113,8 @@ jobs:
       # TESTING THIS
       - name: Set probes
         run: |
-          oc set probe deployment/${{ env.APP_NAME }} --readiness --get-url=http://:${{ env.APP_PORT }}/health --initial-delay-seconds=5 --period-seconds=10 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-          oc set probe deployment/${{ env.APP_NAME }} --liveness --get-url=http://:${{ env.APP_PORT }}/ready --initial-delay-seconds=15 --period-seconds=30 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+          oc set probe deployment/${{ env.APP_NAME }} --readiness --get-url=http://:${{ env.APP_PORT }}/ready --initial-delay-seconds=5 --period-seconds=10 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+          oc set probe deployment/${{ env.APP_NAME }} --liveness --get-url=http://:${{ env.APP_PORT }}/health --initial-delay-seconds=15 --period-seconds=30 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
 
       - name: Create service if non-existent
         run: |
