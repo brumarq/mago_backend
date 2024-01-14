@@ -4,8 +4,8 @@ from app import blueprint
 from app.main import create_app, db
 from app.main.domain.entities import field, log_value, log_collection, log_collection_type, weekly_average, monthly_average, yearly_average
 from app.main.config import env
-from app.main.domain.migration_status import MigrationStatus
-from app.main.webapp.custommetrics.database_utils import ping_database
+from app.main.utils.migration_state import MigrationState
+from app.main.utils.database_state import ping_database
 import logging
 import sys
 import atexit
@@ -34,10 +34,10 @@ def run_migrations():
     with app.app_context():
         try:
             upgrade()
-            MigrationStatus()._instance.is_migration_sucessful = True
+            MigrationState()._instance.is_migration_sucessful = True
         except Exception as e:
             logging.error(f"Migration failed: {str(e)}")
-            MigrationStatus()._instance.is_migration_sucessful = False
+            MigrationState()._instance.is_migration_sucessful = False
 
 if not any("pytest" in arg.lower() for arg in sys.argv): #and env == 'prod': #if its a pytest or not production, then ignore the migrations (bc it uses a diff database)
     run_migrations()

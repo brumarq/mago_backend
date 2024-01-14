@@ -1,6 +1,6 @@
 from app.main.application.service.abstract.base_application_state_service import ApplicationStateService
-from app.main.domain.migration_status import MigrationStatus
-from app.main.webapp.custommetrics.database_utils import ping_database
+from app.main.utils.migration_state import MigrationState
+from app.main.utils.database_state import ping_database
 
 class ApplicationStateService(ApplicationStateService):
     
@@ -12,4 +12,4 @@ class ApplicationStateService(ApplicationStateService):
             return False
         
     def is_migration_successful(self) -> bool:
-        return MigrationStatus()._instance.is_migration_sucessful
+        return MigrationState()._instance.is_migration_sucessful
