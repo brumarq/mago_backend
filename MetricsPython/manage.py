@@ -27,7 +27,7 @@ def thd_ping_database_periodically():
         ping_database()
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(id="ping_job", func=thd_ping_database_periodically, trigger='interval', seconds=10)
+scheduler.add_job(id="ping_job", func=thd_ping_database_periodically, trigger='interval', minutes=15)
 scheduler.start()
 
 # Migrations on start-up
