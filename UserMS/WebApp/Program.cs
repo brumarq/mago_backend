@@ -48,7 +48,7 @@ processResidentMemoryBytes.Set(Process.GetCurrentProcess().WorkingSet64);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - User Service it changed", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - User Service", Version = "v1" });
 
     // Security schema for Swagger UI
     var securitySchema = new OpenApiSecurityScheme
