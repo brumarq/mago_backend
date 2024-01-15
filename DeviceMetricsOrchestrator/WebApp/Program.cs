@@ -153,7 +153,7 @@ app.Use(async (context, next) =>
 
 app.UseSwagger();
 app.UseSwaggerUI();
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseMetricServer();
 app.UseAuthentication();
 app.UseAuthorization();
