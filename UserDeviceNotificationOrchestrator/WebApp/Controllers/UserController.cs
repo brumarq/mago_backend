@@ -19,6 +19,17 @@ namespace WebApp.Controllers
             _userService = userService;
         }
         
+        /// <summary>
+        /// Delete User. Accessible by Admin.
+        /// </summary>
+        /// <param name="userID">User ID</param>
+        /// <returns>Returns OK</returns>
+        /// <response code="200">Returns OK.</response>
+        /// <response code="404">Device not found.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="403">Forbidden access.</response>
+        /// <response code="400">Bad request.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpDelete("{userID}")]
         [Authorize("Admin")]
         public async Task<ActionResult> DeleteUser(string userID)
