@@ -125,31 +125,31 @@ jobs:
             if [ -z "$ROUTE_EXISTS" ]; then
               oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
             fi
-
-  # run-integration-tests:
-  #   runs-on: ubuntu-latest
-  #   needs: deploy-test-env
-  #   name: Execute Integration Tests
-  #   steps:
-  #     - uses: actions/checkout@v3 # Check Out Code
-  #     - uses: actions/setup-dotnet@v3 # Setup .NET Environment
-  #       with:
-  #         dotnet-version: 6.0.x
-  #     - name: Restore .NET Dependencies
-  #       run: dotnet restore ServiceTests/ServiceTests.sln
-  #     - name: Build .NET Project
-  #       run: dotnet build ServiceTests/ServiceTests.sln --no-restore
-  #     - name: Run .NET Integration Tests
-  #       run: dotnet test ServiceTests/ServiceTests.sln --no-build --verbosity normal
-  #       env:
-  #         AdminJWTToken: ${{ secrets.JWT_ADMIN_TEST_TOKEN }}
-  #         ClientJWTToken: ${{ secrets.JWT_CLIENT_TEST_TOKEN }}
-  #         ForbiddenClientJWTToken: ${{ secrets.JWT_CLIENT_FORBIDDEN_TEST_TOKEN }}
-  #         InvalidToken: ${{secrets.JWT_INVALID_TEST_TOKEN}}
+  
+  run-integration-tests:
+    runs-on: ubuntu-latest
+    needs: deploy-test-env
+    name: Execute Integration Tests
+    steps:
+     - uses: actions/checkout@v3 # Check Out Code
+     - uses: actions/setup-dotnet@v3 # Setup .NET Environment
+       with:
+         dotnet-version: 6.0.x
+     - name: Restore .NET Dependencies
+       run: dotnet restore ServiceTests/ServiceTests.sln
+     - name: Build .NET Project
+       run: dotnet build ServiceTests/ServiceTests.sln --no-restore
+     - name: Run .NET Integration Tests
+       run: dotnet test ServiceTests/ServiceTests.sln --no-build --verbosity normal
+       env:
+         AdminJWTToken: ${{ secrets.JWT_ADMIN_TEST_TOKEN }}
+         ClientJWTToken: ${{ secrets.JWT_CLIENT_TEST_TOKEN }}
+         ForbiddenClientJWTToken: ${{ secrets.JWT_CLIENT_FORBIDDEN_TEST_TOKEN }}
+         InvalidToken: ${{secrets.JWT_INVALID_TEST_TOKEN}}
           
   build-deploy:
     runs-on: ubuntu-20.04
-    needs: deploy-test-env
+    needs: run-integration-tests
     name: Deploy Production Environment
     environment: device-metrics-orchestrator-production
 
