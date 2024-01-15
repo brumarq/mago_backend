@@ -12,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using System.Security.Claims;
 using Prometheus;
 using WebApp.Middleware.Authentication;
+using WebApp.Middleware.prometheus;
 using WebApp.Middleware.status;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,7 +30,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddDbContext<DevicesDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DevicesDb")));
+builder.Services.AddDbContext<DevicesDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DevicesDb")));
 
 // Add repositories for dependency injection
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -43,34 +45,9 @@ builder.Services.AddScoped<IDeviceSettingsService, DeviceSettingsService>();
 builder.Services.AddScoped<IUnitService, UnitService>();
 builder.Services.AddScoped<IUsersOnDevicesService, UsersOnDevicesService>();
 builder.Services.AddScoped<IApplicationStateService, ApplicationStateService>();
-// Register singleton migration state service
+// Register singleton migration state and custom prometheus metrics
 builder.Services.AddSingleton<MigrationStatus>();
-
-
-// Create custom Prometheus metrics for HTTP requests
-var httpRequestDuration = Metrics.CreateHistogram(
-    "http_request_duration_seconds",
-    "Duration of HTTP requests in seconds",
-    new HistogramConfiguration
-    {
-        LabelNames = new[] { "method", "status_code" }
-    }
-);
-var httpRequestCounter = Metrics.CreateCounter(
-    "http_request_total",
-    "Total count of HTTP requests",
-    new CounterConfiguration
-    {
-        LabelNames = new[] { "method", "status_code" }
-    }
-);
-
-// Create a gauge metric for process resident memory in bytes
-var processResidentMemoryBytes = Metrics.CreateGauge(
-    "process_resident_memory_bytes",
-    "Resident memory size of the process in bytes"
-);
-processResidentMemoryBytes.Set(Process.GetCurrentProcess().WorkingSet64);
+builder.Services.AddSingleton<CustomMetrics>();
 
 // Swagger/OpenAPI configuration
 builder.Services.AddEndpointsApiExplorer();
@@ -118,7 +95,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Admin", policy => policy.RequireClaim("permissions", "admin"));
     options.AddPolicy("Client", policy => policy.RequireClaim("permissions", "client"));
     options.AddPolicy("All", policy => policy.RequireAssertion(context =>
-        context.User.HasClaim(c => 
+        context.User.HasClaim(c =>
             (c.Type == "permissions" && (c.Value == "admin" || c.Value == "client")))));
 });
 
@@ -131,9 +108,11 @@ builder.WebHost.UseUrls($"http://*:{httpPort}");
 
 var app = builder.Build();
 
-// Apply pending migrations on boot-up
+
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
+
+// Apply pending migrations on boot-up
 var context = services.GetRequiredService<DevicesDbContext>();
 var migrationStatus = services.GetRequiredService<MigrationStatus>();
 
@@ -153,6 +132,8 @@ catch (Exception e)
 // Add custom metric instrumentation for HTTP requests
 app.Use(async (context, next) =>
 {
+    var customMetrics = services.GetRequiredService<CustomMetrics>();
+
     var stopwatch = Stopwatch.StartNew();
     await next();
     stopwatch.Stop();
@@ -161,13 +142,8 @@ app.Use(async (context, next) =>
     var statusCode = context.Response.StatusCode.ToString();
 
     // Update metrics
-    httpRequestDuration
-        .WithLabels(method, statusCode)
-        .Observe(stopwatch.Elapsed.TotalSeconds);
-
-    httpRequestCounter
-        .WithLabels(method, statusCode)
-        .Inc();
+    customMetrics.HttpRequestDuration.WithLabels(method, statusCode).Observe(stopwatch.Elapsed.TotalSeconds);
+    customMetrics.HttpRequestCounter.WithLabels(method, statusCode).Inc();
 });
 
 app.UseSwagger();
