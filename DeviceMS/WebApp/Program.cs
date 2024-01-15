@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
 using Infrastructure.Data.Context;
@@ -75,6 +76,10 @@ builder.Services.AddSwaggerGen(c =>
     {
         { securitySchema, new[] { "Bearer" } }
     });
+    
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
 });
 
 // Authentication configuration

@@ -21,6 +21,7 @@ public class ApplicationStateController : ControllerBase
     }
 
     [HttpGet("/health")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<ActionResult<bool>> HealthCheck()
     {
         // Checks whether application is up and running so OK is immediately returned
@@ -29,6 +30,7 @@ public class ApplicationStateController : ControllerBase
     }
 
     [HttpGet("/ready")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<IActionResult> ReadyCheck()
     {
         if (await _applicationStateService.DbIsConnected())
