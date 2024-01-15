@@ -1,0 +1,84 @@
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets: []
+    scheme: http
+    timeout: 10s
+
+scrape_configs:
+  - job_name: user-microservice
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets:
+        - user-microservice-service.mago-backend-test.svc.cluster.local:8080
+
+  - job_name: device-microservice
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets:
+        - device-microservice-service.mago-backend-test.svc.cluster.local:8181
+
+  - job_name: metrics-microservice
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets:
+        - metrics-microservice-service.mago-backend-test.svc.cluster.local:5000
+
+  - job_name: notifications-microservice
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets:
+        - notifications-microservice-service.mago-backend-test.svc.cluster.local:8282
+
+  - job_name: firmware-microservice-servicee
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets:
+        - firmware-microservice-service.mago-backend-test.svc.cluster.local:6969
+
+  - job_name: user-device-noti-orchestrator-service
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets:
+        - user-device-noti-orchestrator-service.mago-backend-test.svc.cluster.local:8484
+
+  - job_name: device-firmware-orchestrator-service
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets:
+        - device-firmware-orchestrator-service.mago-backend-test.svc.cluster.local:8383
+
+  - job_name: device-metrics-orchestrator-service
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets:
+        - device-metrics-orchestrator-service.mago-backend-test.svc.cluster.local:8585
