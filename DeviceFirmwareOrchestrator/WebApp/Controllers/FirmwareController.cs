@@ -17,6 +17,16 @@ public class FirmwareController : ControllerBase
         _service = service;
     }
 
+    /// <summary>
+    /// Create new Firmware update. Accessible by Admin.
+    /// </summary>
+    /// <param name="newFileSendDto">Body of firmware update.</param>
+    /// <returns>Returns firmware update.</returns>
+    /// <response code="200" name="FileSendResponseDTO">Returns  firmware update.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="403">Forbidden access.</response>
+    /// <response code="400">Bad request.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpPost]
     [Authorize("Admin")]
     public async Task<ActionResult<FileSendResponseDTO>> CreateFirmwareFileSend(
@@ -40,6 +50,16 @@ public class FirmwareController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Get Firmware History from a Device. Accessible by Admin.
+    /// </summary>
+    /// <param name="deviceId">Id of the Device</param>
+    /// <returns>Returns list of firmware updates.</returns>
+    /// <response code="200" name="FileSendResponseDTO">Returns list of firmware updates.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="403">Forbidden access.</response>
+    /// <response code="400">Bad request.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpGet("{deviceId}")]
     [Authorize("Admin")]
     public async Task<ActionResult<IEnumerable<FileSendResponseDTO>>> GetFirmwareHistoryForDevice(int deviceId)

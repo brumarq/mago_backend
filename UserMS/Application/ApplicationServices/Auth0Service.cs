@@ -118,7 +118,7 @@ public class Auth0Service : IAuth0Service
             await UpdateUserDetailsInAuth0(userId, updateDetails);
         }
         
-        // No data is return after updating, making a get request to get the updated user
+        // No data is returned after updating, making a get request to get the updated user
         return await GetUser(userId);
     }
     
@@ -146,7 +146,7 @@ public class Auth0Service : IAuth0Service
         // Use _auth0ManagementService to get the access token
         var token = await _auth0ManagementService.GetToken();
 
-        // Prepare the request to assign a role to a user
+        // Prepare the request to get user by ID
         var client = _httpClientFactory.CreateClient();
         var request = new HttpRequestMessage(HttpMethod.Get, $"{_configuration["Auth0-Management:Audience"]}users/{userId}")
         {

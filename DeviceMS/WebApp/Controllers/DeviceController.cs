@@ -23,6 +23,15 @@ namespace WebApp.Controllers
             _authorizationService = authorizationService;
         }
 
+        
+        /// <summary>
+        /// Creates a new device. Accessible by Admin.
+        /// </summary>
+        /// <param name="createDeviceDto">The data transfer object for device creation.</param>
+        /// <returns>Returns the created device.</returns>
+        /// <response code="201">Returns the newly created device.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpPost]
         [Authorize("Admin")]
         public async Task<ActionResult<DeviceResponseDTO>> CreateDeviceAsync([FromBody] CreateDeviceDTO createDeviceDto)
@@ -40,6 +49,14 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
+        
+        /// <summary>
+        /// Retrieves all devices. Accessible by Admin.
+        /// </summary>
+        /// <returns>Returns a list of devices.</returns>
+        /// <response code="200">Returns a list of devices.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="500">Internal server error.</response>
 
         [HttpGet]
         [Authorize("Admin")]
@@ -55,7 +72,17 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
-
+        
+        /// <summary>
+        /// Retrieves a specific device by ID. Accessible by all authorized users.
+        /// </summary>
+        /// <param name="id">The ID of the device to retrieve.</param>
+        /// <returns>Returns the requested device.</returns>
+        /// <response code="200">Returns the requested device.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="403">Forbidden access if the user cannot access the specified device.</response>
+        /// <response code="404">Device not found.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpGet("{id}")]
         [Authorize("All")]
         public async Task<ActionResult<DeviceResponseDTO>> GetDeviceByIdAsync(int id)
@@ -77,6 +104,18 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
+
+        /// <summary>
+        /// Updates a specific device. Accessible by Admin.
+        /// </summary>
+        /// <param name="id">The ID of the device to update.</param>
+        /// <param name="updateDeviceDto">The data transfer object for device update.</param>
+        /// <returns>Returns the result of the update operation.</returns>
+        /// <response code="204">No content if the device was updated successfully.</response>
+        /// <response code="400">Bad request if the ID is invalid.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="404">Device not found.</response>
+        /// <response code="500">Internal server error.</response>
 
         [HttpPut("{id}")]
         [Authorize("Admin")]

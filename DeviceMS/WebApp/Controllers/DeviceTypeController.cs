@@ -21,6 +21,14 @@ namespace WebApp.Controllers
             _authorizationService = authorizationService;
         }
 
+        /// <summary>
+        /// Creates a new device type. Accessible by Admin.
+        /// </summary>
+        /// <param name="createDeviceTypeDto">The data transfer object for creating a new device type.</param>
+        /// <returns>Returns the created device type.</returns>
+        /// <response code="200">Returns the newly created device type.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpPost]
         [Authorize("Admin")]
         public async Task<ActionResult<DeviceTypeResponseDTO>> CreateDeviceTypeAsync([FromBody] CreateDeviceTypeDTO createDeviceTypeDto)
@@ -38,8 +46,16 @@ namespace WebApp.Controllers
             {
                 return StatusCode(500, $"Internal server error: {e.Message}");
             }
+            
         }
         
+        /// <summary>
+        /// Retrieves all device types. Accessible by Admin.
+        /// </summary>
+        /// <returns>Returns a list of all device types.</returns>
+        /// <response code="200">Returns a list of device types.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpGet]
         [Authorize("Admin")]
         public async Task<ActionResult<IEnumerable<DeviceTypeResponseDTO>>> GetDeviceTypesAsync()
@@ -54,7 +70,16 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
-
+        
+        /// <summary>
+        /// Retrieves a specific device type by ID. Accessible by Admin.
+        /// </summary>
+        /// <param name="id">The ID of the device type to retrieve.</param>
+        /// <returns>Returns the requested device type.</returns>
+        /// <response code="200">Returns the requested device type.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="404">Device type not found.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpGet("{id}")]
         [Authorize("Admin")]
         public async Task<ActionResult<DeviceTypeResponseDTO>> GetDeviceTypeByIdAsync(int id)
@@ -70,6 +95,17 @@ namespace WebApp.Controllers
             }
         }
 
+        /// <summary>
+        /// Updates a specific device type. Accessible by Admin.
+        /// </summary>
+        /// <param name="id">The ID of the device type to update.</param>
+        /// <param name="updateDeviceTypeDto">The data transfer object for updating a device type.</param>
+        /// <returns>Returns the result of the update operation.</returns>
+        /// <response code="204">No content if the device type was updated successfully.</response>
+        /// <response code="400">Bad request if the ID is invalid.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="404">Device type not found.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpPut("{id}")]
         [Authorize("Admin")]
         public async Task<ActionResult<UpdateDeviceTypeDTO>> UpdateDeviceTypeAsync(int id, [FromBody] UpdateDeviceTypeDTO updateDeviceTypeDto)
