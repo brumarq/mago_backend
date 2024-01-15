@@ -39,6 +39,7 @@ builder.Services.AddScoped<IAggregatedLogsService, AggregatedLogsService>();
 builder.Services.AddScoped<IUnitService, UnitService>();
 builder.Services.AddScoped<IUsersOnDevicesService, UsersOnDevicesService>();
 builder.Services.AddScoped<IDeviceMetricsService, DeviceMetricsService>();
+builder.Services.AddScoped<IDeviceAggregatedLogsService, DeviceAggregatedLogsService>();
 
 // Create custom Prometheus metrics for HTTP requests
 var httpRequestDuration = Metrics.CreateHistogram(
@@ -126,9 +127,9 @@ builder.Services
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters
     .Add(new JsonStringEnumConverter()));
 
-var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8585";
+/*var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8585";
 builder.WebHost.UseUrls($"http://*:{httpPort}");
-builder.Configuration.AddEnvironmentVariables();
+builder.Configuration.AddEnvironmentVariables();*/
 
 var app = builder.Build();
 app.Use(async (context, next) =>
@@ -152,7 +153,7 @@ app.Use(async (context, next) =>
 
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseMetricServer();
 app.UseAuthentication();
 app.UseAuthorization();
