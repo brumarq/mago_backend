@@ -149,7 +149,7 @@ jobs:
           
   build-deploy:
     runs-on: ubuntu-20.04
-    #needs: run-integration-tests
+    needs: deploy-test-env
     name: Deploy Production Environment
     environment: device-metrics-orchestrator-production
 
