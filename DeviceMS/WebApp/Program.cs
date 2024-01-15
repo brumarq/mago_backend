@@ -125,9 +125,9 @@ builder.Services.AddAuthorization(options =>
 // Authorization handler registration
 builder.Services.AddSingleton<IAuthorizationHandler, HasPermissionHandler>();
 
-// builder.Configuration.AddEnvironmentVariables();
-// var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8181";
-// builder.WebHost.UseUrls($"http://*:{httpPort}");
+builder.Configuration.AddEnvironmentVariables();
+var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8181";
+builder.WebHost.UseUrls($"http://*:{httpPort}");
 
 var app = builder.Build();
 
@@ -173,7 +173,7 @@ app.Use(async (context, next) =>
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseMetricServer();
-// app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
