@@ -12,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using System.Security.Claims;
 using Prometheus;
 using WebApp.Middleware.Authentication;
+using WebApp.Middleware.status;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,7 @@ builder.Services.AddScoped<IDeviceTypeService, DeviceTypeService>();
 builder.Services.AddScoped<IDeviceSettingsService, DeviceSettingsService>();
 builder.Services.AddScoped<IUnitService, UnitService>();
 builder.Services.AddScoped<IUsersOnDevicesService, UsersOnDevicesService>();
+builder.Services.AddScoped<IApplicationStateService, ApplicationStateService>();
 
 
 // Create custom Prometheus metrics for HTTP requests
@@ -125,11 +127,24 @@ builder.Configuration.AddEnvironmentVariables();
 var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8181";
 builder.WebHost.UseUrls($"http://*:{httpPort}");
 
-
+// Register singleton migration state service
+builder.Services.AddSingleton<MigrationStatus>();
 // Apply pending migrations on boot-up
 var serviceProvider = builder.Services.BuildServiceProvider();
 var context = serviceProvider.GetRequiredService<DevicesDbContext>();
-context.Database.Migrate();
+var migrationStatus = serviceProvider.GetRequiredService<MigrationStatus>();
+
+try
+{
+    context.Database.Migrate();
+    // Applying migration succeeds --> set status to true
+    migrationStatus.SetMigrationStatus(true);
+}
+catch (Exception e)
+{
+    // Applying migration fails --> set status to false
+    migrationStatus.SetMigrationStatus(false);
+}
 
 var app = builder.Build();
 
