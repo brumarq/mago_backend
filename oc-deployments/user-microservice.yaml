@@ -22,7 +22,7 @@ spec:
           terminationMessagePolicy: File
           imagePullPolicy: Always
       restartPolicy: Always
-      terminationGracePeriodSeconds: 31
+      terminationGracePeriodSeconds: 30
       dnsPolicy: ClusterFirst
       securityContext: {}
       schedulerName: default-scheduler
