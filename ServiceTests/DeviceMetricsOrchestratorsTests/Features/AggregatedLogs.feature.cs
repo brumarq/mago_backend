@@ -503,14 +503,12 @@ namespace DeviceMetricsOrchestratorsTests.Features
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Retrieving aggregated logs as a client of device with invalid startDate and inval" +
-            "id endDate")]
-        public virtual void RetrievingAggregatedLogsAsAClientOfDeviceWithInvalidStartDateAndInvalidEndDate()
+        [NUnit.Framework.DescriptionAttribute("Retrieving aggregated logs as an invalid user")]
+        public virtual void RetrievingAggregatedLogsAsAnInvalidUser()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Retrieving aggregated logs as a client of device with invalid startDate and inval" +
-                    "id endDate", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Retrieving aggregated logs as an invalid user", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
 #line 58
     this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -532,26 +530,26 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 59
-        testRunner.Given("the user is logged in as client", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as invalidUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 60
         testRunner.When("the user tries to retrieve aggregated logs for Weekly with device id 1 and field " +
-                        "id 1 and startDate invalidStartDate and endDate invalidEndDate", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+                        "id 1 and startDate empty and endDate empty", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 61
-        testRunner.Then("the response should return 400", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+        testRunner.Then("the response should return 401", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Retrieving aggregated logs as an invalid user")]
-        public virtual void RetrievingAggregatedLogsAsAnInvalidUser()
+        [NUnit.Framework.DescriptionAttribute("Retrieving aggregated logs as a client that does not own the device")]
+        public virtual void RetrievingAggregatedLogsAsAClientThatDoesNotOwnTheDevice()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Retrieving aggregated logs as an invalid user", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Retrieving aggregated logs as a client that does not own the device", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
 #line 63
     this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -573,28 +571,30 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 64
-        testRunner.Given("the user is logged in as invalidUser", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as forbiddenClient", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 65
         testRunner.When("the user tries to retrieve aggregated logs for Weekly with device id 1 and field " +
                         "id 1 and startDate empty and endDate empty", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 66
-        testRunner.Then("the response should return 401", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+        testRunner.Then("the response should return 403", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Retrieving aggregated logs as a client that does not own the device")]
-        public virtual void RetrievingAggregatedLogsAsAClientThatDoesNotOwnTheDevice()
+        [NUnit.Framework.DescriptionAttribute("Retrieving aggregated logs as an admin with invalid startDate and invalid endDate" +
+            "")]
+        public virtual void RetrievingAggregatedLogsAsAnAdminWithInvalidStartDateAndInvalidEndDate()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Retrieving aggregated logs as a client that does not own the device", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Retrieving aggregated logs as an admin with invalid startDate and invalid endDate" +
+                    "", null, tagsOfScenario, argumentsOfScenario, this._featureTags);
 #line 68
-    this.ScenarioInitialize(scenarioInfo);
+   this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
             bool isFeatureIgnored = default(bool);
@@ -614,14 +614,14 @@ namespace DeviceMetricsOrchestratorsTests.Features
             {
                 this.ScenarioStart();
 #line 69
-        testRunner.Given("the user is logged in as forbiddenClient", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+        testRunner.Given("the user is logged in as admin", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 70
         testRunner.When("the user tries to retrieve aggregated logs for Weekly with device id 1 and field " +
-                        "id 1 and startDate empty and endDate empty", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+                        "id 1 and startDate invalidStartDate and endDate invalidEndDate", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 71
-        testRunner.Then("the response should return 403", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+        testRunner.Then("the response should return 400", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
