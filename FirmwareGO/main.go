@@ -13,6 +13,7 @@ import (
 	. "FirmwareGO/domain/entities"
 	"FirmwareGO/infrastructure/repositories"
 	"FirmwareGO/webapp/controllers"
+	. "FirmwareGO/webapp/middleware/prometheus"
 	"FirmwareGO/webapp/status"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -36,10 +37,13 @@ func main() {
 	}
 
 	// Configure Prometheus plugin
-	db.Use(gormPrometheus.New(gormPrometheus.Config{
+	err = db.Use(gormPrometheus.New(gormPrometheus.Config{
 		DBName:          "FirmwareDB", // Metrics label
 		RefreshInterval: 15,           // Refresh metrics interval (default 15 seconds)
 	}))
+	if err != nil {
+		return
+	}
 
 	err = db.AutoMigrate(&FileSend{})
 	if err != nil {
@@ -63,6 +67,7 @@ func main() {
 
 	// Set up the router
 	router := gin.Default()
+	router.Use(TrackRequestDuration())
 
 	// Register the Prometheus metrics handler
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
