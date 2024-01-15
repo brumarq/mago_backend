@@ -43,6 +43,8 @@ builder.Services.AddScoped<IDeviceSettingsService, DeviceSettingsService>();
 builder.Services.AddScoped<IUnitService, UnitService>();
 builder.Services.AddScoped<IUsersOnDevicesService, UsersOnDevicesService>();
 builder.Services.AddScoped<IApplicationStateService, ApplicationStateService>();
+// Register singleton migration state service
+builder.Services.AddSingleton<MigrationStatus>();
 
 
 // Create custom Prometheus metrics for HTTP requests
@@ -123,16 +125,17 @@ builder.Services.AddAuthorization(options =>
 // Authorization handler registration
 builder.Services.AddSingleton<IAuthorizationHandler, HasPermissionHandler>();
 
-builder.Configuration.AddEnvironmentVariables();
-var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8181";
-builder.WebHost.UseUrls($"http://*:{httpPort}");
+// builder.Configuration.AddEnvironmentVariables();
+// var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8181";
+// builder.WebHost.UseUrls($"http://*:{httpPort}");
 
-// Register singleton migration state service
-builder.Services.AddSingleton<MigrationStatus>();
+var app = builder.Build();
+
 // Apply pending migrations on boot-up
-var serviceProvider = builder.Services.BuildServiceProvider();
-var context = serviceProvider.GetRequiredService<DevicesDbContext>();
-var migrationStatus = serviceProvider.GetRequiredService<MigrationStatus>();
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+var context = services.GetRequiredService<DevicesDbContext>();
+var migrationStatus = services.GetRequiredService<MigrationStatus>();
 
 try
 {
@@ -144,9 +147,8 @@ catch (Exception e)
 {
     // Applying migration fails --> set status to false
     migrationStatus.SetMigrationStatus(false);
+    Console.WriteLine(e.Message);
 }
-
-var app = builder.Build();
 
 // Add custom metric instrumentation for HTTP requests
 app.Use(async (context, next) =>
@@ -171,7 +173,7 @@ app.Use(async (context, next) =>
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseMetricServer();
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
