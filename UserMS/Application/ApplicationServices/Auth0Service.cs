@@ -127,7 +127,7 @@ public class Auth0Service : IAuth0Service
         var token = await _auth0ManagementService.GetToken();
         
         var client = _httpClientFactory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Put, $"{_configuration["Auth0-Management:Audience"]}users/{userId}")
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"{_configuration["Auth0-Management:Audience"]}users/{userId}")
         {
             Content = JsonContent.Create(userDetails),
             Headers = { { "Authorization", $"Bearer {token.Token}" } }
