@@ -127,9 +127,9 @@ builder.Services
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters
     .Add(new JsonStringEnumConverter()));
 
-/*var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8585";
+var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8585";
 builder.WebHost.UseUrls($"http://*:{httpPort}");
-builder.Configuration.AddEnvironmentVariables();*/
+builder.Configuration.AddEnvironmentVariables();
 
 var app = builder.Build();
 app.Use(async (context, next) =>
@@ -153,7 +153,7 @@ app.Use(async (context, next) =>
 
 app.UseSwagger();
 app.UseSwaggerUI();
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseMetricServer();
 app.UseAuthentication();
 app.UseAuthorization();
