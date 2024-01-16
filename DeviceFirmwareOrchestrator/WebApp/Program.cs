@@ -85,6 +85,7 @@ builder.Services.AddScoped<IDeviceService, DeviceService>();
 
 builder.Services.AddScoped<IFirmwareService, FirmwareService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IApplicationStateService, ApplicationStateService>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddHttpClient();
