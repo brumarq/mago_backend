@@ -96,7 +96,7 @@ namespace WebApp.Controllers
         // GET /notifications/device/5?pageNumber=1&pageSize=10
         [HttpGet("device/{deviceId}")]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId, int pageNumber = 1, int pageSize = 10)
+        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId, int pageNumber, int pageSize)
         {
             try
             {
