@@ -24,7 +24,6 @@ namespace WebApp.Controllers
             _unitService = unitService;
         }
 
-
         /// <summary>
         /// Retrieves a specific unit by ID. Accessible by Admin.
         /// </summary>
