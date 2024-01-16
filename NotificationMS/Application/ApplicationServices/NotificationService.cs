@@ -43,6 +43,8 @@ namespace Application.ApplicationServices
         public async Task<IEnumerable<NotificationResponseDTO>> GetAllNotificationsPagedAsync(int pageNumber, int pageSize)
         {
             var notifications = await _notificationRepository.GetAllPagedAsync(pageNumber, pageSize);
+            if (notifications == null || !notifications.Any())
+                throw new NotFoundException("No notifications found");
 
             return _mapper.Map<IEnumerable<NotificationResponseDTO>>(notifications);
         }
@@ -61,7 +63,7 @@ namespace Application.ApplicationServices
         {
             var notifications = await _notificationRepository.GetPagedListByConditionAsync(n => n.DeviceId == deviceId, pageNumber, pageSize);
 
-            if (!notifications.Any())
+            if (notifications == null || !notifications.Any())
                 throw new NotFoundException("Notifications were not found...");
 
             return _mapper.Map<IEnumerable<NotificationResponseDTO>>(notifications);
@@ -96,16 +98,13 @@ namespace Application.ApplicationServices
             var statusType = await _statusTypeRepository.GetByConditionAsync(st => st.Id == id);
 
             if (statusType == null)
-            {
-                throw new NotFoundException("StatusType not found.");
-            }
+                throw new NotFoundException("StatusType not found.");          
 
             var notificationByStatusTypeId = await _notificationRepository.GetByConditionAsync(st => st.StatusTypeId == id);
 
             if (notificationByStatusTypeId != null)
-            {
                 throw new BadRequestException("StatusType is associated with notifications");
-            }
+
 
             await _statusTypeRepository.DeleteAsync(statusType.Id);
         }
@@ -115,9 +114,7 @@ namespace Application.ApplicationServices
             var statusType = await _statusTypeRepository.GetByConditionAsync(st => st.Id == id);
 
             if (statusType == null)
-            {
                 throw new NotFoundException("StatusType not found.");
-            }
 
             statusType.Name = statusTypeDTO.Name;
 
