@@ -9,42 +9,12 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Prometheus;
 using WebApp.Middleware.Authentication;
-
-// using Infrastructure.Data.Context;
-// using Infrastructure.Repositories;
-// using Infrastructure.Repositories.Interfaces;
-// using Microsoft.EntityFrameworkCore;
+using WebApp.Middleware.Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-
-// Create custom Prometheus metrics for HTTP requests
-var httpRequestDuration = Metrics.CreateHistogram(
-    "http_request_duration_seconds",
-    "Duration of HTTP requests in seconds",
-    new HistogramConfiguration
-    {
-        LabelNames = new[] { "method", "status_code" }
-    }
-);
-var httpRequestCounter = Metrics.CreateCounter(
-    "http_request_total",
-    "Total count of HTTP requests",
-    new CounterConfiguration
-    {
-        LabelNames = new[] { "method", "status_code" }
-    }
-);
-
-// Create a gauge metric for process resident memory in bytes
-var processResidentMemoryBytes = Metrics.CreateGauge(
-    "process_resident_memory_bytes",
-    "Resident memory size of the process in bytes"
-);
-processResidentMemoryBytes.Set(Process.GetCurrentProcess().WorkingSet64);
 
 // Swagger/OpenAPI configuration
 builder.Services.AddEndpointsApiExplorer();
@@ -102,30 +72,21 @@ builder.Services.AddAuthorization(options =>
 
 // Authorization handler registration
 builder.Services.AddSingleton<IAuthorizationHandler, HasPermissionHandler>();
-
+// Register singleton migration state and custom prometheus metrics
+builder.Services.AddSingleton<CustomMetrics>();
 
 builder.Services.AddHttpClient();
-// builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// builder.Services.AddDbContext<DevicesDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DevicesDb")));
-
-// Add repositories for dependency injection
-// builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
 builder.Services.AddScoped<IDeviceService, DeviceService>();
 
 builder.Services.AddScoped<IFirmwareService, FirmwareService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IApplicationStateService, ApplicationStateService>();
 builder.Services.AddHttpContextAccessor();
-// builder.Services.AddScoped<IDeviceTypeService, DeviceTypeService>();
-// builder.Services.AddScoped<IDeviceSettingsService, DeviceSettingsService>();
-
-// Add services for dependency injection
-//...
 
 builder.Services.AddHttpClient();
 
@@ -134,10 +95,15 @@ builder.WebHost.UseUrls($"http://*:{httpPort}");
 builder.Configuration.AddEnvironmentVariables();
 
 var app = builder.Build();
-// Add custom metric instrumentation for HTTP requests
 
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+
+// Add custom metric instrumentation for HTTP requests
 app.Use(async (context, next) =>
 {
+    var customMetrics = services.GetRequiredService<CustomMetrics>();
+
     var stopwatch = Stopwatch.StartNew();
     await next();
     stopwatch.Stop();
@@ -146,13 +112,8 @@ app.Use(async (context, next) =>
     var statusCode = context.Response.StatusCode.ToString();
 
     // Update metrics
-    httpRequestDuration
-        .WithLabels(method, statusCode)
-        .Observe(stopwatch.Elapsed.TotalSeconds);
-
-    httpRequestCounter
-        .WithLabels(method, statusCode)
-        .Inc();
+    customMetrics.HttpRequestDuration.WithLabels(method, statusCode).Observe(stopwatch.Elapsed.TotalSeconds);
+    customMetrics.HttpRequestCounter.WithLabels(method, statusCode).Inc();
 });
 
 app.UseSwagger();

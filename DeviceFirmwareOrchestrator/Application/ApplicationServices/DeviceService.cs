@@ -25,7 +25,7 @@ public class DeviceService : IDeviceService
     {
         try
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}/{deviceId}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}/deviceMS/Device/{deviceId}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
             var response = await _httpClient.SendAsync(request);
             
