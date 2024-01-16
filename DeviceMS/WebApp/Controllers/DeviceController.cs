@@ -1,5 +1,6 @@
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs.Device;
+using Application.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -67,6 +68,10 @@ namespace WebApp.Controllers
                 var devices = await _deviceService.GetDevicesAsync();
                 return Ok(devices);
             }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
+            }
             catch (Exception e)
             {
                 return StatusCode(500, $"Internal server error: {e.Message}");
@@ -98,6 +103,10 @@ namespace WebApp.Controllers
             {
                 var device = await _deviceService.GetDeviceByIdAsync(id);
                 return (device == null) ? NotFound("The selected device does not exist") : Ok(device);
+            }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
             }
             catch (Exception e)
             {
@@ -133,6 +142,10 @@ namespace WebApp.Controllers
                     return NotFound();
 
                 return (bool)isUpdatedResult ? NoContent() : Ok("No changes were made.");
+            }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
             }
             catch (Exception e)
             {

@@ -1,27 +1,27 @@
 using Application.ApplicationServices.Interfaces;
-using Application.DTOs;
-using Application.DTOs.Device;
 using Application.DTOs.Misc;
-using Domain.Entities;
+using Application.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace WebApp.Controllers
 {
+    /// <summary>
+    /// Unit controller
+    /// </summary>
     [Route("deviceMS/[controller]")]
     [ApiController]
     public class UnitController : ControllerBase
     {
         private readonly IUnitService _unitService;
-        private readonly IAuthenticationService _authenticationService;
-        private readonly IAuthorizationsService _authorizationService;
 
-        public UnitController(IUnitService unitService, IAuthenticationService authenticationService, IAuthorizationsService authorizationService)
+        /// <summary>
+        /// Unit controller consturctor
+        /// </summary>
+        /// <param name="unitService"></param>
+        public UnitController(IUnitService unitService)
         {
             _unitService = unitService;
-            _authenticationService = authenticationService;
-            _authorizationService = authorizationService;
         }
 
 
@@ -42,6 +42,10 @@ namespace WebApp.Controllers
             {
                 var unit = await _unitService.GetUnitByIdAsync(unitId);
                 return (unit == null) ? NotFound() : Ok(unit);
+            }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
             }
             catch (Exception e)
             {

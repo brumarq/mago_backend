@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.Controllers
 {
+    /// <summary>
+    /// DeviceSettings controller
+    /// </summary>
     [Route("deviceMS/[controller]")]
     [ApiController]
     public class DeviceSettingsController : ControllerBase
@@ -15,6 +18,12 @@ namespace WebApp.Controllers
         private readonly IAuthenticationService _authenticationService;
         private readonly IAuthorizationsService _authorizationService;
 
+        /// <summary>
+        /// DeviceSettings controller constructor
+        /// </summary>
+        /// <param name="deviceSettingsService"></param>
+        /// <param name="authenticationService"></param>
+        /// <param name="authorizationService"></param>
         public DeviceSettingsController(IDeviceSettingsService deviceSettingsService, IAuthenticationService authenticationService, IAuthorizationsService authorizationService)
         {
             _deviceSettingsService = deviceSettingsService;
@@ -50,8 +59,11 @@ namespace WebApp.Controllers
 
                 return (newSetting == null)
                     ? StatusCode(500, "The Setting could not be added to the device.")
-                    : Ok(newSetting);
-                //TODO: replace OK with CreatedAtAction(nameof(GetSettingById), new { id = newSetting.Id }, newSetting);
+                    : Created("", newSetting);
+            }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
             }
             catch (Exception e)
             {
@@ -90,55 +102,14 @@ namespace WebApp.Controllers
 
                 return Ok(deviceSettingsForDevice);
             }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
-        // [HttpPut("{id}")]
-        // public async Task<ActionResult<UpdateSettingValueDTO>> UpdateSettingAsync(int id,
-        //     [FromBody] UpdateSettingValueDTO updateSettingValueDto)
-        // {
-        //     if (id <= 0)
-        //         return BadRequest("Invalid ID");
-        //
-        //     try
-        //     {
-        //         var isUpdatedResult = await _deviceSettingsService.UpdateSettingAsync(id, updateSettingValueDto);
-        //
-        //         if (isUpdatedResult == null)
-        //             return NotFound();
-        //
-        //         return (bool)isUpdatedResult ? NoContent() : Ok("No changes were made.");
-        //     }
-        //     catch (Exception e)
-        //     {
-        //         return StatusCode(500, $"Internal server error: {e.Message}");
-        //     }
-        // }
-
-        // [HttpDelete("{id}")]
-        // public async Task<IActionResult> DeleteSettingFromDeviceAsync(int id)
-        // {
-        //     if (id <= 0)
-        //         return BadRequest("Invalid ID");
-        //
-        //     try
-        //     {
-        //  
-        //         var isDeletedResult = await _deviceSettingsService.DeleteSettingFromDeviceAsync(id);
-        //         
-        //         if (!isDeletedResult)
-        //             return NotFound();
-        //
-        //         return NoContent();
-        //
-        //     }
-        //     catch (Exception e)
-        //     {
-        //         return StatusCode(500, $"Internal server error: {e.Message}");
-        //     }
-        // }
     }
 }

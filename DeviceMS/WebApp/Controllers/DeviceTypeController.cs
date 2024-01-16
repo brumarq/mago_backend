@@ -1,11 +1,14 @@
 using Application.ApplicationServices.Interfaces;
-using Application.DTOs;
 using Application.DTOs.DeviceType;
+using Application.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.Controllers
 {
+    /// <summary>
+    /// DeviceType controller
+    /// </summary>
     [Route("deviceMS/[controller]")]
     [ApiController]
     public class DeviceTypeController : ControllerBase
@@ -14,6 +17,12 @@ namespace WebApp.Controllers
         private readonly IAuthenticationService _authenticationService;
         private readonly IAuthorizationsService _authorizationService;
 
+        /// <summary>
+        /// DeviceType controller constructor
+        /// </summary>
+        /// <param name="deviceTypeService"></param>
+        /// <param name="authenticationService"></param>
+        /// <param name="authorizationService"></param>
         public DeviceTypeController(IDeviceTypeService deviceTypeService, IAuthenticationService authenticationService, IAuthorizationsService authorizationService)
         {
             _deviceTypeService = deviceTypeService;
@@ -39,8 +48,11 @@ namespace WebApp.Controllers
 
                 return (newDeviceType == null)
                     ? StatusCode(500, "The DeviceType could not be created.")
-                    : Ok(newDeviceType);
-                //TODO: replace OK with CreatedAtAction(nameof(GetDeviceTypeByIdAsync), new { id = newDeviceType.Id }, newDeviceType);
+                    : Created("", newDeviceType);
+            }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
             }
             catch (Exception e)
             {
@@ -65,6 +77,10 @@ namespace WebApp.Controllers
                 var deviceTypes = await _deviceTypeService.GetDeviceTypesAsync();
                 return Ok(deviceTypes);
             }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
+            }
             catch (Exception e)
             {
                 return StatusCode(500, $"Internal server error: {e.Message}");
@@ -88,6 +104,10 @@ namespace WebApp.Controllers
             {
                 var deviceType = await _deviceTypeService.GetDeviceTypeByIdAsync(id);
                 return (deviceType == null) ? NotFound() : Ok(deviceType);
+            }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
             }
             catch (Exception e)
             {
@@ -121,6 +141,10 @@ namespace WebApp.Controllers
                     return NotFound();
 
                 return (bool)isUpdatedResult ? NoContent() : Ok("No changes were made.");
+            }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
             }
             catch (Exception e)
             {
