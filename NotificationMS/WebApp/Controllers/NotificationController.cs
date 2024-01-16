@@ -44,6 +44,9 @@ namespace WebApp.Controllers
         {
             try
             {
+                ValidatePositiveNumber(pageNumber, nameof(pageNumber));
+                ValidatePositiveNumber(pageSize, nameof(pageSize));
+
                 var notifications = await _notificationService.GetAllNotificationsPagedAsync(pageNumber, pageSize);
                 if (notifications == null || !notifications.Any())
                 {
@@ -69,6 +72,8 @@ namespace WebApp.Controllers
         {   
             try
             {
+                ValidatePositiveNumber(id, nameof(id));
+
                 if (!IsRequestFromOrchestrator(HttpContext.Request))
                 {
                     return Unauthorized("Access denied");
@@ -100,10 +105,14 @@ namespace WebApp.Controllers
         {
             try
             {
-                if (!IsRequestFromOrchestrator(HttpContext.Request))
-                {
-                    return Unauthorized("Access denied");
-                }
+                ValidatePositiveNumber(deviceId, nameof(deviceId));
+                ValidatePositiveNumber(pageNumber, nameof(pageNumber));
+                ValidatePositiveNumber(pageSize, nameof(pageSize));
+
+                //if (!IsRequestFromOrchestrator(HttpContext.Request))
+                //{
+                //    return Unauthorized("Access denied");
+                //}
 
                 var notificationDTO = await _notificationService.GetNotificationsByDeviceIdPagedAsync(deviceId, pageNumber, pageSize);
                 if (notificationDTO == null)
@@ -122,36 +131,6 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
-        //// GET /notifications/device/5
-        //[HttpGet("device/{deviceId}")]
-        //[ApiExplorerSettings(IgnoreApi = true)]
-        //public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId)
-        //{
-        //    try
-        //    {
-        //        if (!IsRequestFromOrchestrator(HttpContext.Request))
-        //        {
-        //            return Unauthorized("Access denied");
-        //        }
-
-        //        var notificationDTO = await _notificationService.GetNotificationsByDeviceIdAsync(deviceId);
-        //        if (notificationDTO == null)
-        //        {
-        //            return NotFound();
-        //        }
-
-        //        return Ok(notificationDTO);
-        //    }
-        //    catch (CustomException ce)
-        //    {
-        //        return StatusCode((int)ce.StatusCode, ce.Message);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, $"Internal server error: {ex.Message}");
-        //    }
-        //}
 
         // POST /<notifications>
         [HttpPost]
@@ -201,6 +180,7 @@ namespace WebApp.Controllers
         {
             try
             {
+                ValidatePositiveNumber(id, nameof(id));
                 var statusTypeDTO = await _notificationService.GetStatusTypeByIdAsync(id);
                 if (statusTypeDTO == null)
                 {
@@ -268,6 +248,7 @@ namespace WebApp.Controllers
         {
             try
             {
+                ValidatePositiveNumber(id, nameof(id));
                 await _notificationService.DeleteStatusTypeAsync(id);
                 return NoContent();
             }
@@ -300,6 +281,7 @@ namespace WebApp.Controllers
         {
             try
             {
+                ValidatePositiveNumber(id, nameof(id));
                 var result = await _notificationService.UpdateStatusTypeAsync(id, statusTypeDTO);
                 return Ok(result);
             }
@@ -312,7 +294,15 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-        
+
+        private void ValidatePositiveNumber(int value, string parameterName)
+        {
+            if (value <= 0)
+            {
+                throw new BadRequestException($"The {parameterName} cannot be negative or 0.");
+            }
+        }
+
         private bool IsRequestFromOrchestrator(HttpRequest request)
         {
             if (!request.Headers.TryGetValue("X-Orchestrator-Key", out var receivedKey))
