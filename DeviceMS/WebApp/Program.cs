@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
 using Infrastructure.Data.Context;
@@ -52,7 +53,7 @@ builder.Services.AddSingleton<CustomMetrics>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - User Service", Version = "v1.0.0" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - Device Service", Version = "v1.0.0" });
 
     // Security schema for Swagger UI
     var securitySchema = new OpenApiSecurityScheme
@@ -74,6 +75,10 @@ builder.Services.AddSwaggerGen(c =>
     {
         { securitySchema, new[] { "Bearer" } }
     });
+    
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
 });
 
 // Authentication configuration

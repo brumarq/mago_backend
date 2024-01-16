@@ -27,7 +27,15 @@ namespace WebApp.Controllers
             _orchestratorApiKey = configuration["OrchestratorApiKey"];
 
         }
-
+        
+        /// <summary>
+        /// Retrieves users associated with devices for a given user ID. Accessible by all authorized users.
+        /// </summary>
+        /// <param name="userId">The user ID for which to retrieve device associations.</param>
+        /// <returns>Returns a list of users associated with devices.</returns>
+        /// <response code="200">Returns a list of users on devices.</response>
+        /// <response code="401">Unauthorized access if the logged-in user does not match the requested user ID or lacks required permissions.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpGet("{userId}")]
         [Authorize("All")]
         public async Task<ActionResult<IEnumerable<UsersOnDevicesResponseDTO>>> GetUsersOnDevicesByUserId(string userId)
@@ -50,7 +58,15 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
-
+        
+        /// <summary>
+        /// Creates a new user-device association. Accessible by Admin.
+        /// </summary>
+        /// <param name="createUserOnDeviceDTO">The data transfer object for creating a new user on device entry.</param>
+        /// <returns>Returns the newly created user-device association.</returns>
+        /// <response code="200">Returns the newly created user-device association.</response>
+        /// <response code="401">Unauthorized access if the request does not come from an authorized orchestrator.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpPost]
         [Authorize("Admin")]
         [ApiExplorerSettings(IgnoreApi = true)]
@@ -75,6 +91,14 @@ namespace WebApp.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes a user-device association. Accessible by Admin.
+        /// </summary>
+        /// <param name="id">The ID of the user-device association to delete.</param>
+        /// <returns>Returns the result of the deletion operation.</returns>
+        /// <response code="204">No content if the user-device association was successfully deleted.</response>
+        /// <response code="404">Not found if the user-device association with the specified ID does not exist.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpDelete("{id}")]
         [Authorize("Admin")]
         public async Task<IActionResult> Delete(int id)

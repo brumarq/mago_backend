@@ -84,7 +84,7 @@ public sealed class DeviceMetricsStepDefinitions
     [When(@"the user tries to retrieve latest device metrics for device id (.*)")]
     public async Task WhenTheUserTriesToRetrieveLatestDeviceMetricsForDevice(int deviceId)
     {
-        _httpResponseMessage = await _httpClient.GetAsync($"/orchestrate/device-metrics/DeviceMetrics/{deviceId}");
+        _httpResponseMessage = await _httpClient.GetAsync($"/orchestrate/device-metrics/Metrics/{deviceId}");
 
         if (_httpResponseMessage.StatusCode != HttpStatusCode.OK)
             return;
@@ -102,9 +102,9 @@ public sealed class DeviceMetricsStepDefinitions
             endDate = "";
 
         if (!string.IsNullOrEmpty(startDate) || !string.IsNullOrEmpty(endDate))
-            _httpResponseMessage = await _httpClient.GetAsync($"/orchestrate/device-metrics/DeviceMetrics/{aggregatedLogsDateType}/{deviceId}/{fieldId}?startDate={startDate}&endDate={endDate}");
+            _httpResponseMessage = await _httpClient.GetAsync($"/orchestrate/aggregated-logs/AggregatedLogs/{aggregatedLogsDateType}/{deviceId}/{fieldId}?startDate={startDate}&endDate={endDate}");
         else
-            _httpResponseMessage = await _httpClient.GetAsync($"/orchestrate/device-metrics/DeviceMetrics/{aggregatedLogsDateType}/{deviceId}/{fieldId}");
+            _httpResponseMessage = await _httpClient.GetAsync($"/orchestrate/aggregated-logs/AggregatedLogs/{aggregatedLogsDateType}/{deviceId}/{fieldId}");
 
         if (_httpResponseMessage.StatusCode != HttpStatusCode.OK)
             return;

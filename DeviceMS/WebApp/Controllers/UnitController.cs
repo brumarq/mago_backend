@@ -25,6 +25,15 @@ namespace WebApp.Controllers
         }
 
 
+        /// <summary>
+        /// Retrieves a specific unit by ID. Accessible by Admin.
+        /// </summary>
+        /// <param name="unitId">The ID of the unit to retrieve.</param>
+        /// <returns>Returns the requested unit.</returns>
+        /// <response code="200">Returns the requested unit.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="404">Unit not found.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpGet("{unitId}")]
         [Authorize("All")]
         public async Task<ActionResult<UnitDTO>> GetUnitById(int unitId)

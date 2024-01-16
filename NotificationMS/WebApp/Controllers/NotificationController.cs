@@ -27,8 +27,16 @@ namespace WebApp.Controllers
             _orchestratorApiKey = configuration["OrchestratorApiKey"];
 
         }
-
-        // GET: /notifications
+        
+        /// <summary>
+        /// Retrieves all notifications. Accessible by Admin.
+        /// </summary>
+        /// <returns>Returns all notifications for all devices.</returns>
+        /// <response code="200" name="NotificationResponseDTO">Returns a list of notifications.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="403">Forbidden access.</response>
+        /// <response code="400">Bad request.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpGet]
         [Authorize("Admin")]
         public async Task<ActionResult<IEnumerable<NotificationResponseDTO>>> GetAllNotificationsAsync()
@@ -47,7 +55,7 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
+        
         // GET /notifications/5
         [HttpGet("{id}")]
         [ApiExplorerSettings(IgnoreApi = true)]
@@ -140,6 +148,17 @@ namespace WebApp.Controllers
             }
         }
 
+        
+        /// <summary>
+        /// Retrieves status type by ID. Accessible by Admin.
+        /// </summary>
+        /// <param name="id">The ID of status type.</param>
+        /// <returns>Returns status type by ID.</returns>
+        /// <response code="200" name="StatusTypeDTO">Returns a status type.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="403">Forbidden access.</response>
+        /// <response code="400">Bad request.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpGet("statusType/{id}")]
         [Authorize("Admin")]
         public async Task<ActionResult<StatusTypeDTO>> GetStatusTypeByIdAsync(int id)
@@ -163,7 +182,18 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
+        
+        
+        /// <summary>
+        /// Create status type. Accessible by Admin.
+        /// </summary>
+        /// <param name="statusTypeDTO">Body of status type to be created.</param>
+        /// <returns>Returns created status type.</returns>
+        /// <response code="200" name="StatusTypeDTO">Returns a status type.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="403">Forbidden access.</response>
+        /// <response code="400">Bad request.</response>
+        /// <response code="500">Internal server error.</response>
         // POST /notification/statusType
         [HttpPost("statusType")]
         [Authorize("Admin")]
@@ -183,6 +213,17 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+        
+        /// <summary>
+        /// Delete status type. Accessible by Admin.
+        /// </summary>
+        /// <param name="id"> Id of status type</param>
+        /// <returns>Returns confirmation.</returns>
+        /// <response code="204">Returns no content.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="403">Forbidden access.</response>
+        /// <response code="400">Bad request.</response>
+        /// <response code="500">Internal server error.</response>
         
         // DELETE /notification/statusType/5
         [HttpDelete("statusType/{id}")]
@@ -204,6 +245,18 @@ namespace WebApp.Controllers
             }
         }
         
+        
+        /// <summary>
+        /// Create status type. Accessible by Admin.
+        /// </summary>
+        /// <param name="id">ID of status type</param>
+        /// <param name="statusTypeDTO">Body of status type to be created.</param>
+        /// <returns>Returns updated status type.</returns>
+        /// <response code="200" name="StatusTypeDTO">Returns a status type.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="403">Forbidden access.</response>
+        /// <response code="400">Bad request.</response>
+        /// <response code="500">Internal server error.</response>
         // PUT /notification/statusType
         [HttpPut("statusType/{id}")]
         [Authorize("Admin")]

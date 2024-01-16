@@ -25,7 +25,18 @@ namespace WebApp.Controllers
             _authenticationService = authenticationService;
         }
 
-
+        
+        /// <summary>
+        /// Get Notifications from a Device. Accessible by all users (both admin and client).
+        /// </summary>
+        /// <param name="deviceId">Device ID</param>
+        /// <returns>Returns the list of notifications.</returns>
+        /// <response code="200">Returns device notifications.</response>
+        /// <response code="404">Device not found.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="403">Forbidden access.</response>
+        /// <response code="400">Bad request.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpGet("device/{deviceId}")]
         [Authorize("All")]
         public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId)
@@ -54,7 +65,18 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
+        
+        /// <summary>
+        /// Get Notification by ID. Accessible by all users (both admin and client).
+        /// </summary>
+        /// <param name="id">Notification ID</param>
+        /// <returns>Returns the notification.</returns>
+        /// <response code="200">Returns notification.</response>
+        /// <response code="404">Notification not found.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="403">Forbidden access.</response>
+        /// <response code="400">Bad request.</response>
+        /// <response code="500">Internal server error.</response>
         // GET /notifications/5
         [HttpGet("{id}")]
         [Authorize("All")]
@@ -79,7 +101,19 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
+        
+        
+        /// <summary>
+        /// Create notification. Accessible by Admin.
+        /// </summary>
+        /// <param name="createNotificationDTO">Body of notification</param>
+        /// <returns>Returns the notification.</returns>
+        /// <response code="200">Returns notification.</response>
+        /// <response code="404">Device not found.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="403">Forbidden access.</response>
+        /// <response code="400">Bad request.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpPost]
         [Authorize("Admin")]
         public async Task<ActionResult<NotificationResponseDTO>> CreateNotificationAsync([FromBody] CreateNotificationDTO createNotificationDTO)

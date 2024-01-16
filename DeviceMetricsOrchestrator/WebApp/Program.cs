@@ -39,6 +39,7 @@ builder.Services.AddScoped<IAggregatedLogsService, AggregatedLogsService>();
 builder.Services.AddScoped<IUnitService, UnitService>();
 builder.Services.AddScoped<IUsersOnDevicesService, UsersOnDevicesService>();
 builder.Services.AddScoped<IDeviceMetricsService, DeviceMetricsService>();
+builder.Services.AddScoped<IDeviceAggregatedLogsService, DeviceAggregatedLogsService>();
 
 // Create custom Prometheus metrics for HTTP requests
 var httpRequestDuration = Metrics.CreateHistogram(
