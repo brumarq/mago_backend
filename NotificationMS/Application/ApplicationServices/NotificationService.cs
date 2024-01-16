@@ -40,12 +40,18 @@ namespace Application.ApplicationServices
             return _mapper.Map<NotificationResponseDTO>(responseDTO);
         }
 
-        public async Task<IEnumerable<NotificationResponseDTO>> GetAllNotificationsAsync()
+        public async Task<IEnumerable<NotificationResponseDTO>> GetAllNotificationsPagedAsync(int pageNumber, int pageSize)
         {
-            var notifications = await _notificationRepository.GetAllAsync();
+            var notifications = await _notificationRepository.GetAllPagedAsync(pageNumber, pageSize);
 
             return _mapper.Map<IEnumerable<NotificationResponseDTO>>(notifications);
         }
+        //public async Task<IEnumerable<NotificationResponseDTO>> GetAllNotificationsAsync()
+        //{
+        //    var notifications = await _notificationRepository.GetAllAsync();
+
+        //    return _mapper.Map<IEnumerable<NotificationResponseDTO>>(notifications);
+        //}
 
         public async Task<NotificationResponseDTO> GetNotificationByIdAsync(int id)
         {

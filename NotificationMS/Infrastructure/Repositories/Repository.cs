@@ -29,6 +29,14 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
         return await _entities.IgnoreAutoIncludes().ToListAsync();
     }
 
+    public async Task<IEnumerable<T>> GetAllPagedAsync(int pageNumber, int pageSize)
+    {
+        return await _entities
+        .IgnoreAutoIncludes()
+        .Skip((pageNumber - 1) * pageSize)
+        .Take(pageSize)
+        .ToListAsync();
+    }
     public async Task<T> GetByConditionAsync(Expression<Func<T, bool>> predicate)
     {
         return await _context.Set<T>().FirstOrDefaultAsync(predicate);

@@ -10,7 +10,8 @@ namespace Application.ApplicationServices.Interfaces
     public interface INotificationService
     {
         Task<NotificationResponseDTO> CreateNotificationAsync(CreateNotificationDTO createNotificationDTO);
-        Task<IEnumerable<NotificationResponseDTO>> GetAllNotificationsAsync();
+        //Task<IEnumerable<NotificationResponseDTO>> GetAllNotificationsAsync();
+        Task<IEnumerable<NotificationResponseDTO>> GetAllNotificationsPagedAsync(int pageNumber, int pageSize);
         Task<NotificationResponseDTO> GetNotificationByIdAsync(int id);
         Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId);
         Task<StatusTypeDTO> GetStatusTypeByIdAsync(int id);
