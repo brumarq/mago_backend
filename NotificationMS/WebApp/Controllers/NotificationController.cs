@@ -110,10 +110,11 @@ namespace WebApp.Controllers
             }
         }
 
+
         // GET /notifications/device/5
         [HttpGet("device/{deviceId}")]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId)
+        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDevicePagedAsync(int deviceId, int pageNumber = 1, int pageSize = 10)
         {
             try
             {
@@ -121,8 +122,8 @@ namespace WebApp.Controllers
                 {
                     return Unauthorized("Access denied");
                 }
-                
-                var notificationDTO = await _notificationService.GetNotificationsByDeviceIdAsync(deviceId);
+
+                var notificationDTO = await _notificationService.GetNotificationsByDeviceIdPagedAsync(deviceId, pageNumber, pageSize);
                 if (notificationDTO == null)
                 {
                     return NotFound();
@@ -139,6 +140,36 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        //// GET /notifications/device/5
+        //[HttpGet("device/{deviceId}")]
+        //[ApiExplorerSettings(IgnoreApi = true)]
+        //public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId)
+        //{
+        //    try
+        //    {
+        //        if (!IsRequestFromOrchestrator(HttpContext.Request))
+        //        {
+        //            return Unauthorized("Access denied");
+        //        }
+
+        //        var notificationDTO = await _notificationService.GetNotificationsByDeviceIdAsync(deviceId);
+        //        if (notificationDTO == null)
+        //        {
+        //            return NotFound();
+        //        }
+
+        //        return Ok(notificationDTO);
+        //    }
+        //    catch (CustomException ce)
+        //    {
+        //        return StatusCode((int)ce.StatusCode, ce.Message);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Internal server error: {ex.Message}");
+        //    }
+        //}
 
         // POST /<notifications>
         [HttpPost]

@@ -37,6 +37,15 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
         .Take(pageSize)
         .ToListAsync();
     }
+    public async Task<IEnumerable<T>> GetPagedListByConditionAsync(Expression<Func<T, bool>> filter, int pageNumber, int pageSize)
+    {
+        return await _entities
+        .IgnoreAutoIncludes()
+        .Where(filter)
+        .Skip((pageNumber - 1) * pageSize)
+        .Take(pageSize)
+        .ToListAsync();
+    }
     public async Task<T> GetByConditionAsync(Expression<Func<T, bool>> predicate)
     {
         return await _context.Set<T>().FirstOrDefaultAsync(predicate);

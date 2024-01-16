@@ -65,21 +65,38 @@ namespace Application.ApplicationServices
 
             return _mapper.Map<NotificationResponseDTO>(notification);
         }
-
-        public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId)
+        public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdPagedAsync(int deviceId, int pageNumber, int pageSize)
         {
             if (deviceId <= 0)
                 throw new BadRequestException("The deviceID cannot be negative or 0.");
 
-            var allNotifications = await _notificationRepository.GetAllAsync();
+            if (pageNumber <= 0)
+                throw new BadRequestException("The pageNumber cannot be negative or 0.");
 
-            var notifications = allNotifications.Where(n => n.DeviceId == deviceId);
+            if (pageSize <= 0)
+                throw new BadRequestException("The pageSize cannot be negative or 0.");
+
+            var notifications = await _notificationRepository.GetPagedListByConditionAsync(n => n.DeviceId == deviceId, pageNumber, pageSize);
 
             if (!notifications.Any())
                 throw new NotFoundException("Notifications were not found...");
 
             return _mapper.Map<IEnumerable<NotificationResponseDTO>>(notifications);
         }
+        //public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId)
+        //{
+        //    if (deviceId <= 0)
+        //        throw new BadRequestException("The deviceID cannot be negative or 0.");
+
+        //    var allNotifications = await _notificationRepository.GetAllAsync();
+
+        //    var notifications = allNotifications.Where(n => n.DeviceId == deviceId);
+
+        //    if (!notifications.Any())
+        //        throw new NotFoundException("Notifications were not found...");
+
+        //    return _mapper.Map<IEnumerable<NotificationResponseDTO>>(notifications);
+        //}
 
         public async Task<StatusTypeDTO> GetStatusTypeByIdAsync(int id)
         {
