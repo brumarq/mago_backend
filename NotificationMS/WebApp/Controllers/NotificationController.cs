@@ -28,9 +28,19 @@ namespace WebApp.Controllers
 
         }
 
+
+        /// <summary>
+        /// Retrieves all notifications. Accessible by Admin.
+        /// </summary>
+        /// <returns>Returns all notifications for all devices.</returns>
+        /// <response code="200" name="NotificationResponseDTO">Returns a list of notifications.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="403">Forbidden access.</response>
+        /// <response code="400">Bad request.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpGet]
         [Authorize("Admin")]
-        public async Task<ActionResult<IEnumerable<NotificationResponseDTO>>> GetAllNotificationsPagedAsync(int pageNumber = 1, int pageSize = 30)
+        public async Task<ActionResult<IEnumerable<NotificationResponseDTO>>> GetAllNotificationsAsync(int pageNumber = 1, int pageSize = 30)
         {
             try
             {
@@ -50,34 +60,6 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
-        /// <summary>
-        /// Retrieves all notifications. Accessible by Admin.
-        /// </summary>
-        /// <returns>Returns all notifications for all devices.</returns>
-        /// <response code="200" name="NotificationResponseDTO">Returns a list of notifications.</response>
-        /// <response code="401">Unauthorized access.</response>
-        /// <response code="403">Forbidden access.</response>
-        /// <response code="400">Bad request.</response>
-        /// <response code="500">Internal server error.</response>
-        //[HttpGet]
-        //[Authorize("Admin")]
-        //public async Task<ActionResult<IEnumerable<NotificationResponseDTO>>> GetAllNotificationsAsync()
-        //{
-        //    try
-        //    {
-        //        var notifications = await _notificationService.GetAllNotificationsAsync();
-        //        return Ok(notifications);
-        //    }
-        //    catch (CustomException ce)
-        //    {
-        //        return StatusCode((int)ce.StatusCode, ce.Message);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, $"Internal server error: {ex.Message}");
-        //    }
-        //}
 
         // GET /notifications/5
         [HttpGet("{id}")]
@@ -111,10 +93,10 @@ namespace WebApp.Controllers
         }
 
 
-        // GET /notifications/device/5
+        // GET /notifications/device/5?pageNumber=1&pageSize=10
         [HttpGet("device/{deviceId}")]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDevicePagedAsync(int deviceId, int pageNumber = 1, int pageSize = 10)
+        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId, int pageNumber = 1, int pageSize = 10)
         {
             try
             {
