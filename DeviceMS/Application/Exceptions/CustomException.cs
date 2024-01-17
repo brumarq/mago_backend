@@ -1,21 +1,18 @@
 ﻿using System.Net;
 
-namespace Application.Exceptions
+namespace Application.Exceptions;
+
+public abstract class CustomException : Exception
 {
-    public abstract class CustomException : Exception
+    public HttpStatusCode StatusCode { get; }
+
+    protected CustomException(HttpStatusCode statusCode) : this("", statusCode)
     {
-        private readonly HttpStatusCode _statusCode;
+        StatusCode = statusCode;
+    }
 
-        protected CustomException(HttpStatusCode statusCode)
-        {
-            _statusCode = statusCode;
-        }
-
-        public CustomException(string message, HttpStatusCode statusCode)
-            : base(message)
-        {
-            _statusCode = statusCode;
-        }
-
+    public CustomException(string message, HttpStatusCode statusCode) : base(message)
+    {
+        StatusCode = statusCode;
     }
 }

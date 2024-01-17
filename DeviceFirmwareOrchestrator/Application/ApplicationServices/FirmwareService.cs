@@ -36,7 +36,7 @@ public class FirmwareService : IFirmwareService
     {
         await _deviceService.EnsureDeviceExists(newFileSendDto.DeviceId);
         
-        var request = new HttpRequestMessage(HttpMethod.Post, _baseUri);
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{_baseUri}/firmware");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
         
         var json = JsonConvert.SerializeObject(newFileSendDto);
@@ -68,7 +68,7 @@ public class FirmwareService : IFirmwareService
         _logger.LogError($" The given FirmwareURL: {_baseUri}");
         await _deviceService.EnsureDeviceExists(deviceId);
 
-        var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}/devices/{deviceId}");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}/firmware/devices/{deviceId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
         var response = await _httpClient.SendAsync(request);
         
