@@ -8,19 +8,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a9b2c98e-ff4c-4af1-a338-0c913b657baf" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.UserDeviceNotificationOrchestrator/.idea/indexLayout.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.UserDeviceNotificationOrchestrator/.idea/projectSettingsUpdater.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.UserDeviceNotificationOrchestrator/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/.idea.UserDeviceNotificationOrchestrator/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Application/ApplicationServices/ApplicationStateService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Application/ApplicationServices/Interfaces/IApplicationStateService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebApp/Controllers/ApplicationStateController.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/WebApp/Middleware/Prometheus/CustomMetrics.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/ApplicationServices/DeviceService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/ApplicationServices/DeviceService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/ApplicationServices/NotificationService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/ApplicationServices/NotificationService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/ApplicationServices/UserService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/ApplicationServices/UserService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebApp/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/WebApp/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WebApp/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/WebApp/appsettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.UserDeviceNotificationOrchestrator/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.UserDeviceNotificationOrchestrator/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Application/ApplicationServices/ApplicationStateService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/ApplicationServices/ApplicationStateService.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,6 +19,7 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo"><![CDATA[{
   "associatedIndex": 3
 }]]></component>
@@ -87,13 +77,14 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1705494973544</updated>
-      <workItem from="1705494974648" duration="837000" />
+      <workItem from="1705494974648" duration="1571000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
   </component>
