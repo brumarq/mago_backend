@@ -7,10 +7,6 @@ on:
     paths:
       - "DeviceMS/**/*"
 
-concurrency: 
-  group: ${{ github.repository }}-shared-queue
-  cancel-in-progress: false
-
 env:
   # OpenShift Configuration
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
