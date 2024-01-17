@@ -17,6 +17,11 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
         _entities = context.Set<T>();
     }
 
+    public async Task<bool> IsDatabaseConnected()
+    {
+        return await _context.Database.CanConnectAsync();
+    }
+    
     public async Task<T> CreateAsync(T entity)
     {
         _entities.Add(entity);

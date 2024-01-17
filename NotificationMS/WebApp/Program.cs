@@ -13,6 +13,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using WebApp.Middleware.Authentication;
 using Prometheus;
+using WebApp.Middleware.Prometheus;
+using WebApp.Middleware.Status;
 using IAuthorizationService = Application.ApplicationServices.Interfaces.IAuthorizationService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,31 +40,10 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
-
-// Create custom Prometheus metrics for HTTP requests
-var httpRequestDuration = Metrics.CreateHistogram(
-    "http_request_duration_seconds",
-    "Duration of HTTP requests in seconds",
-    new HistogramConfiguration
-    {
-        LabelNames = new[] { "method", "status_code" }
-    }
-);
-var httpRequestCounter = Metrics.CreateCounter(
-    "http_request_total",
-    "Total count of HTTP requests",
-    new CounterConfiguration
-    {
-        LabelNames = new[] { "method", "status_code" }
-    }
-);
-
-// Create a gauge metric for process resident memory in bytes
-var processResidentMemoryBytes = Metrics.CreateGauge(
-    "process_resident_memory_bytes",
-    "Resident memory size of the process in bytes"
-);
-processResidentMemoryBytes.Set(Process.GetCurrentProcess().WorkingSet64);
+builder.Services.AddScoped<IApplicationStateService, ApplicationStateService>();
+// Register singleton migration state and custom prometheus metrics
+builder.Services.AddSingleton<MigrationStatus>();
+builder.Services.AddSingleton<CustomMetrics>();
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -123,16 +104,32 @@ builder.Configuration.AddEnvironmentVariables();
 var httpPort = Environment.GetEnvironmentVariable("HTTP_PORT") ?? "8282";
 builder.WebHost.UseUrls($"http://*:{httpPort}");
 
-// Migration on boot-up
-var serviceProvider = builder.Services.BuildServiceProvider();
-var context = serviceProvider.GetRequiredService<NotificationsDbContext>();
-context.Database.Migrate();
-
 var app = builder.Build();
+
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+
+//Apply pending migrations on boot-up
+var context = services.GetRequiredService<NotificationsDbContext>();
+var migrationStatus = services.GetRequiredService<MigrationStatus>();
+
+try
+{
+    context.Database.Migrate();
+    // Applying migration succeeds --> set status to true
+    migrationStatus.SetMigrationStatus(true);
+}
+catch (Exception e)
+{
+    migrationStatus.SetMigrationStatus(false);
+    Console.WriteLine(e.Message);
+}
 
 // Add custom metric instrumentation for HTTP requests
 app.Use(async (context, next) =>
 {
+    var customMetrics = services.GetRequiredService<CustomMetrics>();
+
     var stopwatch = Stopwatch.StartNew();
     await next();
     stopwatch.Stop();
@@ -141,13 +138,8 @@ app.Use(async (context, next) =>
     var statusCode = context.Response.StatusCode.ToString();
 
     // Update metrics
-    httpRequestDuration
-        .WithLabels(method, statusCode)
-        .Observe(stopwatch.Elapsed.TotalSeconds);
-
-    httpRequestCounter
-        .WithLabels(method, statusCode)
-        .Inc();
+    customMetrics.HttpRequestDuration.WithLabels(method, statusCode).Observe(stopwatch.Elapsed.TotalSeconds);
+    customMetrics.HttpRequestCounter.WithLabels(method, statusCode).Inc();
 });
 
 app.UseMetricServer(url: "/metrics");

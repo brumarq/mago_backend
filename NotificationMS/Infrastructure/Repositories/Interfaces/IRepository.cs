@@ -5,6 +5,7 @@ namespace Infrastructure.Repositories.Interfaces;
 
 public interface IRepository<T> where T : BaseEntity
 {
+    Task<bool> IsDatabaseConnected();
     Task<T> CreateAsync(T entity);
     Task<IEnumerable<T>> GetAllAsync();
     Task<T> GetByConditionAsync(Expression<Func<T, bool>> predicate);

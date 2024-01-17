@@ -16,11 +16,23 @@ spec:
     spec:
       containers:
         - name: notifications-microservice
-          image: 'docker.io/brumarq/notifications-microservice:latest'
+          image: "docker.io/brumarq/notifications-microservice:latest"
           resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8181
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8181
+            initialDelaySeconds: 5
+            periodSeconds: 10
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
       dnsPolicy: ClusterFirst
@@ -35,7 +47,6 @@ spec:
   progressDeadlineSeconds: 600
 
 ---
-
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
@@ -48,4 +59,3 @@ spec:
   minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
-
