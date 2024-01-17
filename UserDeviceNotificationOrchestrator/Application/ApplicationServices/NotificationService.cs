@@ -40,8 +40,9 @@ namespace Application.ApplicationServices
             try
             {
                 await _deviceService.CheckDeviceExistence(deviceId);
+                
+                var getRequest = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}notification/device/{deviceId}?pageNumber={pageNumber}&pageSize={pageSize}");
 
-                var getRequest = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}device/{deviceId}?pageNumber={pageNumber}&pageSize={pageSize}");
                 getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 getRequest.Headers.Add("X-Orchestrator-Key", _orchestratorApiKey);
 
@@ -69,7 +70,7 @@ namespace Application.ApplicationServices
         {
             try
             {
-                var getRequest = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{id}");
+                var getRequest = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}notification/{id}");
                 getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 getRequest.Headers.Add("X-Orchestrator-Key", _orchestratorApiKey);
 
@@ -110,7 +111,7 @@ namespace Application.ApplicationServices
                 var jsonNotificationDTO = JsonConvert.SerializeObject(createNotificationDTO);
                 var content = new StringContent(jsonNotificationDTO, Encoding.UTF8, "application/json");
                 
-                var postRequest = new HttpRequestMessage(HttpMethod.Post, _baseUri) { Content = content };
+                var postRequest = new HttpRequestMessage(HttpMethod.Post, $"{_baseUri}notification") { Content = content };
                 postRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 postRequest.Headers.Add("X-Orchestrator-Key", _orchestratorApiKey);
 
@@ -138,7 +139,7 @@ namespace Application.ApplicationServices
         {
             try
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}statusType/{statusTypeId}");
+                var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}notification/statusType/{statusTypeId}");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 return await _httpClient.SendAsync(request);
             }

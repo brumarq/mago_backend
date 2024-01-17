@@ -34,7 +34,7 @@ namespace Application.ApplicationServices
 
         private async Task<HttpResponseMessage> GetDeviceExistenceStatus(int deviceId)
         {
-            string requestUrl = $"{_baseUriDevice}{deviceId}";
+            string requestUrl = $"{_baseUriDevice}deviceMS/Device/{deviceId}";
 
             try
             {
