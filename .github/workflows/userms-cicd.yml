@@ -7,6 +7,10 @@ on:
     paths:
       - 'UserMS/**/*'
 
+concurrency: 
+  group: ci-cd-process
+  cancel-in-progress: false
+
 env:
   # OpenShift Configuration
   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
