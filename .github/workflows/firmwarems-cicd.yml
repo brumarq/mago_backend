@@ -102,10 +102,6 @@ jobs:
           AUTH0_DOMAIN=${{ env.AUTH0_TEST_DOMAIN }} \
           AUTH0_AUDIENCE=${{ env.AUTH0_TEST_AUDIENCE }} \
 
-        # Add or update readiness and liveness probes
-        # oc set probe deployment/${{ env.APP_NAME }} --readiness --get-url=http://:${{ env.APP_PORT }}/health --initial-delay-seconds=5 --period-seconds=10 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-        # oc set probe deployment/${{ env.APP_NAME }} --liveness --get-url=http://:${{ env.APP_PORT }}/ready --initial-delay-seconds=15 --period-seconds=30 -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-
       - name: Create service if non-existent
         run: |
             SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
@@ -169,10 +165,6 @@ jobs:
           FIRMWARE_DB_CONNECTION_STRING=${{ secrets.FIRMWARE_DB_CONNECTION_STRING }} \
           AUTH0_DOMAIN=${{ env.AUTH0_DOMAIN }} \
           AUTH0_AUDIENCE=${{ env.AUTH0_AUDIENCE }} \
-
-        # Add or update readiness and liveness probes
-        # oc set probe deployment/${{ env.APP_NAME }} --readiness --get-url=http://:${{ env.APP_PORT }}/health --initial-delay-seconds=5 --period-seconds=10 -n ${{ env.OPENSHIFT_NAMESPACE }}
-        # oc set probe deployment/${{ env.APP_NAME }} --liveness --get-url=http://:${{ env.APP_PORT }}/ready --initial-delay-seconds=15 --period-seconds=30 -n ${{ env.OPENSHIFT_NAMESPACE }}
 
       - name: Create service if non-existent
         run: |
