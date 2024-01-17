@@ -1,5 +1,6 @@
 ﻿using Application.ApplicationServices.Interfaces;
 using Application.DTOs.UsersOnDevices;
+using Application.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApp.Controllers
 {
+    /// <summary>
+    /// UserOnDevices controller
+    /// </summary>
     [Route("deviceMS/[controller]")]
     [ApiController]
     public class UsersOnDevicesController : ControllerBase
@@ -18,6 +22,14 @@ namespace WebApp.Controllers
         private readonly IAuthorizationsService _authorizationService;
         private readonly string? _orchestratorApiKey;
 
+        /// <summary>
+        /// UserOnDevices controller constructor
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <param name="usersOnDevicesService"></param>
+        /// <param name="authenticationService"></param>
+        /// <param name="authorizationService"></param>
+        /// <param name="logger"></param>
         public UsersOnDevicesController(IConfiguration configuration, IUsersOnDevicesService usersOnDevicesService, IAuthenticationService authenticationService, IAuthorizationsService authorizationService, ILogger<UsersOnDevicesController> logger)
         {
             _usersOnDevicesService = usersOnDevicesService;
@@ -53,6 +65,10 @@ namespace WebApp.Controllers
                 var usersOnDevices = await _usersOnDevicesService.GetUsersOnDevicesByUserIdAsync(userId);
                 return Ok(usersOnDevices);
             }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
+            }
             catch (Exception e)
             {
                 return StatusCode(500, $"Internal server error: {e.Message}");
@@ -83,7 +99,11 @@ namespace WebApp.Controllers
 
                 return (newUserOnDeviceEntry == null)
                     ? StatusCode(500, "The UserOnDevice entry could not be created.")
-                    : Ok(newUserOnDeviceEntry);
+                    : Created("", newUserOnDeviceEntry);
+            }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
             }
             catch (Exception e)
             {
@@ -114,6 +134,10 @@ namespace WebApp.Controllers
                 {
                     return NotFound($"UserOnDevice with ID {id} was not found."); 
                 }
+            }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
             }
             catch (Exception e)
             {

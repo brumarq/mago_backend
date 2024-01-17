@@ -35,13 +35,14 @@ namespace Application.ApplicationServices
 
         }
 
-        public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId)
+        public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId, int pageNumber, int pageSize)
         {
             try
             {
                 await _deviceService.CheckDeviceExistence(deviceId);
                 
-                var getRequest = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}notification/device/{deviceId}");
+                var getRequest = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}notification/device/{deviceId}?pageNumber={pageNumber}&pageSize={pageSize}");
+
                 getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 getRequest.Headers.Add("X-Orchestrator-Key", _orchestratorApiKey);
 
@@ -110,7 +111,7 @@ namespace Application.ApplicationServices
                 var jsonNotificationDTO = JsonConvert.SerializeObject(createNotificationDTO);
                 var content = new StringContent(jsonNotificationDTO, Encoding.UTF8, "application/json");
                 
-                var postRequest = new HttpRequestMessage(HttpMethod.Post, $"{_baseUri}notification/") { Content = content };
+                var postRequest = new HttpRequestMessage(HttpMethod.Post, $"{_baseUri}notification") { Content = content };
                 postRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 postRequest.Headers.Add("X-Orchestrator-Key", _orchestratorApiKey);
 

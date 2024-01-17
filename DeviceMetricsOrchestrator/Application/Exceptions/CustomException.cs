@@ -2,7 +2,7 @@ using System.Net;
 
 namespace Application.Exceptions;
 
-public class CustomException : Exception
+public abstract class CustomException : Exception
 {
     public HttpStatusCode StatusCode { get; }
 

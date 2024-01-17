@@ -1,5 +1,4 @@
 ﻿using Application.ApplicationServices.Interfaces;
-using Application.DTOs.Setting;
 using Application.DTOs.SettingValue;
 using Application.Exceptions;
 using AutoMapper;
@@ -36,19 +35,6 @@ namespace Application.ApplicationServices
             var newSettingValue = await _repository.CreateAsync(_mapper.Map<SettingValue>(newSettingValueDto));
             return _mapper.Map<SettingValueResponseDTO>(newSettingValue);
         }
-
-        // public async Task<bool?> UpdateSettingAsync(int id, UpdateSettingValueDTO updateSettingValueDto)
-        // {
-        //     ValidateSettingValue(updateSettingValueDto);
-        //     return await _repository.UpdateAsync(_mapper.Map<SettingValue>(updateSettingValueDto,
-        //         opt => opt.AfterMap((src, dest) => dest.Id = id)));
-        // }
-
-        // public async Task<bool> DeleteSettingFromDeviceAsync(int id)
-        // {
-        //     return await _repository.DeleteAsync(id);
-        // }
-
 
         private void ValidateSettingValue(SettingValueRequestDTO newSettingValue)
         {

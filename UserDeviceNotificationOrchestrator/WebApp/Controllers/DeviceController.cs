@@ -67,6 +67,7 @@ namespace WebApp.Controllers
         {
             try
             {
+                ValidatePositiveNumber(deviceId, nameof(deviceId));
                 await _deviceService.DeleteUserOnDeviceEntryAsync(userId, deviceId);
                 return Ok();
             }
@@ -80,5 +81,12 @@ namespace WebApp.Controllers
             }
         }
 
+        private void ValidatePositiveNumber(int value, string parameterName)
+        {
+            if (value <= 0)
+            {
+                throw new BadRequestException($"The {parameterName} cannot be negative or 0.");
+            }
+        }
     }
 }
