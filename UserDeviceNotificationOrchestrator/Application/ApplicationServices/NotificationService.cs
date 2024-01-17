@@ -35,13 +35,13 @@ namespace Application.ApplicationServices
 
         }
 
-        public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId)
+        public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId, int pageNumber, int pageSize)
         {
             try
             {
                 await _deviceService.CheckDeviceExistence(deviceId);
-                
-                var getRequest = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}device/{deviceId}");
+
+                var getRequest = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}device/{deviceId}?pageNumber={pageNumber}&pageSize={pageSize}");
                 getRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 getRequest.Headers.Add("X-Orchestrator-Key", _orchestratorApiKey);
 

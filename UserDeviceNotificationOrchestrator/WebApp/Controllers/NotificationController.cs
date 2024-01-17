@@ -39,10 +39,14 @@ namespace WebApp.Controllers
         /// <response code="500">Internal server error.</response>
         [HttpGet("device/{deviceId}")]
         [Authorize("All")]
-        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId)
+        public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId, int pageNumber = 1, int pageSize = 10)
         {
             try
             {
+                ValidatePositiveNumber(deviceId, nameof(deviceId));
+                ValidatePositiveNumber(pageNumber, nameof(pageNumber));
+                ValidatePositiveNumber(pageSize, nameof(pageSize));
+
                 var loggedUserId = _authenticationService.GetUserId();
 
                 var loggedInUserId = _authenticationService.GetUserId();
@@ -53,7 +57,7 @@ namespace WebApp.Controllers
                     return Unauthorized($"The logged user cannot access this device.");
                 }
 
-                var notificationDTOs = await _notificationService.GetNotificationsByDeviceIdAsync(deviceId);
+                var notificationDTOs = await _notificationService.GetNotificationsByDeviceIdAsync(deviceId, pageNumber, pageSize);
                 return Ok(notificationDTOs);
             }
             catch (CustomException ce)
@@ -84,12 +88,8 @@ namespace WebApp.Controllers
         {
             try
             {
+                ValidatePositiveNumber(id, nameof(id));
                 var notificationDTO = await _notificationService.GetNotificationByIdAsync(id);
-                if (notificationDTO == null)
-                {
-                    return NotFound();
-                }
-
                 return Ok(notificationDTO);
             }
             catch (CustomException ce)
@@ -133,6 +133,13 @@ namespace WebApp.Controllers
             }
         }
 
+        private void ValidatePositiveNumber(int value, string parameterName)
+        {
+            if (value <= 0)
+            {
+                throw new BadRequestException($"The {parameterName} cannot be negative or 0.");
+            }
+        }
 
 
     }

@@ -32,7 +32,7 @@ namespace Application.ApplicationServices
                 Message = createNotificationDTO.Message,
                 DeviceId = createNotificationDTO.DeviceID,
                 Timestamp = DateTime.Now,
-                StatusTypeId = createNotificationDTO.StatusTypeID // Set the foreign key proper
+                StatusTypeId = createNotificationDTO.StatusTypeID
             };
 
             var responseDTO = await _notificationRepository.CreateAsync(newNotification);
@@ -40,17 +40,17 @@ namespace Application.ApplicationServices
             return _mapper.Map<NotificationResponseDTO>(responseDTO);
         }
 
-        public async Task<IEnumerable<NotificationResponseDTO>> GetAllNotificationsAsync()
+        public async Task<IEnumerable<NotificationResponseDTO>> GetAllNotificationsPagedAsync(int pageNumber, int pageSize)
         {
-            var notifications = await _notificationRepository.GetAllAsync();
+            var notifications = await _notificationRepository.GetAllPagedAsync(pageNumber, pageSize);
+            if (notifications == null || !notifications.Any())
+                throw new NotFoundException("No notifications found");
 
             return _mapper.Map<IEnumerable<NotificationResponseDTO>>(notifications);
         }
 
         public async Task<NotificationResponseDTO> GetNotificationByIdAsync(int id)
         {
-            if(id <= 0)
-                throw new BadRequestException("The id cannot be negative or 0.");
 
             var notification = await _notificationRepository.GetByConditionAsync(n => n.Id == id);
 
@@ -59,17 +59,11 @@ namespace Application.ApplicationServices
 
             return _mapper.Map<NotificationResponseDTO>(notification);
         }
-
-        public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId)
+        public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdPagedAsync(int deviceId, int pageNumber, int pageSize)
         {
-            if (deviceId <= 0)
-                throw new BadRequestException("The deviceID cannot be negative or 0.");
+            var notifications = await _notificationRepository.GetPagedListByConditionAsync(n => n.DeviceId == deviceId, pageNumber, pageSize);
 
-            var allNotifications = await _notificationRepository.GetAllAsync();
-
-            var notifications = allNotifications.Where(n => n.DeviceId == deviceId);
-
-            if (!notifications.Any())
+            if (notifications == null || !notifications.Any())
                 throw new NotFoundException("Notifications were not found...");
 
             return _mapper.Map<IEnumerable<NotificationResponseDTO>>(notifications);
@@ -77,9 +71,6 @@ namespace Application.ApplicationServices
 
         public async Task<StatusTypeDTO> GetStatusTypeByIdAsync(int id)
         {
-            if (id <= 0)
-                throw new BadRequestException("The deviceID cannot be negative or 0.");
-
             var statusType = await _statusTypeRepository.GetByConditionAsync(s => s.Id == id);
 
             if (statusType == null)
@@ -88,14 +79,13 @@ namespace Application.ApplicationServices
             return _mapper.Map<StatusTypeDTO>(statusType);
         }
 
-        public async Task<StatusTypeDTO> CreateStatusTypeAsync(CreateStatusTypeDTO statusTypeDTO)
+        public async Task<StatusTypeDTO> CreateStatusTypeAsync(CreateStatusTypeDTO createStatusTypeDTO)
         {
-            if (statusTypeDTO.Name == null || statusTypeDTO.Name == "")
-                throw new BadRequestException("StatusType Name property is required to be filled out");
+            ValidateCreateStatusTypeDTO(createStatusTypeDTO);
 
             StatusType newStatusType = new StatusType
             {
-                Name = statusTypeDTO.Name
+                Name = createStatusTypeDTO.Name
             };
 
             await _statusTypeRepository.CreateAsync(newStatusType);
@@ -105,24 +95,18 @@ namespace Application.ApplicationServices
         
         public async Task DeleteStatusTypeAsync(int id)
         {
-            if (id <= 0)
-                throw new BadRequestException("The status type ID cannot be negative or 0.");
-
             var statusType = await _statusTypeRepository.GetByConditionAsync(st => st.Id == id);
 
             if (statusType == null)
-            {
-                throw new NotFoundException("StatusType not found.");
-            }
+                throw new NotFoundException("StatusType not found.");          
 
             var notificationByStatusTypeId = await _notificationRepository.GetByConditionAsync(st => st.StatusTypeId == id);
+
             if (notificationByStatusTypeId != null)
-            {
                 throw new BadRequestException("StatusType is associated with notifications");
-            }
 
 
-            await _statusTypeRepository.DeleteAsync(statusType.Id); // Adjust repository methods if needed
+            await _statusTypeRepository.DeleteAsync(statusType.Id);
         }
         
         public async Task<StatusTypeDTO> UpdateStatusTypeAsync(int id, CreateStatusTypeDTO statusTypeDTO)
@@ -130,18 +114,20 @@ namespace Application.ApplicationServices
             var statusType = await _statusTypeRepository.GetByConditionAsync(st => st.Id == id);
 
             if (statusType == null)
-            {
                 throw new NotFoundException("StatusType not found.");
-            }
 
-            // Update properties
             statusType.Name = statusTypeDTO.Name;
 
-            await _statusTypeRepository.UpdateAsync(statusType); // Adjust repository methods if needed
+            await _statusTypeRepository.UpdateAsync(statusType);
 
             return _mapper.Map<StatusTypeDTO>(statusType);
         }
 
+        private void ValidateCreateStatusTypeDTO(CreateStatusTypeDTO createStatusTypeDTO)
+        {
+            if (createStatusTypeDTO.Name == null || createStatusTypeDTO.Name == "")
+                throw new BadRequestException("StatusType Name property is required to be filled out");
+        }
         private void ValidateCreateNotificationDTO(CreateNotificationDTO createNotificationDTO)
         {
             switch (createNotificationDTO)
