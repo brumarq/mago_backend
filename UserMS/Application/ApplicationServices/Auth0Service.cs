@@ -206,20 +206,37 @@ public class Auth0Service : IAuth0Service
         var token = await _auth0ManagementService.GetToken();
 
         var client = _httpClientFactory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Get, $"{_configuration["Auth0-Management:Audience"]}roles/{roleId}/users")
+
+        var allUsers = new List<UserCompressed>();
+        var page = 0;
+        const int perPage = 100;
+        var totalUsers = 0;
+
+        do
         {
-            Headers =
+            var request = new HttpRequestMessage(HttpMethod.Get, 
+                $"{_configuration["Auth0-Management:Audience"]}roles/{roleId}/users?per_page={perPage}&page={page}&include_totals=true"
+                )
             {
-                { "Authorization", $"Bearer {token.Token}" }
+                Headers = { { "Authorization", $"Bearer {token.Token}" } }
+            };
+
+            var response = await client.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode) await HandleException(response);
+
+            var result = await response.Content.ReadFromJsonAsync<Auth0UsersResponse>();
+
+            if (result?.Users != null)
+            {
+                allUsers.AddRange(result.Users);
+                totalUsers = result.Total;
             }
-        };
 
-        var response = await client.SendAsync(request);
+            page++;
+        } while (perPage * page < totalUsers);
 
-        if (!response.IsSuccessStatusCode) await HandleException(response);
-        
-        var users = await response.Content.ReadFromJsonAsync<List<UserCompressed>>();
-        return users ?? new List<UserCompressed>();
+        return allUsers;
     }
 
     // Delete User
