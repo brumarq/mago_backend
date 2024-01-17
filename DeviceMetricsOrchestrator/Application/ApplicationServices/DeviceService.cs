@@ -58,7 +58,7 @@ public class DeviceService : IDeviceService
         if (!await _authorizationService.IsDeviceAccessibleToUser(loggedInUserId!, deviceId))
             throw new ForbiddenException($"The user with id {loggedInUserId} does not have permission to access device with id {deviceId}");
 
-        var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{deviceId}");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}deviceMS/Device/{deviceId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
         var response = await _httpClient.SendAsync(request);
 
