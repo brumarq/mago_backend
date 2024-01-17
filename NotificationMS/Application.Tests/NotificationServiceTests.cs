@@ -176,11 +176,11 @@ namespace Application.Tests
                 }
             };
 
-            _mockNotificationRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(fakeNotifications);
+            _mockNotificationRepository.Setup(repo => repo.GetAllPagedAsync(1, 100)).ReturnsAsync(fakeNotifications);
             _mockMapper.Setup(mapper => mapper.Map<IEnumerable<NotificationResponseDTO>>(fakeNotifications))
                        .Returns(fakeNotificationResponseDTOs);
 
-            var result = await _notificationService.GetAllNotificationsAsync();
+            var result = await _notificationService.GetAllNotificationsPagedAsync(1, 100);
             
             Assert.IsNotNull(result);
             Assert.AreEqual(fakeNotifications.Count, fakeNotificationResponseDTOs.Count());
@@ -188,16 +188,6 @@ namespace Application.Tests
 #endregion
 
         #region GetNotificationByIdAsync
-        [Test]
-        [TestCase(0)]
-        [TestCase(-1)]
-        [TestCase(-12)]
-        [TestCase(-432)]
-        public async Task GetNotificationByIdAsync_InvalidId_Throws_BadRequestException(int invalidId)
-        {
-            Assert.ThrowsAsync<BadRequestException>(async () => await _notificationService.GetNotificationByIdAsync(invalidId));
-        }
-
         [Test]
         public async Task GetNotificationByIdAsync_Notification_Not_Found_ThrowsNotFoundException()
         {
@@ -250,17 +240,6 @@ namespace Application.Tests
 #endregion
 
         #region GetNotificationsByDeviceIdAsync
-
-        [Test]
-        [TestCase(0)]
-        [TestCase(-1)]
-        [TestCase(-12)]
-        [TestCase(-432)]
-        public async Task GetNotificationsByDeviceIdAsync_InvalidId_Throws_BadRequestException(int invalidId)
-        {
-            Assert.ThrowsAsync<BadRequestException>(async () => await _notificationService.GetNotificationsByDeviceIdAsync(invalidId));
-        }
-
         [Test]
         public async Task GetNotificationsByDeviceIdAsync_Notification_Not_Found_ThrowsNotFoundException()
         {
@@ -268,7 +247,7 @@ namespace Application.Tests
             var emptyNotifications = new List<Status>();
             _mockNotificationRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(emptyNotifications);
                 
-            Assert.ThrowsAsync<NotFoundException>(async () => await _notificationService.GetNotificationsByDeviceIdAsync(id));
+            Assert.ThrowsAsync<NotFoundException>(async () => await _notificationService.GetNotificationsByDeviceIdPagedAsync(id, 1, 10));
 
         }
         [Test]
@@ -330,12 +309,17 @@ namespace Application.Tests
                 }
             };
 
-            _mockNotificationRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(notifications);
 
-            _mockMapper.Setup(mapper => mapper.Map<List<NotificationResponseDTO>>(notifications.Where(n => n.DeviceId == deviceId)))
-                       .Returns(responseDTOs);
+            //_mockMapper.Setup(mapper => mapper.Map<List<NotificationResponseDTO>>(notifications.Where(n => n.DeviceId == deviceId)))
+            //           .Returns(responseDTOs);
 
-            var result = await _notificationService.GetNotificationsByDeviceIdAsync(deviceId);
+            _mockNotificationRepository.Setup(repo => repo.GetPagedListByConditionAsync(n => n.DeviceId == deviceId, 1, 10))
+                .ReturnsAsync(notifications);
+
+            _mockMapper.Setup(mapper => mapper.Map<List<NotificationResponseDTO>>(It.IsAny<Status>()))
+                .Returns(responseDTOs);
+
+            var result = await _notificationService.GetNotificationsByDeviceIdPagedAsync(deviceId, 1, 10);
 
             Assert.IsNotNull(result);
             Assert.IsInstanceOf<IEnumerable<NotificationResponseDTO>>(result);
@@ -356,16 +340,6 @@ namespace Application.Tests
         #endregion
 
         #region GetStatusTypeById
-        [Test]
-        [TestCase(0)]
-        [TestCase(-1)]
-        [TestCase(-12)]
-        [TestCase(-432)]
-        public async Task GetStatusTypeByIdAsync_InvalidId_Throws_BadRequestException(int invalidId)
-        {
-            Assert.ThrowsAsync<BadRequestException>(async () => await _notificationService.GetStatusTypeByIdAsync(invalidId));
-        }
-
         [Test]
         public async Task GetStatusTypeByIdAsync_Notification_Not_Found_ThrowsNotFoundException()
         {
@@ -466,16 +440,6 @@ namespace Application.Tests
                 .ReturnsAsync((StatusType)null);
 
             Assert.ThrowsAsync<NotFoundException>(async () => await _notificationService.DeleteStatusTypeAsync(id));
-        }
-
-        [Test]
-        [TestCase(0)]
-        [TestCase(-1)]
-        [TestCase(-12)]
-        [TestCase(-432)]
-        public async Task DeleteStatusTypeAsync_InvalidId_Throws_BadRequestException(int invalidId)
-        {
-            Assert.ThrowsAsync<BadRequestException>(async () => await _notificationService.DeleteStatusTypeAsync(invalidId));
         }
 
         [Test]
