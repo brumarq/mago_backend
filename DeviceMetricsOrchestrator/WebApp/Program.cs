@@ -13,6 +13,7 @@ using Application.ApplicationServices.Authentization;
 using Application.ApplicationServices.Authorization;
 using System.Reflection;
 using Prometheus;
+using WebApp.Middleware.Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +22,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddHttpClient();
-// builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -40,31 +40,7 @@ builder.Services.AddScoped<IUnitService, UnitService>();
 builder.Services.AddScoped<IUsersOnDevicesService, UsersOnDevicesService>();
 builder.Services.AddScoped<IDeviceMetricsService, DeviceMetricsService>();
 builder.Services.AddScoped<IDeviceAggregatedLogsService, DeviceAggregatedLogsService>();
-
-// Create custom Prometheus metrics for HTTP requests
-var httpRequestDuration = Metrics.CreateHistogram(
-    "http_request_duration_seconds",
-    "Duration of HTTP requests in seconds",
-    new HistogramConfiguration
-    {
-        LabelNames = new[] { "method", "status_code" }
-    }
-);
-var httpRequestCounter = Metrics.CreateCounter(
-    "http_request_total",
-    "Total count of HTTP requests",
-    new CounterConfiguration
-    {
-        LabelNames = new[] { "method", "status_code" }
-    }
-);
-
-// Create a gauge metric for process resident memory in bytes
-var processResidentMemoryBytes = Metrics.CreateGauge(
-    "process_resident_memory_bytes",
-    "Resident memory size of the process in bytes"
-);
-processResidentMemoryBytes.Set(Process.GetCurrentProcess().WorkingSet64);
+builder.Services.AddScoped<IApplicationStateService, ApplicationStateService>();
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -120,6 +96,8 @@ builder.Services.AddAuthorization(options =>
 
 // Authorization handler registration
 builder.Services.AddSingleton<IAuthorizationHandler, HasPermissionHandler>();
+// Register singleton migration state and custom prometheus metrics
+builder.Services.AddSingleton<CustomMetrics>();
 
 // Extra stuff for converting int to string representation of enums in Swagger UI.
 builder.Services
@@ -132,8 +110,15 @@ builder.WebHost.UseUrls($"http://*:{httpPort}");
 builder.Configuration.AddEnvironmentVariables();
 
 var app = builder.Build();
+
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+
+// Add custom metric instrumentation for HTTP requests
 app.Use(async (context, next) =>
 {
+    var customMetrics = services.GetRequiredService<CustomMetrics>();
+
     var stopwatch = Stopwatch.StartNew();
     await next();
     stopwatch.Stop();
@@ -142,13 +127,8 @@ app.Use(async (context, next) =>
     var statusCode = context.Response.StatusCode.ToString();
 
     // Update metrics
-    httpRequestDuration
-        .WithLabels(method, statusCode)
-        .Observe(stopwatch.Elapsed.TotalSeconds);
-
-    httpRequestCounter
-        .WithLabels(method, statusCode)
-        .Inc();
+    customMetrics.HttpRequestDuration.WithLabels(method, statusCode).Observe(stopwatch.Elapsed.TotalSeconds);
+    customMetrics.HttpRequestCounter.WithLabels(method, statusCode).Inc();
 });
 
 app.UseSwagger();

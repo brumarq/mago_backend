@@ -35,7 +35,7 @@ public class DeviceService : IDeviceService
         if (!_authenticationService.IsLoggedInUser())
             throw new UnauthorizedException($"The user is not logged in. Please login first.");
 
-        var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{deviceId}");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}deviceMS/Device/{deviceId}");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
         var response = await _httpClient.SendAsync(request);
 
