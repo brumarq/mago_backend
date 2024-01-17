@@ -24,8 +24,8 @@ public class ApplicationStateService : IApplicationStateService
         {
             var serviceReadinessUrls = new[]
             {
-                $"{_metricsMsBaseUri}/ready",
-                $"{_deviceMsBaseUri}/ready"
+                $"{_metricsMsBaseUri}ready",
+                $"{_deviceMsBaseUri}ready"
             };
 
             foreach (var url in serviceReadinessUrls)
