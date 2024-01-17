@@ -8,7 +8,7 @@ on:
       - "DeviceMS/**/*"
 
 concurrency: 
-  group: ci-cd-process
+  group: ${{ github.repository }}-shared-queue
   cancel-in-progress: false
 
 env:
