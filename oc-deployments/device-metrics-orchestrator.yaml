@@ -20,7 +20,7 @@ spec:
           image: 'docker.io/brumarq/device-metrics-orchestrator:${ENVIRONMENT}'
           resources:
             requests:
-              cpu: "250m"
+              cpu: "100m"
             limits:
               cpu: "500m"
           terminationMessagePath: /dev/termination-log
