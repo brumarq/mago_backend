@@ -53,7 +53,7 @@ builder.Services.AddSingleton<CustomMetrics>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - Device Service...", Version = "v1.0.0" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - Device Service", Version = "v1.0.0" });
 
     // Security schema for Swagger UI
     var securitySchema = new OpenApiSecurityScheme

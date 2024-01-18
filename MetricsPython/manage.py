@@ -11,7 +11,7 @@ import sys
 import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
 
-env = env or 'prod' # if no env assume its production
+env = env or 'prod' # if no env, assume its production
 
 app = create_app(env)
 
