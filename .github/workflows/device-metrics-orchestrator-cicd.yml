@@ -8,151 +8,72 @@ on:
       - 'DeviceMetricsOrchestrator/**/*'
 
 env:
-  
-  # OpenShift Configuration
-  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
-  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
-  OPENSHIFT_TEST_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_TEST }}
-  OPENSHIFT_NAMESPACE: mago-backend
-  OPENSHIFT_TEST_NAMESPACE: mago-backend-test
+  # General Configuration
   APP_NAME: device-metrics-orchestrator
   APP_PORT: 8585
+  ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'production' || 'test' }}
 
+  # OpenShift Configuration
+  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+  OPENSHIFT_TOKEN: ${{ github.ref == 'refs/heads/main' && secrets.OPENSHIFT_TOKEN || secrets.OPENSHIFT_TOKEN_TEST }}
+  OPENSHIFT_NAMESPACE: ${{ github.ref == 'refs/heads/main' && 'mago-backend' || 'mago-backend-test' }}
+  
   # Docker Configuration
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }}
   DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }}
 
   # Auth0 Configuration
-  
-    ## Production
-  AUTH0_DOMAIN: ${{secrets.AUTH0_DOMAIN}}
-  AUTH0_AUDIENCE: ${{secrets.AUTH0_AUDIENCE}}
-  AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
-  AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
-
-    ## Test
-  AUTH0_TEST_DOMAIN: ${{secrets.AUTH0_DOMAIN_TEST}}
-  AUTH0_TEST_AUDIENCE: ${{secrets.AUTH0_AUDIENCE_TEST}}
-  AUTH0_TEST_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID_TEST }}
-  AUTH0_TEST_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET_TEST }}
+  AUTH0_DOMAIN: ${{ github.ref == 'refs/heads/main' && secrets.AUTH0_DOMAIN || secrets.AUTH0_DOMAIN_TEST }}
+  AUTH0_AUDIENCE: ${{ github.ref == 'refs/heads/main' && secrets.AUTH0_AUDIENCE || secrets.AUTH0_AUDIENCE_TEST }}
+  AUTH0_CLIENT_ID: ${{ github.ref == 'refs/heads/main' && secrets.AUTH0_CLIENT_ID || secrets.AUTH0_CLIENT_ID_TEST }}
+  AUTH0_CLIENT_SECRET: ${{ github.ref == 'refs/heads/main' && secrets.AUTH0_CLIENT_SECRET || secrets.AUTH0_CLIENT_SECRET_TEST }}
 
 jobs:
-  device-metrics-orchestrator-unit-tests:
-    name: Unit tests
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/development'
-    environment: device-metrics-orchestrator-test
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 6.0.x
-
-    - name: Restore dependencies
-      run: dotnet restore DeviceMetricsOrchestrator/DeviceMetricsOrchestrator.sln
-
-    - name: Build
-      run: dotnet build DeviceMetricsOrchestrator/DeviceMetricsOrchestrator.sln --no-restore
-
-    - name: Test
-      run: dotnet test DeviceMetricsOrchestrator/DeviceMetricsOrchestrator.sln --no-build --verbosity normal
-
-  docker-upload:
-    name: Deploy docker container
-    runs-on: ubuntu-20.04
-    needs: device-metrics-orchestrator-unit-tests
-    if: github.ref == 'refs/heads/development'
-    environment: device-metrics-orchestrator-test
-
-    steps:
-    - name: Check out repository
-      uses: actions/checkout@v3
-
-    - name: Build from Dockerfile
-      uses: redhat-actions/buildah-build@v2
-      with:
-        image: ${{ env.APP_NAME }}
-        tags: latest
-        dockerfiles: ./DeviceMetricsOrchestrator/Dockerfile
-        context: ./DeviceMetricsOrchestrator/
-        
-    - name: Login to Docker Hub with Buildah
-      run: buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
-        
-    - name: Push image to Docker Hub
-      run: buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
-        
-  deploy-test-env:
-    runs-on: ubuntu-20.04
-    needs: docker-upload
-    name: Deploy Test Environment
-    if: github.ref == 'refs/heads/development'
-    environment: device-metrics-orchestrator-test
-
-    steps:
-      - uses: actions/checkout@v2 # Check Out Code
-      - uses: redhat-actions/oc-login@v1 # Install OC cli and login
-        with:
-          openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
-          openshift_token: ${{ env.OPENSHIFT_TEST_TOKEN }}
-          insecure_skip_tls_verify: true
-          namespace: ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-      - name: Deploy to test environment 
-        run: |
-          oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-
-      - name: Update deployment config to current date
-        run: |
-          oc patch deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
-    
-      - name: Set environment variables 
-        run: |
-          oc set env deployment/${{ env.APP_NAME }} \
-          Auth0__Domain=${{ env.AUTH0_TEST_DOMAIN }} \
-          Auth0__Audience=${{ env.AUTH0_TEST_AUDIENCE }} \
-          Auth0__ClientId=${{ env.AUTH0_TEST_CLIENT_ID }} \
-          Auth0__ClientSecret=${{ env.AUTH0_TEST_CLIENT_SECRET }}
-
-      - name: Create service if non-existent
-        run: |
-            SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
-            if [ -z "$SERVICE_EXISTS" ]; then
-              oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-            fi
-    
-      - name: Create route if non-existent
-        run: |    
-            ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
-            if [ -z "$ROUTE_EXISTS" ]; then
-              oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-            fi
   
-          
-  build-deploy:
+  build-and-push-docker:
     runs-on: ubuntu-20.04
-    name: Deploy Production Environment
-    if: github.ref == 'refs/heads/main'
-    environment: device-metrics-orchestrator-production
-
+    environment: device-metrics-orchestrator-${{ github.ref == 'refs/heads/main' && 'production' || 'test' }}
     steps:
-      - uses: actions/checkout@v2 # Check Out Code
-      - uses: redhat-actions/oc-login@v1 # Install OC cli and login
+      - uses: actions/checkout@v3
+      - name: Build and Push Docker Image
+        uses: redhat-actions/buildah-build@v2
         with:
-          openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+          image: ${{ env.APP_NAME }}
+          tags: ${{ env.ENVIRONMENT }}
+          dockerfiles: ./DeviceMetricsOrchestrator/Dockerfile
+          context: ./DeviceMetricsOrchestrator/
+      - name: Login to Docker Registry
+        run: buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
+      - name: Push Docker Image
+        run: buildah push "${{ env.APP_NAME }}:${{ env.ENVIRONMENT }}" "docker://docker.io/brumarq/${{ env.APP_NAME }}:${{ env.ENVIRONMENT }}"
+
+  deploy:
+    runs-on: ubuntu-20.04
+    needs: build-and-push-docker
+    environment: device-metrics-orchestrator-${{ github.ref == 'refs/heads/main' && 'production' || 'test' }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ secrets.OPENSHIFT_SERVER }}
           openshift_token: ${{ env.OPENSHIFT_TOKEN }}
           insecure_skip_tls_verify: true
           namespace: ${{ env.OPENSHIFT_NAMESPACE }}
-      - name: Deploy to test environment 
+      
+      - name: Update YAML with Current Timestamp
+        run: |
+          CURRENT_TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          sed -i "s/\${TIMESTAMP}/${CURRENT_TIMESTAMP}/g" ./oc-deployments/${{ env.APP_NAME }}.yaml
+      
+      - name: Set Image Version
+        run: |
+          sed -i "s/\${ENVIRONMENT}/${{env.ENVIRONMENT}}/g" ./oc-deployments/${{ env.APP_NAME }}.yaml
+      
+      - name: Deploy to OpenShift
         run: |
           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_NAMESPACE }}
-
-      - name: Update deployment config to current date
-        run: |
-          oc patch deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
-
+          
       - name: Set environment variables 
         run: |
           oc set env deployment/${{ env.APP_NAME }} \
@@ -160,7 +81,7 @@ jobs:
           Auth0__Audience=${{ env.AUTH0_AUDIENCE }} \
           Auth0__ClientId=${{ env.AUTH0_CLIENT_ID }} \
           Auth0__ClientSecret=${{ env.AUTH0_CLIENT_SECRET }}
-          
+
       - name: Create service if non-existent
         run: |
           SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
@@ -170,7 +91,186 @@ jobs:
 
       - name: Create route if non-existent
         run: |    
-            ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
-            if [ -z "$ROUTE_EXISTS" ]; then
-              oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
-            fi
+          ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+          if [ -z "$ROUTE_EXISTS" ]; then
+            oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+          fi
+
+
+
+# name: Device Metrics Orchestrator CI/CD
+
+# on:
+#   workflow_dispatch:
+#   push:
+#     branches: [ "main", "development" ]
+#     paths:
+#       - 'DeviceMetricsOrchestrator/**/*'
+
+# env:
+  
+#   # OpenShift Configuration
+#   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+#   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+#   OPENSHIFT_TEST_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_TEST }}
+#   OPENSHIFT_NAMESPACE: mago-backend
+#   OPENSHIFT_TEST_NAMESPACE: mago-backend-test
+#   APP_NAME: device-metrics-orchestrator
+#   APP_PORT: 8585
+
+#   # Docker Configuration
+#   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }}
+#   DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }}
+
+#   # Auth0 Configuration
+  
+#     ## Production
+#   AUTH0_DOMAIN: ${{secrets.AUTH0_DOMAIN}}
+#   AUTH0_AUDIENCE: ${{secrets.AUTH0_AUDIENCE}}
+#   AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+#   AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+
+#     ## Test
+#   AUTH0_TEST_DOMAIN: ${{secrets.AUTH0_DOMAIN_TEST}}
+#   AUTH0_TEST_AUDIENCE: ${{secrets.AUTH0_AUDIENCE_TEST}}
+#   AUTH0_TEST_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID_TEST }}
+#   AUTH0_TEST_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET_TEST }}
+
+# jobs:
+#   device-metrics-orchestrator-unit-tests:
+#     name: Unit tests
+#     runs-on: ubuntu-latest
+#     if: github.ref == 'refs/heads/development'
+#     environment: device-metrics-orchestrator-test
+
+#     steps:
+#     - uses: actions/checkout@v3
+
+#     - name: Setup .NET
+#       uses: actions/setup-dotnet@v3
+#       with:
+#         dotnet-version: 6.0.x
+
+#     - name: Restore dependencies
+#       run: dotnet restore DeviceMetricsOrchestrator/DeviceMetricsOrchestrator.sln
+
+#     - name: Build
+#       run: dotnet build DeviceMetricsOrchestrator/DeviceMetricsOrchestrator.sln --no-restore
+
+#     - name: Test
+#       run: dotnet test DeviceMetricsOrchestrator/DeviceMetricsOrchestrator.sln --no-build --verbosity normal
+
+#   docker-upload:
+#     name: Deploy docker container
+#     runs-on: ubuntu-20.04
+#     needs: device-metrics-orchestrator-unit-tests
+#     if: github.ref == 'refs/heads/development'
+#     environment: device-metrics-orchestrator-test
+
+#     steps:
+#     - name: Check out repository
+#       uses: actions/checkout@v3
+
+#     - name: Build from Dockerfile
+#       uses: redhat-actions/buildah-build@v2
+#       with:
+#         image: ${{ env.APP_NAME }}
+#         tags: latest
+#         dockerfiles: ./DeviceMetricsOrchestrator/Dockerfile
+#         context: ./DeviceMetricsOrchestrator/
+        
+#     - name: Login to Docker Hub with Buildah
+#       run: buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
+        
+#     - name: Push image to Docker Hub
+#       run: buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
+        
+#   deploy-test-env:
+#     runs-on: ubuntu-20.04
+#     needs: docker-upload
+#     name: Deploy Test Environment
+#     if: github.ref == 'refs/heads/development'
+#     environment: device-metrics-orchestrator-test
+
+#     steps:
+#       - uses: actions/checkout@v2 # Check Out Code
+#       - uses: redhat-actions/oc-login@v1 # Install OC cli and login
+#         with:
+#           openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+#           openshift_token: ${{ env.OPENSHIFT_TEST_TOKEN }}
+#           insecure_skip_tls_verify: true
+#           namespace: ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+#       - name: Deploy to test environment 
+#         run: |
+#           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+
+#       - name: Update deployment config to current date
+#         run: |
+#           oc patch deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
+    
+#       - name: Set environment variables 
+#         run: |
+#           oc set env deployment/${{ env.APP_NAME }} \
+#           Auth0__Domain=${{ env.AUTH0_TEST_DOMAIN }} \
+#           Auth0__Audience=${{ env.AUTH0_TEST_AUDIENCE }} \
+#           Auth0__ClientId=${{ env.AUTH0_TEST_CLIENT_ID }} \
+#           Auth0__ClientSecret=${{ env.AUTH0_TEST_CLIENT_SECRET }}
+
+#       - name: Create service if non-existent
+#         run: |
+#             SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
+#             if [ -z "$SERVICE_EXISTS" ]; then
+#               oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+#             fi
+    
+#       - name: Create route if non-existent
+#         run: |    
+#             ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
+#             if [ -z "$ROUTE_EXISTS" ]; then
+#               oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+#             fi
+  
+          
+#   build-deploy:
+#     runs-on: ubuntu-20.04
+#     name: Deploy Production Environment
+#     if: github.ref == 'refs/heads/main'
+#     environment: device-metrics-orchestrator-production
+
+#     steps:
+#       - uses: actions/checkout@v2 # Check Out Code
+#       - uses: redhat-actions/oc-login@v1 # Install OC cli and login
+#         with:
+#           openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+#           openshift_token: ${{ env.OPENSHIFT_TOKEN }}
+#           insecure_skip_tls_verify: true
+#           namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+#       - name: Deploy to test environment 
+#         run: |
+#           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_NAMESPACE }}
+
+#       - name: Update deployment config to current date
+#         run: |
+#           oc patch deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
+
+#       - name: Set environment variables 
+#         run: |
+#           oc set env deployment/${{ env.APP_NAME }} \
+#           Auth0__Domain=${{ env.AUTH0_DOMAIN }} \
+#           Auth0__Audience=${{ env.AUTH0_AUDIENCE }} \
+#           Auth0__ClientId=${{ env.AUTH0_CLIENT_ID }} \
+#           Auth0__ClientSecret=${{ env.AUTH0_CLIENT_SECRET }}
+          
+#       - name: Create service if non-existent
+#         run: |
+#           SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+#           if [ -z "$SERVICE_EXISTS" ]; then
+#             oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+#           fi
+
+#       - name: Create route if non-existent
+#         run: |    
+#             ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+#             if [ -z "$ROUTE_EXISTS" ]; then
+#               oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+#             fi
