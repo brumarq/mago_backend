@@ -13,6 +13,7 @@ spec:
     metadata:
       labels:
         app: user-microservice
+        deploymentTimestamp: "${TIMESTAMP}"
     spec:
       containers:
         - name: user-microservice
