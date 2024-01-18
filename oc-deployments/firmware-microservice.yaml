@@ -13,10 +13,11 @@ spec:
     metadata:
       labels:
         app: firmware-microservice
+        deploymentTimestamp: "${TIMESTAMP}"
     spec:
       containers:
         - name: firmware-microservice
-          image: 'docker.io/brumarq/firmware-microservice:latest'
+          image: 'docker.io/brumarq/firmware-microservice:${ENVIRONMENT}'
           resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File

@@ -47,7 +47,7 @@ builder.Services.AddSingleton<CustomMetrics>();
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - Notification Service", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - Notification Service...", Version = "v1" });
 
     // Security schema for Swagger UI
     var securitySchema = new OpenApiSecurityScheme

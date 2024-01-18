@@ -13,10 +13,11 @@ spec:
     metadata:
       labels:
         app: metrics-microservice
+        deploymentTimestamp: "${TIMESTAMP}"
     spec:
       containers:
         - name: metrics-microservice
-          image: 'docker.io/brumarq/metrics-microservice:latest'
+          image: 'docker.io/brumarq/metrics-microservice:${ENVIRONMENT}'
           resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
