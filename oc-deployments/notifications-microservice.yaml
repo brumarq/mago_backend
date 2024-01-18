@@ -18,11 +18,6 @@ spec:
       containers:
         - name: notifications-microservice
           image: "docker.io/brumarq/notifications-microservice:${ENVIRONMENT}"
-          resources:
-            requests:
-              cpu: "1m"
-            limits:
-              cpu: "500m"
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           imagePullPolicy: Always
