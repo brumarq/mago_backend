@@ -157,7 +157,7 @@ jobs:
   deploy-production-env:
     runs-on: ubuntu-20.04
     name: Deploy to Production Environment
-    needs: docker-upload-test
+    needs: docker-upload-production
     if: github.ref == 'refs/heads/main'
     environment: userms-production
     steps:
