@@ -7,7 +7,7 @@ WORKDIR /app
 # Copy src code
 COPY . .
 
-# Download all the dependencies
+# Download all the dependencies.
 RUN go mod download
 
 # Install & run swag command
