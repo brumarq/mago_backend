@@ -36,6 +36,7 @@ jobs:
   userms-unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
+    environment: userms-test
     if: github.ref == 'refs/heads/development'
     steps:
       - uses: actions/checkout@v3
@@ -57,7 +58,7 @@ jobs:
     name: Build and Push Docker Image
     needs: userms-unit-tests
     if: github.ref == 'refs/heads/development'
-    environment: userms-production
+    environment: userms-test
     steps:
       - uses: actions/checkout@v3 # Check Out Code
       

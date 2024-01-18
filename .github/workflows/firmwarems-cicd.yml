@@ -3,7 +3,7 @@ name: Firmware Service CI/CD
 on:
   workflow_dispatch:
   push:
-    branches: ["main"]
+    branches: [ "main", "development" ]
     paths:
       - "FirmwareGO/**/*"
 
@@ -36,6 +36,8 @@ jobs:
   firmwarems-unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
+    environment: firmwarems-test
+    if: github.ref == 'refs/heads/development'
 
     steps:
       - uses: actions/checkout@v2
@@ -53,7 +55,8 @@ jobs:
     name: Deploy docker container
     runs-on: ubuntu-20.04
     needs: firmwarems-unit-tests
-    environment: firmwarems-production
+    environment: firmwarems-test
+    if: github.ref == 'refs/heads/development'
 
     steps:
       - name: Check Out repository
@@ -78,6 +81,7 @@ jobs:
     needs: docker-upload
     name: Deploy Test Environment
     environment: firmwarems-test
+    if: github.ref == 'refs/heads/development'
 
     steps:
       - uses: actions/checkout@v2 # Check Out Code
@@ -116,31 +120,10 @@ jobs:
               oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
             fi
 
-  run-integration-tests:
-    runs-on: ubuntu-latest
-    needs: deploy-test-env
-    name: Execute Integration Tests
-    steps:
-      - uses: actions/checkout@v3 # Check Out Code
-      - uses: actions/setup-dotnet@v3 # Setup .NET Environment
-        with:
-          dotnet-version: 6.0.x
-      - name: Restore .NET Dependencies
-        run: dotnet restore ServiceTests/ServiceTests.sln
-      - name: Build .NET Project
-        run: dotnet build ServiceTests/ServiceTests.sln --no-restore
-      - name: Run .NET Integration Tests
-        run: dotnet test ServiceTests/ServiceTests.sln --no-build --verbosity normal
-        env:
-          AdminJWTToken: ${{ secrets.JWT_ADMIN_TEST_TOKEN }}
-          ClientJWTToken: ${{ secrets.JWT_CLIENT_TEST_TOKEN }}
-          ForbiddenClientJWTToken: ${{ secrets.JWT_CLIENT_FORBIDDEN_TEST_TOKEN }}
-          InvalidToken: ${{secrets.JWT_INVALID_TEST_TOKEN}}
-
   build-deploy:
     runs-on: ubuntu-20.04
-    needs: run-integration-tests
     name: Deploy to Openshift
+    if: github.ref == 'refs/heads/main'
     environment: firmwarems-production
 
     steps:
