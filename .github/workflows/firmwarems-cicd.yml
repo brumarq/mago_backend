@@ -5,149 +5,92 @@ on:
   push:
     branches: [ "main", "development" ]
     paths:
-      - "FirmwareGO/**/*"
+      - 'FirmwareGO/**/*'
 
 env:
-  # OpenShift Configuration
-  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
-  OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
-  OPENSHIFT_TEST_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_TEST }}
-  OPENSHIFT_NAMESPACE: mago-backend
-  OPENSHIFT_TEST_NAMESPACE: mago-backend-test
+  # General Configuration
   APP_NAME: firmware-microservice
   APP_PORT: 6969
+  ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'production' || 'test' }}
 
+  # OpenShift Configuration
+  OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+  OPENSHIFT_TOKEN: ${{ github.ref == 'refs/heads/main' && secrets.OPENSHIFT_TOKEN || secrets.OPENSHIFT_TOKEN_TEST }}
+  OPENSHIFT_NAMESPACE: ${{ github.ref == 'refs/heads/main' && 'mago-backend' || 'mago-backend-test' }}
+  
   # Docker Configuration
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }}
   DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }}
 
   # Auth0 Configuration
-  AUTH0_DOMAIN: ${{secrets.AUTH0_DOMAIN_NO_HTTPS}}
-  AUTH0_AUDIENCE: ${{secrets.AUTH0_AUDIENCE}}
-  AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
-  AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
-
-  AUTH0_TEST_DOMAIN: ${{secrets.AUTH0_DOMAIN_NO_HTTPS_TEST}}
-  AUTH0_TEST_AUDIENCE: ${{secrets.AUTH0_AUDIENCE_TEST}}
-  AUTH0_TEST_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID_TEST }}
-  AUTH0_TEST_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET_TEST }}
+  AUTH0_DOMAIN: ${{ github.ref == 'refs/heads/main' && secrets.AUTH0_DOMAIN_NO_HTTPS || secrets.AUTH0_DOMAIN_NO_HTTPS_TEST }}
+  AUTH0_AUDIENCE: ${{ github.ref == 'refs/heads/main' && secrets.AUTH0_AUDIENCE || secrets.AUTH0_AUDIENCE_TEST }}
 
 jobs:
-  firmwarems-unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    environment: firmwarems-test
-    if: github.ref == 'refs/heads/development'
 
+  unit-tests:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: "^1.21.1"
-
+          go-version: '^1.21.1'
       - name: Run Unit Tests
         run: |
           cd FirmwareGO/tests/unittests
           go test -v ./...
 
-  docker-upload:
-    name: Deploy docker container
+  build-and-push-docker:
     runs-on: ubuntu-20.04
-    needs: firmwarems-unit-tests
-    environment: firmwarems-test
-    if: github.ref == 'refs/heads/development'
-
+    needs: unit-tests
     steps:
-      - name: Check Out repository
-        uses: actions/checkout@v2
-
-      - name: Build from dockerfile
+      - uses: actions/checkout@v2
+      - name: Build and Push Docker Image
         uses: redhat-actions/buildah-build@v2
         with:
           image: ${{ env.APP_NAME }}
-          tags: latest
+          tags: ${{ env.ENVIRONMENT }}
           dockerfiles: ./FirmwareGO/Dockerfile
           context: ./FirmwareGO/
-
-      - name: Login to Docker Hub with Buildah
+      - name: Login to Docker Registry
         run: buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
+      - name: Push Docker Image
+        run: buildah push "${{ env.APP_NAME }}:${{ env.ENVIRONMENT }}" "docker://docker.io/brumarq/${{ env.APP_NAME }}:${{ env.ENVIRONMENT }}"
 
-      - name: Push image to Docker Hub
-        run: buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
-
-  deploy-test-env:
+  deploy:
     runs-on: ubuntu-20.04
-    needs: docker-upload
-    name: Deploy Test Environment
-    environment: firmwarems-test
-    if: github.ref == 'refs/heads/development'
-
+    needs: build-and-push-docker
+    environment: firmwarems-${{ github.ref == 'refs/heads/main' && 'production' || 'test' }}
     steps:
-      - uses: actions/checkout@v2 # Check Out Code
-      - uses: redhat-actions/oc-login@v1 # Install OC cli and login
+      - uses: actions/checkout@v2
+
+      - uses: redhat-actions/oc-login@v1
         with:
-          openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
-          openshift_token: ${{ env.OPENSHIFT_TEST_TOKEN }}
-          insecure_skip_tls_verify: true
-          namespace: ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-      - name: Deploy to test environment 
-        run: |
-          oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-
-      - name: Update deployment config to current date
-        run: |
-          oc patch deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
-  
-      - name: Set environment variables 
-        run: |
-          oc set env deployment/${{ env.APP_NAME }} \
-          FIRMWARE_DB_CONNECTION_STRING=${{ secrets.FIRMWARE_DB_CONNECTION_STRING }} \
-          AUTH0_DOMAIN=${{ env.AUTH0_TEST_DOMAIN }} \
-          AUTH0_AUDIENCE=${{ env.AUTH0_TEST_AUDIENCE }} \
-
-      - name: Create service if non-existent
-        run: |
-            SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
-            if [ -z "$SERVICE_EXISTS" ]; then
-              oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-            fi
-    
-      - name: Create route if non-existent
-        run: |    
-            ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
-            if [ -z "$ROUTE_EXISTS" ]; then
-              oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-            fi
-
-  build-deploy:
-    runs-on: ubuntu-20.04
-    name: Deploy to Openshift
-    if: github.ref == 'refs/heads/main'
-    environment: firmwarems-production
-
-    steps:
-      - uses: actions/checkout@v2 # Check Out Code
-      - uses: redhat-actions/oc-login@v1 # Install OC cli and login
-        with:
-          openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+          openshift_server_url: ${{ secrets.OPENSHIFT_SERVER }}
           openshift_token: ${{ env.OPENSHIFT_TOKEN }}
           insecure_skip_tls_verify: true
-          namespace: ${{ env.OPENSHIFT_NAMESPACE }}
-      - name: Deploy to production environment 
+          namespace: ${{ github.ref == 'refs/heads/main' && 'mago-backend' || 'mago-backend-test' }}
+      
+      - name: Update YAML with Current Timestamp
+        run: |
+          CURRENT_TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          sed -i "s/\${TIMESTAMP}/${CURRENT_TIMESTAMP}/g" ./oc-deployments/${{ env.APP_NAME }}.yaml
+      
+      - name: Set Image Version
+        run: |
+          sed -i "s/\${ENVIRONMENT}/${{env.ENVIRONMENT}}/g" ./oc-deployments/${{ env.APP_NAME }}.yaml
+      
+      - name: Deploy to OpenShift
         run: |
           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_NAMESPACE }}
-      
-      - name: Update deployment config to current date
-        run: |
-          oc patch deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
-
+          
       - name: Set environment variables 
         run: |
           oc set env deployment/${{ env.APP_NAME }} \
           FIRMWARE_DB_CONNECTION_STRING=${{ secrets.FIRMWARE_DB_CONNECTION_STRING }} \
           AUTH0_DOMAIN=${{ env.AUTH0_DOMAIN }} \
-          AUTH0_AUDIENCE=${{ env.AUTH0_AUDIENCE }} \
+          AUTH0_AUDIENCE=${{ env.AUTH0_AUDIENCE }}
 
       - name: Create service if non-existent
         run: |
@@ -155,10 +98,177 @@ jobs:
           if [ -z "$SERVICE_EXISTS" ]; then
             oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
           fi
-  
+
       - name: Create route if non-existent
         run: |    
-            ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
-            if [ -z "$ROUTE_EXISTS" ]; then
-              oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
-            fi
+          ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+          if [ -z "$ROUTE_EXISTS" ]; then
+            oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+          fi
+
+
+
+# name: Firmware Service CI/CD
+
+# on:
+#   workflow_dispatch:
+#   push:
+#     branches: [ "main", "development" ]
+#     paths:
+#       - "FirmwareGO/**/*"
+
+# env:
+#   # OpenShift Configuration
+#   OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+#   OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+#   OPENSHIFT_TEST_TOKEN: ${{ secrets.OPENSHIFT_TOKEN_TEST }}
+#   OPENSHIFT_NAMESPACE: mago-backend
+#   OPENSHIFT_TEST_NAMESPACE: mago-backend-test
+#   APP_NAME: firmware-microservice
+#   APP_PORT: 6969
+
+#   # Docker Configuration
+#   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME_BRUNO }}
+#   DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN_BRUNO }}
+
+#   # Auth0 Configuration
+#   AUTH0_DOMAIN: ${{secrets.AUTH0_DOMAIN_NO_HTTPS}}
+#   AUTH0_AUDIENCE: ${{secrets.AUTH0_AUDIENCE}}
+#   AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+#   AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+
+#   AUTH0_TEST_DOMAIN: ${{secrets.AUTH0_DOMAIN_NO_HTTPS_TEST}}
+#   AUTH0_TEST_AUDIENCE: ${{secrets.AUTH0_AUDIENCE_TEST}}
+#   AUTH0_TEST_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID_TEST }}
+#   AUTH0_TEST_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET_TEST }}
+
+# jobs:
+#   firmwarems-unit-tests:
+#     name: Unit Tests
+#     runs-on: ubuntu-latest
+#     environment: firmwarems-test
+#     if: github.ref == 'refs/heads/development'
+
+#     steps:
+#       - uses: actions/checkout@v2
+#       - name: Set up Go
+#         uses: actions/setup-go@v2
+#         with:
+#           go-version: "^1.21.1"
+
+#       - name: Run Unit Tests
+#         run: |
+#           cd FirmwareGO/tests/unittests
+#           go test -v ./...
+
+#   docker-upload:
+#     name: Deploy docker container
+#     runs-on: ubuntu-20.04
+#     needs: firmwarems-unit-tests
+#     environment: firmwarems-test
+#     if: github.ref == 'refs/heads/development'
+
+#     steps:
+#       - name: Check Out repository
+#         uses: actions/checkout@v2
+
+#       - name: Build from dockerfile
+#         uses: redhat-actions/buildah-build@v2
+#         with:
+#           image: ${{ env.APP_NAME }}
+#           tags: latest
+#           dockerfiles: ./FirmwareGO/Dockerfile
+#           context: ./FirmwareGO/
+
+#       - name: Login to Docker Hub with Buildah
+#         run: buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
+
+#       - name: Push image to Docker Hub
+#         run: buildah push "${{ env.APP_NAME }}:latest" "docker://docker.io/brumarq/${{ env.APP_NAME }}:latest"
+
+#   deploy-test-env:
+#     runs-on: ubuntu-20.04
+#     needs: docker-upload
+#     name: Deploy Test Environment
+#     environment: firmwarems-test
+#     if: github.ref == 'refs/heads/development'
+
+#     steps:
+#       - uses: actions/checkout@v2 # Check Out Code
+#       - uses: redhat-actions/oc-login@v1 # Install OC cli and login
+#         with:
+#           openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+#           openshift_token: ${{ env.OPENSHIFT_TEST_TOKEN }}
+#           insecure_skip_tls_verify: true
+#           namespace: ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+#       - name: Deploy to test environment 
+#         run: |
+#           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+
+#       - name: Update deployment config to current date
+#         run: |
+#           oc patch deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
+  
+#       - name: Set environment variables 
+#         run: |
+#           oc set env deployment/${{ env.APP_NAME }} \
+#           FIRMWARE_DB_CONNECTION_STRING=${{ secrets.FIRMWARE_DB_CONNECTION_STRING }} \
+#           AUTH0_DOMAIN=${{ env.AUTH0_TEST_DOMAIN }} \
+#           AUTH0_AUDIENCE=${{ env.AUTH0_TEST_AUDIENCE }} \
+
+#       - name: Create service if non-existent
+#         run: |
+#             SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
+#             if [ -z "$SERVICE_EXISTS" ]; then
+#               oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+#             fi
+    
+#       - name: Create route if non-existent
+#         run: |    
+#             ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} --ignore-not-found)
+#             if [ -z "$ROUTE_EXISTS" ]; then
+#               oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
+#             fi
+
+#   build-deploy:
+#     runs-on: ubuntu-20.04
+#     name: Deploy to Openshift
+#     if: github.ref == 'refs/heads/main'
+#     environment: firmwarems-production
+
+#     steps:
+#       - uses: actions/checkout@v2 # Check Out Code
+#       - uses: redhat-actions/oc-login@v1 # Install OC cli and login
+#         with:
+#           openshift_server_url: ${{ env.OPENSHIFT_SERVER }}
+#           openshift_token: ${{ env.OPENSHIFT_TOKEN }}
+#           insecure_skip_tls_verify: true
+#           namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+#       - name: Deploy to production environment 
+#         run: |
+#           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_NAMESPACE }}
+      
+#       - name: Update deployment config to current date
+#         run: |
+#           oc patch deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
+
+#       - name: Set environment variables 
+#         run: |
+#           oc set env deployment/${{ env.APP_NAME }} \
+#           FIRMWARE_DB_CONNECTION_STRING=${{ secrets.FIRMWARE_DB_CONNECTION_STRING }} \
+#           AUTH0_DOMAIN=${{ env.AUTH0_DOMAIN }} \
+#           AUTH0_AUDIENCE=${{ env.AUTH0_AUDIENCE }} \
+
+#       - name: Create service if non-existent
+#         run: |
+#           SERVICE_EXISTS=$(oc get svc ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+#           if [ -z "$SERVICE_EXISTS" ]; then
+#             oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
+#           fi
+  
+#       - name: Create route if non-existent
+#         run: |    
+#             ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
+#             if [ -z "$ROUTE_EXISTS" ]; then
+#               oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
+#             fi
