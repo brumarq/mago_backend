@@ -53,9 +53,9 @@ jobs:
       - name: Test
         run: dotnet test UserMS/UserMS.sln --no-build --verbosity normal
 
-  docker-upload:
+  docker-upload-test:
     runs-on: ubuntu-20.04
-    name: Build and Push Docker Image
+    name: Build and Push Docker Test Environment Image
     needs: userms-unit-tests
     if: github.ref == 'refs/heads/development'
     environment: userms-test
@@ -77,7 +77,7 @@ jobs:
         
   deploy-test-env:
     runs-on: ubuntu-20.04
-    needs: docker-upload
+    needs: docker-upload-test
     name: Deploy to Test Environment
     if: github.ref == 'refs/heads/development'
     environment: userms-test
@@ -100,14 +100,10 @@ jobs:
           ENVIRONMENT_TAG="test"
           sed -i "s/\${ENVIRONMENT}/${ENVIRONMENT_TAG}/g" ./oc-deployments/${{ env.APP_NAME }}.yaml
       
-      - name: Deploy to test environment, if changes were made
+      - name: Deploy to test environment
         run: |
           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
-
-      - name: Update deployment config to current date
-        run: |
-          oc patch deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }} -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
-
+          
       - name: Set environment variables 
         run: |
           oc set env deployment/${{ env.APP_NAME }} \
@@ -137,10 +133,31 @@ jobs:
             oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_TEST_NAMESPACE }}
           fi
 
+  docker-upload-production:
+    runs-on: ubuntu-20.04
+    name: Build and Push Docker Production Environment Image
+    if: github.ref == 'refs/heads/main'
+    environment: userms-production
+    steps:
+      - uses: actions/checkout@v3 # Check Out Code
+      
+      - name: Build from Dockerfile
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.APP_NAME }}
+          tags: production
+          dockerfiles: ./UserMS/Dockerfile
+          context: ./UserMS/
+      - name: Login to Docker Registry
+        run: buildah login --username ${{ env.DOCKER_HUB_USERNAME }} --password ${{ env.DOCKER_HUB_ACCESS_TOKEN }} docker.io
+        
+      - name: Push new image to repository
+        run: buildah push "${{ env.APP_NAME }}:production" "docker://docker.io/brumarq/${{ env.APP_NAME }}:production"
           
   deploy-production-env:
     runs-on: ubuntu-20.04
     name: Deploy to Production Environment
+    needs: docker-upload-test
     if: github.ref == 'refs/heads/main'
     environment: userms-production
     steps:
@@ -151,13 +168,20 @@ jobs:
           openshift_token: ${{ env.OPENSHIFT_TOKEN }}
           insecure_skip_tls_verify: true
           namespace: ${{ env.OPENSHIFT_NAMESPACE }}
+
+      - name: Update YAML with Current Timestamp
+        run: |
+          CURRENT_TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          sed -i "s/\${TIMESTAMP}/${CURRENT_TIMESTAMP}/g" ./oc-deployments/${{ env.APP_NAME }}.yaml
+      
+      - name: Set Image Version
+        run: |
+          ENVIRONMENT_TAG="production"
+          sed -i "s/\${ENVIRONMENT}/${ENVIRONMENT_TAG}/g" ./oc-deployments/${{ env.APP_NAME }}.yaml
+          
       - name: Deploy to OpenShift
         run: |
           oc apply -f ./oc-deployments/${{ env.APP_NAME }}.yaml -n ${{ env.OPENSHIFT_NAMESPACE }}
-
-      - name: Update deployment config to current date
-        run: |
-          oc patch deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} -p "{\"spec\":{\"template\":{\"metadata\":{\"labels\":{\"date\":\"`date +'%s'`\"}}}}}"
 
       - name: Set environment variables 
         run: |
