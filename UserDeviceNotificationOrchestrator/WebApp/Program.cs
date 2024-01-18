@@ -32,7 +32,7 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - Device User Notifications Orchestrator", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mago - Device User Notifications Orchestrator...", Version = "v1" });
 
     // Security schema for Swagger UI
     var securitySchema = new OpenApiSecurityScheme
