@@ -32,6 +32,27 @@ az account set --subscription $subscriptionId
 # Define bicep path
 $bicepTemplatePath = './resource_template.bicep'
 
+# Function for deploying Azure function
+function Deploy-AzureFunction {
+    param (
+        [string]$functionAppName,
+        [string]$resourceGroupName,
+        [string]$keyVaultName,
+        [string]$azureFunctionTimezone
+    )
+
+    # Get secret value from Key Vault
+    $connectionString = az keyvault secret show --vault-name $keyVaultName --name METRICS-DB-CONNECTION-STRING-PYODBC --query 'value' -o tsv
+
+    # Set Azure Function app settings
+    az functionapp config appsettings set --name $functionAppName --resource-group $resourceGroupName --settings METRICS_DB_CONNECTION_STRING_PYODBC=$connectionString
+    az functionapp config appsettings set --name $functionAppName --resource-group $resourceGroupName --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true
+    az functionapp config appsettings set --name $functionAppName --resource-group $resourceGroupName --settings WEBSITE_TIME_ZONE=$azureFunctionTimezone
+
+    # Deploy the Azure Function code
+    func azure functionapp publish $functionAppName
+}
+
 # Function to deploy resources
 function Deploy-Resources {
     param (
@@ -47,6 +68,11 @@ function Deploy-Resources {
     $cmd = "az deployment group create --mode Incremental --resource-group $rgName --template-file $bicepTemplatePath --parameters $parameters"
     Write-Host $cmd
     Invoke-Expression $cmd
+
+    # Only if its production, then do the Azure function deployment
+    if ($rgName -eq $resourceGroupNameProduction) {
+        Deploy-AzureFunction -functionAppName $functionAppName -resourceGroupName $rgName -keyVaultName $keyVaultName -azureFunctionTimezone "Europe Standard Time"
+    }
 }
 
 # Apply production parameters for bicep
@@ -81,4 +107,4 @@ $parametersTest = @{
 }
 
 $parametersTest = $parametersTest.Keys.ForEach({"$_=$($parametersTest[$_])"}) -join ' '
-Deploy-Resources -rgName $resourceGroupNameTest -databaseServerName $databaseServerNameTest -parameters $parametersTest # Execute production deployment
+Deploy-Resources -rgName $resourceGroupNameTest -databaseServerName $databaseServerNameTest -parameters $parametersTest # Execute test deployment
