@@ -25,7 +25,6 @@ $firmwareDBName = 'FirmwareDB'
 $notificationsDBName = 'NotificationsDB'
 $deviceDBName = 'DeviceDB'
 
-
 # Set the context to your subscription
 az account set --subscription $subscriptionId
 
@@ -45,12 +44,17 @@ function Deploy-AzureFunction {
     $connectionString = az keyvault secret show --vault-name $keyVaultName --name METRICS-DB-CONNECTION-STRING-PYODBC --query 'value' -o tsv
 
     # Set Azure Function app settings
-    az functionapp config appsettings set --name $functionAppName --resource-group $resourceGroupName --settings METRICS_DB_CONNECTION_STRING_PYODBC=$connectionString
-    az functionapp config appsettings set --name $functionAppName --resource-group $resourceGroupName --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true
-    az functionapp config appsettings set --name $functionAppName --resource-group $resourceGroupName --settings WEBSITE_TIME_ZONE=$azureFunctionTimezone
+    Set-AzWebApp -ResourceGroupName $resourceGroupName -Name $functionAppName -AppSettings @{
+        'METRICS_DB_CONNECTION_STRING_PYODBC' = $connectionString
+        'SCM_DO_BUILD_DURING_DEPLOYMENT' = 'true'
+        'WEBSITE_TIME_ZONE' = $azureFunctionTimezone
+    }
 
-    # Deploy the Azure Function code
-    func azure functionapp publish $functionAppName
+    # Get path to the project directory
+    $azureFunctionProjectPath = Join-Path $PSScriptRoot "ProcessAggregationLogsTimer"
+
+    # Publish the Azure Function code
+    Publish-AzWebapp -ResourceGroupName $resourceGroupName -Name $functionAppName -ArchivePath $azureFunctionProjectPath
 }
 
 # Function to deploy resources
