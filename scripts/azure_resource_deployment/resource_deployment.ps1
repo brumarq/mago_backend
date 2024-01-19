@@ -1,6 +1,6 @@
 # Variables for production environment
 $location = 'westeurope'
-$functionAppName = 'ProcessAggregationLogsTimer'
+$functionAppName = 'mago-azure-functions'
 $resourceGroupNameProduction = 'mago-backend'
 $storageAccountNameProduction = 'magostorageacc'
 $serverFarmNameProduction = 'mago-server-farm'
