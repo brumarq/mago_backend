@@ -8,6 +8,7 @@ param databaseServerName string
 param administratorLogin string
 
 @description('The administrator password of the SQL logical server.')
+@secure()
 param administratorLoginPassword string
 
 // Database names
