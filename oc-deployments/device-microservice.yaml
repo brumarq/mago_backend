@@ -13,10 +13,11 @@ spec:
     metadata:
       labels:
         app: device-microservice
+        deploymentTimestamp: "${TIMESTAMP}"
     spec:
       containers:
         - name: device-microservice
-          image: 'docker.io/brumarq/device-microservice:latest'
+          image: 'docker.io/brumarq/device-microservice:${ENVIRONMENT}'
           resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File

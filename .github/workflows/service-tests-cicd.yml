@@ -2,31 +2,33 @@ name: Integration Tests
 
 on:
   workflow_dispatch:
-  push:
-    branches: ["main"]
-    paths:
-      - "ServiceTests/**/*"
+  pull_request:
+    branches: [main]
 
 jobs:
-  run-integration-tests:
-    name: Integration Tests
+  check_branch:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+      - name: Check branch
+        if: github.base_ref == 'main' && github.head_ref != 'development'
+        run: |
+          echo "ERROR: You can only merge to main from development."
+          exit 1
+          
+  run-integration-tests:
+    runs-on: ubuntu-latest
+    needs: check_branch
+    name: Execute Integration Tests
+    steps:
+      - uses: actions/checkout@v3 # Check Out Code
+      - uses: actions/setup-dotnet@v3 # Setup .NET Environment
         with:
           dotnet-version: 6.0.x
-
-      - name: Restore dependencies
+      - name: Restore .NET Dependencies
         run: dotnet restore ServiceTests/ServiceTests.sln
-
-      - name: Build
+      - name: Build .NET Project
         run: dotnet build ServiceTests/ServiceTests.sln --no-restore
-
-      - name: Test
+      - name: Run .NET Integration Tests
         run: dotnet test ServiceTests/ServiceTests.sln --no-build --verbosity normal
         env:
           AdminJWTToken: ${{ secrets.JWT_ADMIN_TEST_TOKEN }}

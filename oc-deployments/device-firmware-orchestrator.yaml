@@ -13,11 +13,11 @@ spec:
     metadata:
       labels:
         app: device-firmware-orchestrator
+        deploymentTimestamp: "${TIMESTAMP}"
     spec:
       containers:
         - name: device-firmware-orchestrator
-          image: "docker.io/brumarq/device-firmware-orchestrator:latest"
-          resources: {}
+          image: "docker.io/brumarq/device-firmware-orchestrator:${ENVIRONMENT}"
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           imagePullPolicy: Always

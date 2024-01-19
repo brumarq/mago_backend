@@ -7,7 +7,7 @@ func SetMigrationStatus(success bool) {
 	migrationSuccessful = success
 }
 
-// IsMigrationSuccessful returns the current status of the migration.
+// IsMigrationSuccessful returns the current status of the migration
 func IsMigrationSuccessful() bool {
 	return migrationSuccessful
 }

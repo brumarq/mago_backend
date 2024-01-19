@@ -378,42 +378,50 @@ public class Auth0ServiceTests
     {
         const string roleId = "testRoleId";
         var mockToken = new ManagementToken { Token = "mockToken" };
-        var mockUsers = new List<User> { /* populate with test data */ };
+        var mockUsers = new List<UserCompressed> { /* populate with test data */ };
+        var mockResponseContent = new Auth0UsersResponse
+        {
+            Users = mockUsers,
+            Total = mockUsers.Count
+        };
 
         _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
-        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/roles/{roleId}/users",
+        _fakeHttpMessageHandler.SetupResponse(
+            $"https://random.com/api/v2/roles/{roleId}/users?per_page=100&page=0&include_totals=true",
             new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(JsonConvert.SerializeObject(mockUsers))
+                Content = new StringContent(JsonConvert.SerializeObject(mockResponseContent), Encoding.UTF8, "application/json")
             });
-        
+
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
         var result = await _auth0Service.GetUsersByRoleId(roleId);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result, Has.Count.EqualTo(mockUsers.Count));
     }
+
     
     [Test]
     public void GetUsersByRoleId_UnsuccessfulResponse_ThrowsException()
     {
-        var roleId = "testRoleId";
+        const string roleId = "testRoleId";
+        var mockToken = new ManagementToken { Token = "mockToken" };
         var errorResponseContent = "{\"statusCode\":404,\"error\":\"Not Found\",\"message\":\"User not found\",\"errorCode\":\"inexistent_user\"}";
 
-        var mockToken = new ManagementToken { Token = "mockToken" };
-
         _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
-        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/roles/{roleId}/users",
+        _fakeHttpMessageHandler.SetupResponse(
+            $"https://random.com/api/v2/roles/{roleId}/users?per_page=100&page=0&include_totals=true",
             new HttpResponseMessage(HttpStatusCode.NotFound)
             {
-                Content = new StringContent(errorResponseContent)
+                Content = new StringContent(errorResponseContent, Encoding.UTF8, "application/json")
             });
-        
+
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
-        var ex = Assert.ThrowsAsync<NotFoundException>(() => _auth0Service.GetUsersByRoleId(roleId));
+        var ex = Assert.ThrowsAsync<NotFoundException>(async () => await _auth0Service.GetUsersByRoleId(roleId));
 
         Assert.That(ex?.Message, Is.EqualTo("User not found"));
     }
+
     
     [Test]
     public async Task DeleteUserAsync_SuccessfulDeletion_ReturnsTrue()
@@ -459,8 +467,8 @@ public class Auth0ServiceTests
     {
         const string adminRoleId = "adminRoleId"; // Mock role ID for admin
         const string clientRoleId = "clientRoleId"; // Mock role ID for client
-        var mockAdminUsers = new List<User> { /* Mock data for admin users */ };
-        var mockClientUsers = new List<User> { /* Mock data for client users */ };
+        var mockAdminUsers = new List<UserCompressed> { /* Mock data for admin users */ };
+        var mockClientUsers = new List<UserCompressed> { /* Mock data for client users */ };
         var mockToken = new ManagementToken { Token = "mockToken" };
 
         // Setup configuration for role IDs
@@ -470,16 +478,30 @@ public class Auth0ServiceTests
         // Mock GetToken
         _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
 
-        // Mock GetUsersByRoleId for each role
-        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/roles/{adminRoleId}/users",
+        // Mock GetUsersByRoleId for each role, assuming one page per role for simplicity
+        var mockAdminResponseContent = new Auth0UsersResponse
+        {
+            Users = mockAdminUsers,
+            Total = mockAdminUsers.Count
+        };
+        var mockClientResponseContent = new Auth0UsersResponse
+        {
+            Users = mockClientUsers,
+            Total = mockClientUsers.Count
+        };
+
+        _fakeHttpMessageHandler.SetupResponse(
+            $"https://random.com/api/v2/roles/{adminRoleId}/users?per_page=100&page=0&include_totals=true",
             new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(JsonConvert.SerializeObject(mockAdminUsers), Encoding.UTF8, "application/json")
+                Content = new StringContent(JsonConvert.SerializeObject(mockAdminResponseContent), Encoding.UTF8, "application/json")
             });
-        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/roles/{clientRoleId}/users",
+
+        _fakeHttpMessageHandler.SetupResponse(
+            $"https://random.com/api/v2/roles/{clientRoleId}/users?per_page=100&page=0&include_totals=true",
             new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(JsonConvert.SerializeObject(mockClientUsers), Encoding.UTF8, "application/json")
+                Content = new StringContent(JsonConvert.SerializeObject(mockClientResponseContent), Encoding.UTF8, "application/json")
             });
         
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
@@ -491,12 +513,13 @@ public class Auth0ServiceTests
         Assert.That(result, Is.Not.Null);
         Assert.That(result, Has.Count.EqualTo(mockAdminUsers.Count + mockClientUsers.Count));
     }
+
     
     [Test]
     public async Task GetAllUsers_MissingRoleIdInConfiguration_SkipsRole()
     {
         const string clientRoleId = "clientRoleId";
-        var mockClientUsers = new List<User> { /* Mock data for client users */ };
+        var mockClientUsers = new List<UserCompressed> { /* Mock data for client users */ };
         var mockToken = new ManagementToken { Token = "mockToken" };
 
         // Setup configuration with a missing role ID for admin
@@ -507,12 +530,20 @@ public class Auth0ServiceTests
         _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
 
         // Mock GetUsersByRoleId for client role only
-        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/roles/{clientRoleId}/users",
+        // Assuming you have one page of data
+        var mockResponseContent = new Auth0UsersResponse
+        {
+            Users = mockClientUsers,
+            Total = mockClientUsers.Count
+        };
+
+        _fakeHttpMessageHandler.SetupResponse(
+            $"https://random.com/api/v2/roles/{clientRoleId}/users?per_page=100&page=0&include_totals=true",
             new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent(JsonConvert.SerializeObject(mockClientUsers), Encoding.UTF8, "application/json")
+                Content = new StringContent(JsonConvert.SerializeObject(mockResponseContent), Encoding.UTF8, "application/json")
             });
-        
+    
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
 
         // Act
@@ -522,6 +553,7 @@ public class Auth0ServiceTests
         Assert.That(result, Is.Not.Null);
         Assert.That(result, Has.Count.EqualTo(mockClientUsers.Count)); // Should only return client users
     }
+
     
     [Test]
     public void GetAllUsers_UnsuccessfulApiResponse_ThrowsException()
@@ -536,18 +568,21 @@ public class Auth0ServiceTests
         _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(mockToken);
         var errorResponseContent = "{\"statusCode\":404,\"error\":\"Not Found\",\"message\":\"Server error\",\"errorCode\":\"inexistent_user\"}";
 
-        // Mock an unsuccessful GetUsersByRoleId response
-        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/roles/{adminRoleId}/users",
+        // Mock an unsuccessful GetUsersByRoleId response for the first page
+        _fakeHttpMessageHandler.SetupResponse(
+            $"https://random.com/api/v2/roles/{adminRoleId}/users?per_page=100&page=0&include_totals=true",
             new HttpResponseMessage(HttpStatusCode.InternalServerError)
             {
-                Content = new StringContent(errorResponseContent)
+                Content = new StringContent(errorResponseContent, Encoding.UTF8, "application/json")
             });
-        
+    
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
+
         // Act & Assert
-        var ex = Assert.ThrowsAsync<CustomException>(() => _auth0Service.GetAllUsers());
+        var ex = Assert.ThrowsAsync<CustomException>(async () => await _auth0Service.GetAllUsers());
         Assert.That(ex?.Message, Is.EqualTo("Server error"));
     }
+
     
     private class FakeHttpMessageHandler : DelegatingHandler
     {

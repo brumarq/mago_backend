@@ -28,7 +28,7 @@ namespace Application.ApplicationServices
 
             try
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{userId}");
+                var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}users/{userId}");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 var response = await _httpClient.SendAsync(request);
                 
@@ -86,7 +86,7 @@ namespace Application.ApplicationServices
             
             try
             {
-                var request = new HttpRequestMessage(HttpMethod.Delete, $"{_baseUri}{userId}");
+                var request = new HttpRequestMessage(HttpMethod.Delete, $"{_baseUri}users/{userId}");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 request.Headers.Add("X-Orchestrator-Key", _orchestratorApiKey);
                 
