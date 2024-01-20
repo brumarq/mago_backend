@@ -49,7 +49,7 @@ spec:
 
 ---
 
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: device-microservice-hpa
@@ -59,34 +59,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: device-microservice
-  minReplicas: 4
-  maxReplicas: 7
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 80
-  behavior:
-    scaleDown:
-      policies:
-      - type: Pods
-        value: 4
-        periodSeconds: 60
-      - type: Percent
-        value: 10
-        periodSeconds: 60
-      selectPolicy: Min
-      stabilizationWindowSeconds: 300
-    scaleUp:
-      policies:
-      - type: Pods
-        value: 5
-        periodSeconds: 70
-      - type: Percent
-        value: 12
-        periodSeconds: 80
-      selectPolicy: Max
-      stabilizationWindowSeconds: 0
+  minReplicas: 4 
+  maxReplicas: 7 # Set the maximum number of replicas
+  targetCPUUtilizationPercentage: 80 # Target CPU utilization percentage
+
 
