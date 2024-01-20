@@ -69,7 +69,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         { securitySchema, new[] { "Bearer" } }
     });
-    
+
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
@@ -89,11 +89,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 // Authorization policies
 builder.Services.AddAuthorization(options =>
-{   
+{
     options.AddPolicy("Admin", policy => policy.RequireClaim("permissions", "admin"));
     options.AddPolicy("Client", policy => policy.RequireClaim("permissions", "client"));
     options.AddPolicy("All", policy => policy.RequireAssertion(context =>
-        context.User.HasClaim(c => 
+        context.User.HasClaim(c =>
             (c.Type == "permissions" && (c.Value == "admin" || c.Value == "client")))));
 });
 
@@ -145,7 +145,7 @@ app.Use(async (context, next) =>
 app.UseMetricServer(url: "/metrics");
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

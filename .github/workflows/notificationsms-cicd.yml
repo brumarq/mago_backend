@@ -116,7 +116,7 @@ jobs:
       - name: Check Deployment Status
         id: check_status
         run: |
-            if ! oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} --watch --timeout=120s; then
+            if ! oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} --watch --timeout=150s; then
               echo "::set-output name=deployment_success::false"
             else
               echo "::set-output name=deployment_success::true"
