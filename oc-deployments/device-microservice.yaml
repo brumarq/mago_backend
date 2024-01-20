@@ -49,16 +49,29 @@ spec:
 
 ---
 
-apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
   name: device-microservice-hpa
 spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: device-microservice
-  minReplicas: 1
-  maxReplicas: 10
-  targetCPUUtilizationPercentage: 80
-
+  behavior:
+    scaleDown: 
+      policies: 
+      - type: Pods 
+        value: 4 
+        periodSeconds: 60 
+      - type: Percent
+        value: 10 
+        periodSeconds: 60
+      selectPolicy: Min 
+      stabilizationWindowSeconds: 300 
+    scaleUp: 
+      policies:
+      - type: Pods
+        value: 5 
+        periodSeconds: 70
+      - type: Percent
+        value: 12 
+        periodSeconds: 80
+      selectPolicy: Max
+      stabilizationWindowSeconds: 0
