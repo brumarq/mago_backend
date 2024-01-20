@@ -54,6 +54,10 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: device-microservice-hpa
 spec:
+ scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: device-microservice
   behavior:
     scaleDown: 
       policies: 
