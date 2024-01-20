@@ -18,11 +18,7 @@ spec:
       containers:
         - name: user-device-noti-orchestrator
           image: 'docker.io/brumarq/user-device-noti-orchestrator:${ENVIRONMENT}'
-          resources:
-            limits:
-              cpu: 500m
-            requests:
-              cpu: 100m
+          resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           imagePullPolicy: Always
