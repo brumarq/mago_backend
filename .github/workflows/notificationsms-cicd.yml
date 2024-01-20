@@ -121,6 +121,7 @@ jobs:
             else
               echo "::set-output name=deployment_success::true"
             fi
+            
       - name: Rollback if Deployment Fails
         if: steps.check_status.outputs.deployment_success != 'true'
         run: |
