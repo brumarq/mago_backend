@@ -112,20 +112,3 @@ jobs:
           if [ -z "$ROUTE_EXISTS" ]; then
             oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
           fi
-
-      - name: Check Deployment Status
-        id: check_status
-        run: |
-          DEPLOYMENT_STATUS=$(oc rollout status deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }} --watch=false)
-          echo "Deployment status: $DEPLOYMENT_STATUS"
-          if [[ $DEPLOYMENT_STATUS == *"successfully rolled out"* ]]; then
-          echo "::set-output name=deployment_success::true"
-          else
-            echo "::set-output name=deployment_success::false"
-          fi
-
-      - name: Rollback if Deployment Fails
-        if: steps.check_status.outputs.deployment_success != 'true'
-        run: |
-          echo "Deployment failed. Rolling back to previous version."
-          oc rollout undo deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
