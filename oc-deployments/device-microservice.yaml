@@ -53,6 +53,7 @@ apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
   name: device-microservice-hpa
+  namespace: mago-backend-test
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
