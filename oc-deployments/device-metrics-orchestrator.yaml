@@ -5,7 +5,7 @@ metadata:
   labels:
     app: device-metrics-orchestrator
 spec:
-  replicas: 1
+  replicas: 4
   selector:
     matchLabels:
       app: device-metrics-orchestrator
@@ -58,7 +58,6 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: device-metrics-orchestrator
-  minReplicas: 1
-  maxReplicas: 10
+  minReplicas: 4
+  maxReplicas: 7
   targetCPUUtilizationPercentage: 80
-

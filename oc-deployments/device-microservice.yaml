@@ -5,7 +5,7 @@ metadata:
   labels:
     app: device-microservice
 spec:
-  replicas: 1
+  replicas: 4
   selector:
     matchLabels:
       app: device-microservice
@@ -53,12 +53,14 @@ apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: device-microservice-hpa
+  namespace: mago-backend-test
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
     name: device-microservice
-  minReplicas: 1
-  maxReplicas: 10
+  minReplicas: 4 
+  maxReplicas: 7
   targetCPUUtilizationPercentage: 80
+
 

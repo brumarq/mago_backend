@@ -5,7 +5,7 @@ metadata:
   labels:
     app: user-device-noti-orchestrator
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: user-device-noti-orchestrator
@@ -58,7 +58,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: user-device-noti-orchestrator
-  minReplicas: 1
-  maxReplicas: 10
+  minReplicas: 3
+  maxReplicas: 4
   targetCPUUtilizationPercentage: 80
 
