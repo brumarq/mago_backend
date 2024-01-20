@@ -145,9 +145,11 @@ app.Use(async (context, next) =>
 app.UseMetricServer(url: "/metrics");
 app.UseSwagger();
 app.UseSwaggerUI();
-// app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+throw;
 
 app.Run();
