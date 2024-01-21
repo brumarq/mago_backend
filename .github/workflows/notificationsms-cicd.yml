@@ -136,6 +136,14 @@ jobs:
       - name: Fail Pipeline
         if: env.rollback_executed == 'true'
         run: |
-          echo "Rollback was successful. Failing the pipeline."
+          echo "Rollback was successful. Creating an issue."
+
+          # Create an issue
+          gh issue create \
+          --title "Deployment Rollback Executed for ${{ env.APP_NAME }}" \
+          --body "The deployment of ${{ env.APP_NAME }} failed and a rollback was executed. Further investigation is required."
+
+          # Fail the pipeline
+          echo "Failing the pipeline."
           exit 1
 

@@ -150,4 +150,13 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
+try
+{
+    throw new Exception()
+}
+catch (Exception e)
+{
+    throw;
+}
+
 app.Run();
