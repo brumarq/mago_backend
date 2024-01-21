@@ -113,6 +113,7 @@ jobs:
             oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
           fi
 
+      # Step to check the deployment status
       - name: Check Deployment Status
         id: check_status
         run: |
@@ -122,10 +123,19 @@ jobs:
             echo "::set-output name=deployment_success::true"
           fi
       
+      # Step to rollback if deployment fails
       - name: Rollback Deployment
         if: steps.check_status.outputs.deployment_success != 'true'
         run: |
           echo "Deployment failed. Rolling back to previous version."
           oc rollout undo deployment/${{ env.APP_NAME }} -n ${{ env.OPENSHIFT_NAMESPACE }}
           echo "Rollback was executed and succeeded."
+          echo "rollback_executed=true" >> $GITHUB_ENV
+      
+      # Step to fail the pipeline after a successful rollback
+      - name: Fail Pipeline
+        if: env.rollback_executed == 'true'
+        run: |
+          echo "Rollback was successful. Failing the pipeline."
           exit 1
+
