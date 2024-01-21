@@ -14,9 +14,6 @@ HTTP_REQUEST_COUNTER = Counter('http_request_total', 'Total count of HTTP reques
 # Custom Metric for process resident memory in bytes
 PROCESS_RESIDENT_MEMORY_BYTES = Gauge('process_resident_memory_bytes', 'Resident memory size of the process in bytes')
 
-# Set initial values for metrics
-PROCESS_RESIDENT_MEMORY_BYTES.set_to_current_time()
-
 # Methods for setting health and readiness status
 def set_health_status(is_healthy):
     HEALTH_STATUS.set(1 if is_healthy else 0)
