@@ -1,5 +1,4 @@
 from prometheus_client import Gauge, Histogram, Counter
-import psutil
 
 """
 Methods for setting health and readiness status | Application state tracking
