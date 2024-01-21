@@ -146,4 +146,6 @@ jobs:
           # Fail the pipeline
           echo "Failing the pipeline."
           exit 1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
