@@ -5,7 +5,7 @@ metadata:
   labels:
     app: user-microservice
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: user-microservice
@@ -58,7 +58,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: user-microservice
-  minReplicas: 1
-  maxReplicas: 10
+  minReplicas: 3
+  maxReplicas: 5
   targetCPUUtilizationPercentage: 80
 
