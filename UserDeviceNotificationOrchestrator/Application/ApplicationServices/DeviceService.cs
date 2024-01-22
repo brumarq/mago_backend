@@ -178,6 +178,8 @@ namespace Application.ApplicationServices
 
                 var deleteRequest = new HttpRequestMessage(HttpMethod.Delete, $"{_baseUriUserOnDevice}{matchingEntry.Id}");
                 deleteRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+                deleteRequest.Headers.Add("X-Orchestrator-Key", _orchestratorApiKey);
+
                 var deletionResponse = await _httpClient.SendAsync(deleteRequest);
 
                 if (!deletionResponse.IsSuccessStatusCode)
