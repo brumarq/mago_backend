@@ -45,7 +45,7 @@ def track_request_duration_and_count(response):
     THREAD_COUNT.set(active_count())
 
     logging.info(f'This is the path: {path}')
-    logging.info(f'This is the HTTP_REQUEST_COUNTER: {HTTP_REQUEST_COUNTER._value}')
+    logging.info(f'This is the HTTP_REQUEST_COUNTER: {HTTP_REQUEST_COUNTER}')
 
 
 # Methods for setting health and readiness status
