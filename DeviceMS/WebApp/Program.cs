@@ -155,8 +155,8 @@ app.Use(async (context, next) =>
     var statusCode = context.Response.StatusCode.ToString();
 
     // Update metrics
-    customMetrics.HttpRequestDuration.WithLabels(method, statusCode).Observe(stopwatch.Elapsed.TotalSeconds);
-    customMetrics.HttpRequestCounter.WithLabels(method, statusCode).Inc();
+    customMetrics.HttpRequestDuration.WithLabels(method, statusCode, path).Observe(stopwatch.Elapsed.TotalSeconds);
+    customMetrics.HttpRequestCounter.WithLabels(method, statusCode, path).Inc();
 });
 
 app.UseSwagger();
