@@ -31,6 +31,14 @@ def test_get_aggregated_logs_field_id_0(app, aggregated_logs_service, date_type)
 
 @patch('app.main.application.service.aggregated_logs_service.has_required_permission', return_value=True)
 @pytest.mark.parametrize("date_type", ["Weekly", "Monthly", "Yearly"])
+def test_get_aggregated_logs_device_id_0(app, aggregated_logs_service, date_type):
+    with app.test_request_context():
+        with pytest.raises(Exception) as excinfo:
+            aggregated_logs_service.get_aggregated_logs(date_type, device_id=0, field_id=1)
+        assert "400 Bad Request: Device id cannot be 0 or negative." in str(excinfo.value)
+
+@patch('app.main.application.service.aggregated_logs_service.has_required_permission', return_value=True)
+@pytest.mark.parametrize("date_type", ["Weekly", "Monthly", "Yearly"])
 def test_get_aggregated_logs_non_existent_field(app, aggregated_logs_service, date_type):
     with app.test_request_context():
         with pytest.raises(Exception) as excinfo:
