@@ -1,6 +1,7 @@
 from prometheus_client import Gauge, Counter, Summary
 from flask import request
 import time
+from threading import active_count
 
 """
 Methods for setting health and readiness status | Application state tracking
@@ -12,6 +13,8 @@ READINESS_STATUS = Gauge('application_readiness_status', 'Readiness status of th
 # Custom Prometheus metrics for HTTP requests
 HTTP_REQUEST_DURATION = Summary('http_request_duration_seconds', 'Duration of HTTP requests in seconds', labelnames=['method', 'status_code', 'path'])
 HTTP_REQUEST_COUNTER = Counter('http_request_total', 'Total count of HTTP requests', labelnames=['method', 'status_code', 'path'])
+THREAD_COUNT = Gauge('process_num_threads', 'Number of active threads in the application')
+
 
 def __should_exclude_path(path):
     excluded_paths = ['/', '/health', '/ready', '/swagger.json'] # full paths
@@ -40,6 +43,7 @@ def track_request_duration_and_count(response):
 
     HTTP_REQUEST_DURATION.labels(method=method, status_code=status_code, path=path).observe(duration)
     HTTP_REQUEST_COUNTER.labels(method=method, status_code=status_code, path=path).inc()
+    THREAD_COUNT.set(active_count())
 
 
 # Methods for setting health and readiness status
