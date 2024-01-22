@@ -22,7 +22,7 @@ public class CustomMetrics
         "Duration of HTTP requests in seconds",
         new HistogramConfiguration
         {
-            LabelNames = new[] { "method", "status_code" }
+            LabelNames = new[] { "method", "status_code", "path" }
         }
     );
 
@@ -31,7 +31,7 @@ public class CustomMetrics
         "Total count of HTTP requests",
         new CounterConfiguration
         {
-            LabelNames = new[] { "method", "status_code" }
+            LabelNames = new[] { "method", "status_code", "path" }
         }
     );
 
