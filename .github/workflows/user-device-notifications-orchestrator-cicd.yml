@@ -50,7 +50,7 @@ jobs:
   deploy:
     runs-on: ubuntu-20.04
     needs: build-and-push-docker
-    environment: user-device-noti-orchestrator-${{ github.ref == 'refs/heads/main' && 'production' || 'test' }}
+    environment: user-device-notifications-${{ github.ref == 'refs/heads/main' && 'production' || 'test' }}
     steps:
       - uses: actions/checkout@v2
 
