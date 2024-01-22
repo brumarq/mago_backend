@@ -138,8 +138,8 @@ app.Use(async (context, next) =>
 {
     var path = context.Request.Path.Value;
     
-    // Normalize paths and exclude /health and /ready
-    if (path.Equals("/health") || path.Equals("/ready"))
+    // Normalize paths and exclude /, /health, and /ready
+    if (path.Equals("/") || path.Equals("/favicon.ico") || path.Equals("/metrics") || path.Equals("/health") || path.Equals("/ready"))
     {
         await next();
         return; // Skip metrics for these paths
