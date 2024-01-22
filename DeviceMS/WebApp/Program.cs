@@ -136,6 +136,15 @@ catch (Exception e)
 // Add custom metric instrumentation for HTTP requests
 app.Use(async (context, next) =>
 {
+    var path = context.Request.Path.Value;
+    
+    // Normalize paths and exclude /health and /ready
+    if (path.Equals("/health") || path.Equals("/ready"))
+    {
+        await next();
+        return; // Skip metrics for these paths
+    }
+    
     var customMetrics = services.GetRequiredService<CustomMetrics>();
 
     var stopwatch = Stopwatch.StartNew();
