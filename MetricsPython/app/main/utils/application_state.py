@@ -14,15 +14,13 @@ HTTP_REQUEST_DURATION = Summary('http_request_duration_seconds', 'Duration of HT
 HTTP_REQUEST_COUNTER = Counter('http_request_total', 'Total count of HTTP requests', labelnames=['method', 'status_code', 'path'])
 
 def __should_exclude_path(path):
-    swagger_paths = ['/swagger', '/swaggerui']
-    excluded_paths = ['/', '/favicon.ico', '/health', '/ready', ]
+    excluded_paths = ['/', '/health', '/ready', '/swagger.json'] # full paths
     
-    if path == '/metrics': #for tracking
+    if path == '/metrics': # metrics tracking path
         return True
     
-    for excluded_path in swagger_paths:
-        if path.startswith(excluded_path):
-            return True
+    if path.startswith('/swaggerui'): #anythign that start with /swaggerui
+        return True
     
     for excluded_path in excluded_paths:
          if path == excluded_path:
