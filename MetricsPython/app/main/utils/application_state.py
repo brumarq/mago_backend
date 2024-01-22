@@ -1,4 +1,6 @@
-from prometheus_client import Gauge, Histogram, Counter
+from prometheus_client import Gauge, Counter, Summary
+from flask import request
+import time
 
 """
 Methods for setting health and readiness status | Application state tracking
@@ -8,8 +10,39 @@ HEALTH_STATUS = Gauge('application_health_status', 'Health status of the applica
 READINESS_STATUS = Gauge('application_readiness_status', 'Readiness status of the application (1 for ready, 0 for not ready)')
 
 # Custom Prometheus metrics for HTTP requests
-HTTP_REQUEST_DURATION = Histogram('http_request_duration_seconds', 'Duration of HTTP requests in seconds', labelnames=['method', 'status_code'])
-HTTP_REQUEST_COUNTER = Counter('http_request_total', 'Total count of HTTP requests', labelnames=['method', 'status_code'])
+HTTP_REQUEST_DURATION = Summary('http_request_duration_seconds', 'Duration of HTTP requests in seconds', labelnames=['method', 'status_code', 'path'])
+HTTP_REQUEST_COUNTER = Counter('http_request_total', 'Total count of HTTP requests', labelnames=['method', 'status_code', 'path'])
+
+def __should_exclude_path(path):
+    swagger_paths = ['/swagger', '/swaggerui']
+    excluded_paths = ['/', '/favicon.ico', '/health', '/ready', ]
+    
+    if path == '/metrics': #for tracking
+        return True
+    
+    for excluded_path in swagger_paths:
+        if path.startswith(excluded_path):
+            return True
+    
+    for excluded_path in excluded_paths:
+         if path == excluded_path:
+            return True
+        
+    return False
+
+def track_request_duration_and_count(response):
+    path = request.path
+    if __should_exclude_path(path):
+        return
+    
+    duration = time.time() - request.start_time if hasattr(request, 'start_time') else 0
+
+    status_code = str(response.status_code)
+    method = request.method
+
+    HTTP_REQUEST_DURATION.labels(method=method, status_code=status_code, path=path).observe(duration)
+    HTTP_REQUEST_COUNTER.labels(method=method, status_code=status_code, path=path).inc()
+
 
 # Methods for setting health and readiness status
 def set_health_status(is_healthy):
