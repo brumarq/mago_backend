@@ -17,12 +17,9 @@ THREAD_COUNT = Gauge('process_num_threads', 'Number of active threads in the app
 
 
 def __should_exclude_path(path):
-    excluded_paths = ['/', '/favicon.ico', '/health', '/ready', '/swagger.json'] # full paths
+    excluded_paths = ['/', '/favicon.ico', '/metrics', '/health', '/ready', '/swagger.json'] # full paths
     
-    if path == '/metrics': # metrics tracking path
-        return True
-    
-    if path.startswith('/swaggerui'): #anythign that start with /swaggerui
+    if path.startswith('/swaggerui'): #anything that start with /swaggerui
         return True
     
     for excluded_path in excluded_paths:
@@ -33,6 +30,7 @@ def __should_exclude_path(path):
 
 def track_request_duration_and_count(response):
     path = request.path
+    
     if __should_exclude_path(path):
         return
     
@@ -41,8 +39,8 @@ def track_request_duration_and_count(response):
     status_code = str(response.status_code)
     method = request.method
 
-    HTTP_REQUEST_DURATION.labels(method=method, status_code=status_code, path=path).observe(duration)
-    HTTP_REQUEST_COUNTER.labels(method=method, status_code=status_code, path=path).inc()
+    HTTP_REQUEST_DURATION.labels(method, status_code, path).observe(duration)
+    HTTP_REQUEST_COUNTER.labels(method, status_code, path).inc()
     THREAD_COUNT.set(active_count())
 
 
