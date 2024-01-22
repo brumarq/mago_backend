@@ -46,17 +46,3 @@ spec:
       maxSurge: 25%
   revisionHistoryLimit: 10
   progressDeadlineSeconds: 600
-
----
-apiVersion: autoscaling/v1
-kind: HorizontalPodAutoscaler
-metadata:
-  name: device-firmware-orchestrator-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: device-firmware-orchestrator
-  minReplicas: 2
-  maxReplicas: 4
-  targetCPUUtilizationPercentage: 80
