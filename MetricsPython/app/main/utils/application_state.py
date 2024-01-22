@@ -17,7 +17,7 @@ THREAD_COUNT = Gauge('process_num_threads', 'Number of active threads in the app
 
 
 def __should_exclude_path(path):
-    excluded_paths = ['/', '/health', '/ready', '/swagger.json'] # full paths
+    excluded_paths = ['/', '/favicon.ico', '/health', '/ready', '/swagger.json'] # full paths
     
     if path == '/metrics': # metrics tracking path
         return True

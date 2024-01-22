@@ -23,7 +23,7 @@ app.app_context().push()
 
 migrate = Migrate(app, db)
 
-# Tracking for prometheus after every request (track time before and use it in after)
+# (Start) Tracking for prometheus after every request (track time before and use it in after)
 @app.before_request
 def before_request():
     request.start_time = time.time()
@@ -32,6 +32,8 @@ def before_request():
 def after_request(response):
     track_request_duration_and_count(response)
     return response
+
+# (End tracking)
 
 # Periodic pings to wake up Azure SQL from its idle state (30 min) -> ping happens every 15 min
 def thd_ping_database_periodically():
