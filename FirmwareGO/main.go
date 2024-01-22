@@ -67,7 +67,7 @@ func main() {
 
 	// Set up the router
 	router := gin.Default()
-	router.Use(TrackRequestDuration())
+	router.Use(TrackRequestDurationAndCount())
 
 	// Register the Prometheus metrics handler
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))

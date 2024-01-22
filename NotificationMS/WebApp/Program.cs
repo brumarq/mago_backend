@@ -128,6 +128,15 @@ catch (Exception e)
 // Add custom metric instrumentation for HTTP requests
 app.Use(async (context, next) =>
 {
+    var path = context.Request.Path.Value;
+    
+    // Normalize paths and exclude /, /health, and /ready
+    if (path.Equals("/") || path.Equals("/favicon.ico") || path.Equals("/metrics") || path.Equals("/health") || path.Equals("/ready"))
+    {
+        await next();
+        return; // Skip metrics for these paths
+    }
+    
     var customMetrics = services.GetRequiredService<CustomMetrics>();
 
     var stopwatch = Stopwatch.StartNew();
@@ -138,8 +147,8 @@ app.Use(async (context, next) =>
     var statusCode = context.Response.StatusCode.ToString();
 
     // Update metrics
-    customMetrics.HttpRequestDuration.WithLabels(method, statusCode).Observe(stopwatch.Elapsed.TotalSeconds);
-    customMetrics.HttpRequestCounter.WithLabels(method, statusCode).Inc();
+    customMetrics.HttpRequestDuration.WithLabels(method, statusCode, path).Observe(stopwatch.Elapsed.TotalSeconds);
+    customMetrics.HttpRequestCounter.WithLabels(method, statusCode, path).Inc();
 });
 
 app.UseMetricServer(url: "/metrics");

@@ -46,17 +46,3 @@ spec:
       maxSurge: 25%
   revisionHistoryLimit: 10
   progressDeadlineSeconds: 600
-
----
-apiVersion: autoscaling/v1
-kind: HorizontalPodAutoscaler
-metadata:
-  name: notifications-microservice-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: notifications-microservice
-  minReplicas: 3
-  maxReplicas: 5
-  targetCPUUtilizationPercentage: 80

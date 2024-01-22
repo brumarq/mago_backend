@@ -6,10 +6,13 @@ from app.main.domain.entities import field, log_value, log_collection, log_colle
 from app.main.config import env
 from app.main.utils.migration_state import MigrationState
 from app.main.utils.database_state import ping_database
+from app.main.utils.application_state import track_request_duration_and_count
 import logging
 import sys
 import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
+import time
+from flask import request
 
 env = env or 'prod' # if no env, assume its production
 
@@ -19,6 +22,18 @@ app.register_blueprint(blueprint)
 app.app_context().push()
 
 migrate = Migrate(app, db)
+
+# (Start) Tracking for prometheus after every request (track time before and use it in after)
+@app.before_request
+def before_request():
+    request.start_time = time.time()
+
+@app.after_request
+def after_request(response):
+    track_request_duration_and_count(response)
+    return response
+
+# (End tracking)
 
 # Periodic pings to wake up Azure SQL from its idle state (30 min) -> ping happens every 15 min
 def thd_ping_database_periodically():

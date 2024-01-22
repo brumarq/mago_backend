@@ -121,10 +121,16 @@ namespace WebApp.Controllers
         /// <response code="500">Internal server error.</response>
         [HttpDelete("{id}")]
         [Authorize("Admin")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<IActionResult> Delete(int id)
         {
             try
             {
+                if (!IsRequestFromOrchestrator(HttpContext.Request))
+                {
+                    return Unauthorized("Access denied");
+                }
+                
                 var deleteResult = await _usersOnDevicesService.DeleteUserOnDeviceAsync(id);
                 if (deleteResult)
                 {

@@ -3,15 +3,21 @@ package prometheus
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
+	"strconv"
 	"time"
 )
 
 // Custom metrics setup
 var (
-	httpRequestDuration = prometheus.NewSummary(prometheus.SummaryOpts{
+	httpRequestDuration = prometheus.NewSummaryVec(prometheus.SummaryOpts{
 		Name: "http_request_duration_seconds",
 		Help: "Duration of HTTP requests in seconds.",
-	})
+	}, []string{"method", "status_code", "path"})
+
+	httpRequestCounter = prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name: "http_request_total",
+		Help: "Total count of HTTP requests",
+	}, []string{"method", "status_code", "path"})
 
 	healthStatus = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "application_health_status",
@@ -25,16 +31,36 @@ var (
 )
 
 func init() {
-	prometheus.MustRegister(httpRequestDuration, healthStatus, readinessStatus)
+	prometheus.MustRegister(httpRequestDuration, httpRequestCounter, healthStatus, readinessStatus)
 }
 
-func TrackRequestDuration() gin.HandlerFunc {
+func shouldExcludePath(path string) bool {
+	excludedPaths := []string{"/", "/favicon.ico", "/metrics", "/health", "/ready"}
+	for _, excludedPath := range excludedPaths {
+		if path == excludedPath {
+			return true
+		}
+	}
+	return false
+}
+
+func TrackRequestDurationAndCount() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		path := c.Request.URL.Path
+		if shouldExcludePath(path) {
+			c.Next()
+			return
+		}
+
 		startTime := time.Now()
 		c.Next()
 
 		duration := time.Since(startTime).Seconds()
-		httpRequestDuration.Observe(duration)
+		statusCode := strconv.Itoa(c.Writer.Status())
+		method := c.Request.Method
+
+		httpRequestDuration.WithLabelValues(method, statusCode, path).Observe(duration)
+		httpRequestCounter.WithLabelValues(method, statusCode, path).Inc()
 	}
 }
 

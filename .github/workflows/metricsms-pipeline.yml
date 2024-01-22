@@ -102,13 +102,6 @@ jobs:
             oc expose deployment ${{ env.APP_NAME }} --port=${{ env.APP_PORT }} --target-port=${{ env.APP_PORT }} --name=${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }}
           fi
 
-      - name: Create route if non-existent
-        run: |    
-          ROUTE_EXISTS=$(oc get route ${{ env.APP_NAME }}-service -n ${{ env.OPENSHIFT_NAMESPACE }} --ignore-not-found)
-          if [ -z "$ROUTE_EXISTS" ]; then
-            oc create route edge --service=${{ env.APP_NAME }}-service --port=${{ env.APP_PORT }} -n ${{ env.OPENSHIFT_NAMESPACE }}
-          fi
-
       # Step to check the deployment status
       - name: Check Deployment Status
         id: check_status
