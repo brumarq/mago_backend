@@ -2,6 +2,7 @@ from prometheus_client import Gauge, Counter, Summary
 from flask import request
 import time
 from threading import active_count
+import logging
 
 """
 Methods for setting health and readiness status | Application state tracking
@@ -30,7 +31,7 @@ def __should_exclude_path(path):
 
 def track_request_duration_and_count(response):
     path = request.path
-    
+
     if __should_exclude_path(path):
         return
     
@@ -42,6 +43,9 @@ def track_request_duration_and_count(response):
     HTTP_REQUEST_DURATION.labels(method, status_code, path).observe(duration)
     HTTP_REQUEST_COUNTER.labels(method, status_code, path).inc()
     THREAD_COUNT.set(active_count())
+
+    logging.info(f'This is the path: {path}')
+    logging.info(f'This is the HTTP_REQUEST_COUNTER: {HTTP_REQUEST_COUNTER._value}')
 
 
 # Methods for setting health and readiness status
