@@ -26,6 +26,7 @@ public class MetricsController : ControllerBase
     /// <summary>
     /// Gets latest device metrics (lastest unique entry in Field for a Device) by device id | Permissions: Client and Admin
     /// </summary>
+    /// <param name="deviceId">The unique device identifier.</param>
     /// <param name="pageNumber">The page number | Defaults to 1</param>
     /// <param name="pageSize">The page size | Defaults to 50</param>
     /// <returns>List of latest device metrics</returns>
