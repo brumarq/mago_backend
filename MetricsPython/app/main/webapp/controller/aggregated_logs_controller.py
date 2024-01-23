@@ -21,9 +21,14 @@ def initialize_aggregated_logs_service():
     )
 
 aggregated_logs_service = initialize_aggregated_logs_service()
+
+# Define query request parser
 parser = reqparse.RequestParser()
+parser.add_argument('page_number', type=int, help='The page number (starts at 1) | Defaults to 1')
+parser.add_argument('page_size', type=int, help='The page size | Defaults to 50')
 parser.add_argument('start_date', type=str, help='Start date for filtering (optional) | Format: YYYY-MM-DD')
 parser.add_argument('end_date', type=str, help='End date for filtering (optional) | Format: YYYY-MM-DD')
+
 
 @api.route('/<string:aggregated_log_date_type>/<int(signed=True):device_id>/<int(signed=True):field_id>')
 @api.doc(params={'aggregated_log_date_type': 'Aggregation log date type',
@@ -45,6 +50,8 @@ class AggregatedLogList(Resource):
         },
         'device_id': 'The unique identifier of the device',
         'field_id': 'The unique identifier of the field',
+        'page_number': 'The page number (starts at 1) | Defaults to 1',
+        'page_size': 'The page size | Defaults to 50',
         'start_date': 'Start date for filtering (optional) | Format: YYYY-MM-DD',
         'end_date': 'End date for filtering (optional) | Format: YYYY-MM-DD'
     })
@@ -53,6 +60,8 @@ class AggregatedLogList(Resource):
     def get(self, aggregated_log_date_type: str, device_id: int, field_id: int):
         """Provides list of aggregated logs based on date type"""
         args = parser.parse_args()
+        page_number = args.get('page_number')
+        page_size = args.get('page_size')
         start_date = args.get('start_date')
         end_date = args.get('end_date')
-        return self.aggregated_logs_service.get_aggregated_logs(aggregated_log_date_type, device_id, field_id, start_date, end_date)
+        return self.aggregated_logs_service.get_aggregated_logs(aggregated_log_date_type, device_id, field_id, page_number, page_size, start_date, end_date)
