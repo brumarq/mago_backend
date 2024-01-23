@@ -33,9 +33,9 @@ namespace Application.ApplicationServices
             return _mapper.Map<DeviceResponseDTO>(newDevice);
         }
 
-        public async Task<IEnumerable<DeviceResponseDTO>> GetDevicesAsync()
+        public async Task<IEnumerable<DeviceResponseDTO>> GetDevicesAsync(int? pageNumber = null, int? pageSize = null)
         {
-            var devices = await _repository.GetAllAsync();
+            var devices = await _repository.GetAllAsync(pageNumber, pageSize);
             return _mapper.Map<IEnumerable<DeviceResponseDTO>>(devices);
         }
 
