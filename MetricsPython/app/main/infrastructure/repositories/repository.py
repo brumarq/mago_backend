@@ -15,9 +15,16 @@ class Repository(BaseRepository):
             db.session.rollback()
             raise e
 
-    def get_all(self):
+    def get_all(self, page_number=None, page_size=None):
         try:
-            return self.model.query.all()
+            query = self.model.query
+
+            page_number = page_number or 1
+            page_size = page_size or 50
+
+            query = query.order_by(self.model.created_at).offset((page_number - 1) * page_size).limit(page_size)
+
+            return query.all()
         except SQLAlchemyError as e:
             db.session.rollback()
             raise e
@@ -29,9 +36,17 @@ class Repository(BaseRepository):
             db.session.rollback()
             raise e
     
-    def get_all_by_condition(self, condition):
+    def get_all_by_condition(self, condition, page_number=None, page_size=None):
         try:
-            return self.model.query.filter(condition).all()
+            query = self.model.query.filter(condition)
+
+            page_number = page_number or 1
+            page_size = page_size or 50
+
+            query = query.order_by(self.model.created_at).offset((page_number - 1) * page_size).limit(page_size)
+
+            return query.all()
+
         except SQLAlchemyError as e:
             db.session.rollback()
             raise e

@@ -32,7 +32,7 @@ namespace Application.ApplicationServices
             _authorizationService = authorizationService;
         }
 
-        public async Task<IEnumerable<AggregatedLogsResponseDTO>> GetAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId, string startDate, string endDate)
+        public async Task<IEnumerable<AggregatedLogsResponseDTO>> GetAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId, string startDate, string endDate, int pageNumber, int pageSize)
         {
             if (!_authenticationService.IsLoggedInUser())
                 throw new UnauthorizedException($"The user is not logged in. Please login first.");
@@ -44,14 +44,15 @@ namespace Application.ApplicationServices
             if (!await _authorizationService.IsDeviceAccessibleToUser(loggedInUserId!, deviceId))
                 throw new ForbiddenException($"The user with id {loggedInUserId} does not have permission to access device with id {deviceId}");
 
-            // Send request along with a token to the MetricsMS
-            HttpRequestMessage request = null;
+            string apiUrl;
             if (!string.IsNullOrEmpty(startDate) || !string.IsNullOrEmpty(endDate))
-                request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{aggregatedLogDateType.ToString()}/{deviceId}/{fieldId}?start_date={startDate}&end_date={endDate}");
+                apiUrl = $"{_baseUri}{aggregatedLogDateType.ToString()}/{deviceId}/{fieldId}?start_date={startDate}&end_date={endDate}&page_number={pageNumber}&page_size={pageSize}";
             else
-                request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}{aggregatedLogDateType.ToString()}/{deviceId}/{fieldId}");
+                apiUrl = $"{_baseUri}{aggregatedLogDateType.ToString()}/{deviceId}/{fieldId}?page_number={pageNumber}&page_size={pageSize}";
 
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+
             var response = await _httpClient.SendAsync(request);
 
             HttpRequestHelper.CheckStatusAndParseErrorMessageFromJsonData(response);

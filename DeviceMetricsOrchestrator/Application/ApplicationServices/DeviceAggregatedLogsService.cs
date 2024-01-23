@@ -15,10 +15,10 @@ namespace Application.ApplicationServices
             _aggregatedLogsService = aggregatedLogsService;
             _unitService = unitService;
         }
-        public async Task<IEnumerable<DeviceAggregatedLogsResponseDTO>> GetDeviceAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId, string startDate, string endDate)
+        public async Task<IEnumerable<DeviceAggregatedLogsResponseDTO>> GetDeviceAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId, string startDate, string endDate, int pageNumber, int pageSize)
         {
             var device = await _deviceService.GetDeviceByIdAsync(deviceId);
-            var aggregatedLogs = await _aggregatedLogsService.GetAggregatedLogsAsync(aggregatedLogDateType, deviceId, fieldId, startDate, endDate);
+            var aggregatedLogs = await _aggregatedLogsService.GetAggregatedLogsAsync(aggregatedLogDateType, deviceId, fieldId, startDate, endDate, pageNumber, pageSize);
 
             var responseList = new List<DeviceAggregatedLogsResponseDTO>();
 

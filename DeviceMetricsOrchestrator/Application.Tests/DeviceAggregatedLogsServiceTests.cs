@@ -59,6 +59,8 @@ namespace Application.Test
             var fieldId = 1;
             var startDate = "";
             var endDate = "";
+            var pageNumber = 1;
+            var pageSize = 50;
 
             var expectedDeviceType = new DeviceTypeResponseDTO
             {
@@ -121,7 +123,8 @@ namespace Application.Test
                 },
             };
 
-            _mockAggregatedLogsService.Setup(x => x.GetAggregatedLogsAsync(AggregatedLogDateType.Weekly, deviceId, fieldId, startDate, endDate)).ReturnsAsync(expectedAggregatedLogs);
+            _mockAggregatedLogsService.Setup(x => x.GetAggregatedLogsAsync(AggregatedLogDateType.Weekly, deviceId, fieldId, startDate, endDate, pageNumber,pageSize))
+                .ReturnsAsync(expectedAggregatedLogs);
 
             var expectedUnit = new UnitResponseDTO
             {
@@ -142,7 +145,9 @@ namespace Application.Test
                 deviceId,
                 fieldId,
                 startDate,
-                endDate
+                endDate,
+                pageNumber,
+                pageSize
             );
 
             var resultList = result.ToList();
