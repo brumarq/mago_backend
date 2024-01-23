@@ -52,6 +52,8 @@ namespace Application.Test
         public async Task GetDeviceMetricsAsync_ShouldReturnDeviceMetrics()
         {
             var deviceId = 1;
+            var pageNumber = 1;
+            var pageSize = 50;
 
             var expectedDeviceType = new DeviceTypeResponseDTO
             {
@@ -140,11 +142,11 @@ namespace Application.Test
                 }
             };
 
-            _mockMetricsService.Setup(x => x.GetLatestMetricsForDeviceAsync(deviceId)).ReturnsAsync(expectedMetrics);
+            _mockMetricsService.Setup(x => x.GetLatestMetricsForDeviceAsync(deviceId, pageNumber, pageSize)).ReturnsAsync(expectedMetrics);
 
 
             // Act
-            var result = await _deviceMetricsService.GetLastMetricsForDeviceAsync(deviceId);
+            var result = await _deviceMetricsService.GetLastMetricsForDeviceAsync(deviceId, pageNumber, pageSize);
 
             // Assert
             Assert.IsNotNull(result);
