@@ -29,14 +29,26 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
         return entity;
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync()
+    public async Task<IEnumerable<T>> GetAllAsync(int? pageNumber = null, int? pageSize = null)
     {
+        if (pageNumber.HasValue && pageSize.HasValue)
+        {
+            return await _entities.Skip((pageNumber.Value - 1) * pageSize.Value).Take(pageSize.Value).ToListAsync();
+        }
+
         return await _entities.ToListAsync();
     }
 
-    public async Task<IEnumerable<T>> GetCollectionByConditionAsync(Expression<Func<T, bool>> predicate)
+    public async Task<IEnumerable<T>> GetCollectionByConditionAsync(Expression<Func<T, bool>> predicate, int? pageNumber = null, int? pageSize = null)
     {
-        return await _entities.Where(predicate).ToListAsync();
+        var query = _entities.Where(predicate);
+
+        if (pageNumber.HasValue && pageSize.HasValue)
+        {
+            query = query.Skip((pageNumber.Value - 1) * pageSize.Value).Take(pageSize.Value);
+        }
+
+        return await query.ToListAsync();
     }
 
     public async Task<T> GetByConditionAsync(Expression<Func<T, bool>> predicate)

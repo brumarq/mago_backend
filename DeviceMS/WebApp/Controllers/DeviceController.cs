@@ -61,11 +61,11 @@ namespace WebApp.Controllers
 
         [HttpGet]
         [Authorize("Admin")]
-        public async Task<ActionResult<IEnumerable<DeviceResponseDTO>>> GetDevicesAsync()
+        public async Task<ActionResult<IEnumerable<DeviceResponseDTO>>> GetDevicesAsync([FromQuery] int? pageNumber = null, [FromQuery] int? pageSize = null)
         {
             try
             {
-                var devices = await _deviceService.GetDevicesAsync();
+                var devices = await _deviceService.GetDevicesAsync(pageNumber, pageSize);
                 return Ok(devices);
             }
             catch (CustomException ce)
