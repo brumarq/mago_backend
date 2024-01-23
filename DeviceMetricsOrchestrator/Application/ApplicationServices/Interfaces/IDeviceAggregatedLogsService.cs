@@ -5,6 +5,6 @@ namespace Application.ApplicationServices.Interfaces
 {
     public interface IDeviceAggregatedLogsService
     {
-        Task<IEnumerable<DeviceAggregatedLogsResponseDTO>> GetDeviceAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId, string startDate, string endDate);
+        Task<IEnumerable<DeviceAggregatedLogsResponseDTO>> GetDeviceAggregatedLogsAsync(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId, string startDate, string endDate, int pageNumber, int pageSize);
     }
 }

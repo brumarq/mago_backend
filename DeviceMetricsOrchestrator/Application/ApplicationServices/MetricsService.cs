@@ -29,7 +29,7 @@ namespace Application.ApplicationServices
             _authorizationService = authorizationService;
         }
 
-        public async Task<IEnumerable<MetricsResponseDTO>> GetLatestMetricsForDeviceAsync(int deviceId)
+        public async Task<IEnumerable<MetricsResponseDTO>> GetLatestMetricsForDeviceAsync(int deviceId, int pageNumber, int pageSize)
         {
             if (!_authenticationService.IsLoggedInUser())
                 throw new UnauthorizedException($"The user is not logged in. Please login first.");
@@ -41,7 +41,8 @@ namespace Application.ApplicationServices
             if (!await _authorizationService.IsDeviceAccessibleToUser(loggedInUserId!, deviceId))
                 throw new ForbiddenException($"The user with id {loggedInUserId} does not have permission to access device with id {deviceId}");
 
-            using var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}metrics/devices/{deviceId}");
+            // Send request along with a token to the MetricsMS
+            using var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUri}metrics/devices/{deviceId}?page_number={pageNumber}&page_size={pageSize}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
 
             using var response = await _httpClient.SendAsync(request);

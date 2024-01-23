@@ -7,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 class MetricsRepository(Repository):
 
-    def get_latest_log_values_by_device_id(self, device_id):
+    def get_latest_log_values_by_device_id(self, device_id, page_number=None, page_size=None):
         try:
             latest_timestamp_subquery = (
                 db.session.query(
@@ -21,13 +21,21 @@ class MetricsRepository(Repository):
             )
 
             # Query the LogValue entries using the latest timestamps and device_id
-            latest_log_values = self.model.query.join(
+            query = self.model.query.join(
                 latest_timestamp_subquery,
                 and_(
                     LogValue.field_id == latest_timestamp_subquery.c.field_id,
                     LogValue.created_at == latest_timestamp_subquery.c.latest_timestamp,
                 ),
-            ).join(LogCollection).filter(LogCollection.device_id == device_id).all()
+            ).join(LogCollection).filter(LogCollection.device_id == device_id)
+
+            # Set a default values for page_number and page_seize
+            page_number = page_number or 1
+            page_size = page_size or 50
+
+            query = query.order_by(self.model.created_at).offset((page_number - 1) * page_size).limit(page_size)
+
+            latest_log_values = query.all()
 
             return latest_log_values
         

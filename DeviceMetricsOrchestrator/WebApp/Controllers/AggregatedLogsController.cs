@@ -30,6 +30,8 @@ public class AggregatedLogsController : ControllerBase
     /// <param name="aggregatedLogDateType">Aggregation date type that refers to 'Weekly', 'Monthly', 'Yearly'</param>
     /// <param name="deviceId">Device unique identifier</param>
     /// <param name="fieldId">Field unique identifier</param>
+    /// <param name="pageNumber">The page number | Defaults to 1</param>
+    /// <param name="pageSize">The page size | Defaults to 50</param>
     /// <param name="startDate">Start date (optional) format: YYYY-MM-DD</param>
     /// <param name="endDate">End date (optional) format: YYYY-MM-DD</param>
     /// <returns>List of aggregated logs</returns>
@@ -40,11 +42,11 @@ public class AggregatedLogsController : ControllerBase
     /// <response code="500">Internal server error.</response>
     [HttpGet("{aggregatedLogDateType}/{deviceId}/{fieldId}")]
     [Authorize("All")] 
-    public async Task<ActionResult<IEnumerable<DeviceAggregatedLogsResponseDTO>>> GetAggregatedLogs(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId, string? startDate, string? endDate)
+    public async Task<ActionResult<IEnumerable<DeviceAggregatedLogsResponseDTO>>> GetAggregatedLogs(AggregatedLogDateType aggregatedLogDateType, int deviceId, int fieldId, string? startDate, string? endDate, int pageNumber = 1, int pageSize = 50)
     {
         try
         {
-            var deviceAggregatedLogs = await _deviceAggregatedService.GetDeviceAggregatedLogsAsync(aggregatedLogDateType, deviceId, fieldId, startDate, endDate);
+            var deviceAggregatedLogs = await _deviceAggregatedService.GetDeviceAggregatedLogsAsync(aggregatedLogDateType, deviceId, fieldId, startDate, endDate, pageNumber, pageSize);
 
             return Ok(deviceAggregatedLogs);
         }

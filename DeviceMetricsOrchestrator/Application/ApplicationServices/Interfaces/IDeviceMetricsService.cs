@@ -5,6 +5,6 @@ namespace Application.ApplicationServices.Interfaces
 {
     public interface IDeviceMetricsService
     {
-        Task<IEnumerable<DeviceMetricsResponseDTO>> GetLastMetricsForDeviceAsync(int deviceId);
+        Task<IEnumerable<DeviceMetricsResponseDTO>> GetLastMetricsForDeviceAsync(int deviceId, int pageNumber, int pageSize);
     }
 }

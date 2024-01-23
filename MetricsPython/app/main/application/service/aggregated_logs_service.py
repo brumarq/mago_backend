@@ -16,9 +16,9 @@ class AggregatedLogsService(BaseAggregatedLogsService):
         self.monthly_average_repository = monthly_average_repository
         self.yearly_average_repository = yearly_average_repository
 
-    def get_aggregated_logs(self, aggregated_log_date_type: str, device_id: int, field_id: int, start_date: str = None, end_date: str = None):
+    def get_aggregated_logs(self, aggregated_log_date_type: str, device_id: int, field_id: int, page_number: int = None, page_size: int = None, start_date: str = None, end_date: str = None):
         
-        self.__validate_agg_logs_parameters(aggregated_log_date_type, device_id, field_id)  
+        self.__validate_agg_logs_required_parameters(aggregated_log_date_type, device_id, field_id)  
 
         aggregated_log_date_type = aggregated_log_date_type.upper()
 
@@ -31,6 +31,10 @@ class AggregatedLogsService(BaseAggregatedLogsService):
 
         condition = (repository.model.device_id == device_id) & (repository.model.field_id == field_id)
 
+        # Check if page_number or page_size is less than or equal to 0
+        if (page_number is not None and page_number <= 0) or (page_size is not None and page_size <= 0):
+            abort(400, "Page number and/or page size cannot be 0 or less.")
+
         if (not start_date and end_date) or (start_date and not end_date):
             abort(400, "Both start date and end date must be provided or none of them.")
 
@@ -38,8 +42,8 @@ class AggregatedLogsService(BaseAggregatedLogsService):
             if not (self.__is_valid_date(start_date) and self.__is_valid_date(end_date)):
                 abort(400, "Invalid date format. Please use the format YYYY-MM-DD.")
             condition &= (repository.model.reference_date >= start_date) & (repository.model.reference_date <= end_date)
-
-        aggregated_logs = repository.get_all_by_condition(condition)
+        
+        aggregated_logs = repository.get_all_by_condition(condition, page_number=page_number, page_size=page_size)
 
         return aggregated_logs
     
@@ -50,7 +54,7 @@ class AggregatedLogsService(BaseAggregatedLogsService):
         except ValueError:
             return False
         
-    def __validate_agg_logs_parameters(self, aggregated_log_date_type: str, device_id: int, field_id: int):
+    def __validate_agg_logs_required_parameters(self, aggregated_log_date_type: str, device_id: int, field_id: int):
         if not (has_required_permission("client") or has_required_permission("admin")):
             abort(401, "This user does not have sufficient permissions")
 

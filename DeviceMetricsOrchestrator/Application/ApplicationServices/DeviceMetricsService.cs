@@ -16,10 +16,10 @@ namespace Application.ApplicationServices
             _unitService = unitService;
         }       
 
-        public async Task<IEnumerable<DeviceMetricsResponseDTO>> GetLastMetricsForDeviceAsync(int deviceId)
+        public async Task<IEnumerable<DeviceMetricsResponseDTO>> GetLastMetricsForDeviceAsync(int deviceId, int pageNumber, int pageSize)
         {
             var device = await _deviceService.GetDeviceByIdAsync(deviceId);
-            var metrics = await _metricsService.GetLatestMetricsForDeviceAsync(deviceId);
+            var metrics = await _metricsService.GetLatestMetricsForDeviceAsync(deviceId, pageNumber, pageSize);
 
             var responseList = new List<DeviceMetricsResponseDTO>();
 

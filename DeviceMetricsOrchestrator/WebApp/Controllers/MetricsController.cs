@@ -35,11 +35,11 @@ public class MetricsController : ControllerBase
     /// <response code="500">Internal server error.</response>
     [HttpGet("{deviceId}")]
     [Authorize("All")]
-    public async Task<ActionResult<IEnumerable<DeviceMetricsResponseDTO>>> GetLastestMetricsForDevice(int deviceId)
+    public async Task<ActionResult<IEnumerable<DeviceMetricsResponseDTO>>> GetLastestMetricsForDevice(int deviceId, int pageNumber = 1, int pageSize = 50)
     {
         try
         {
-            var deviceMetrics = await _deviceMetricsService.GetLastMetricsForDeviceAsync(deviceId);
+            var deviceMetrics = await _deviceMetricsService.GetLastMetricsForDeviceAsync(deviceId, pageNumber, pageSize);
 
             return Ok(deviceMetrics);
         }

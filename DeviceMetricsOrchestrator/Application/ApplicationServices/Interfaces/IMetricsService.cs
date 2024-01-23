@@ -4,5 +4,5 @@ namespace Application.ApplicationServices.Interfaces;
 
 public interface IMetricsService
 {
-    Task<IEnumerable<MetricsResponseDTO>> GetLatestMetricsForDeviceAsync(int deviceId);
+    Task<IEnumerable<MetricsResponseDTO>> GetLatestMetricsForDeviceAsync(int deviceId, int pageNumber, int pageSize);
 }

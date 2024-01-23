@@ -74,6 +74,20 @@ def test_get_aggregated_logs_only_start_or_end_date_provided(app, aggregated_log
 
         assert "400 Bad Request: Both start date and end date must be provided or none of them." in str(excinfo.value)
 
+@patch('app.main.application.service.aggregated_logs_service.has_required_permission', return_value=True)
+@pytest.mark.parametrize("date_type, page_number, page_size", [
+    ("Weekly", 1, 0),  
+    ("Monthly", 0, 1),
+    ("Yearly", 0, 0),
+    ("Weekly", -1, -1)
+])
+def test_get_aggregated_logs_invalid_pagination(app, aggregated_logs_service, date_type, page_number, page_size):
+    with app.test_request_context():
+        field = aggregated_logs_service.field_repository.create(Field(name='TestField'))
+        with pytest.raises(Exception) as excinfo:
+            aggregated_logs_service.get_aggregated_logs(date_type, device_id=1, field_id=field.id, page_number=page_number, page_size=page_size)
+
+        assert "400 Bad Request: Page number and/or page size cannot be 0 or less." in str(excinfo.value)
 
 @pytest.mark.parametrize("date_type, entity_type", [
     ('Weekly', WeeklyAverage),

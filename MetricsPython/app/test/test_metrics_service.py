@@ -19,6 +19,19 @@ def test_get_device_metrics_invalid_device_id(app, metrics_service):
         assert '400 Bad Request: Device id cannot be 0 or negative!' in str(excinfo.value)
 
 @patch('app.main.application.service.metrics_service.has_required_permission', return_value=True)
+@pytest.mark.parametrize("device_id, page_number, page_size", [
+    (1, 1, 0),  
+    (1, 0, 1),
+    (1, 0, 0),
+    (1, -1, -1)
+])
+def test_get_device_metrics_invalid_magination(app, metrics_service, device_id, page_number, page_size):
+    with app.test_request_context():
+        with pytest.raises(Exception) as excinfo:
+            metrics_service.get_latest_device_metrics_by_device_id(device_id=device_id, page_number=page_number, page_size=page_size)
+        assert "400 Bad Request: Page number and/or page size cannot be 0 or less." in str(excinfo.value)
+
+@patch('app.main.application.service.metrics_service.has_required_permission', return_value=True)
 @pytest.mark.parametrize("repository", [LogValue], indirect=True)
 def test_get_device_metrics_valid_request(app, metrics_service, repository):
     with app.test_request_context():
