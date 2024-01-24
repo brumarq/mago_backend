@@ -70,7 +70,7 @@ namespace WebApp.Controllers
         /// <response code="500">Internal server error.</response>
         [HttpGet]
         [Authorize("Admin")]
-        public async Task<ActionResult<IEnumerable<DeviceTypeResponseDTO>>> GetDeviceTypesAsync([FromQuery] int? pageNumber = null, [FromQuery] int? pageSize = null)
+        public async Task<ActionResult<IEnumerable<DeviceTypeResponseDTO>>> GetDeviceTypesAsync([FromQuery] int? pageNumber = 1, [FromQuery] int? pageSize = null)
         {
             try
             {
