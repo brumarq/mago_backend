@@ -25,11 +25,13 @@ namespace WebApp.Controllers
             _authenticationService = authenticationService;
         }
 
-        
+
         /// <summary>
         /// Get Notifications from a Device. Accessible by all users (both admin and client).
         /// </summary>
         /// <param name="deviceId">Device ID</param>
+        /// <param name="pageNumber">The number of the page. Defaults to 1.</param>
+        /// <param name="pageSize">The number of items per page. Defaults to 10.</param>
         /// <returns>Returns the list of notifications.</returns>
         /// <response code="200">Returns device notifications.</response>
         /// <response code="404">Device not found.</response>
