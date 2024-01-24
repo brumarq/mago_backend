@@ -61,7 +61,7 @@ namespace WebApp.Controllers
 
         [HttpGet]
         [Authorize("Admin")]
-        public async Task<ActionResult<IEnumerable<DeviceResponseDTO>>> GetDevicesAsync([FromQuery] int? pageNumber = null, [FromQuery] int? pageSize = null)
+        public async Task<ActionResult<IEnumerable<DeviceResponseDTO>>> GetDevicesAsync([FromQuery] int? pageNumber = 1, [FromQuery] int? pageSize = null)
         {
             try
             {

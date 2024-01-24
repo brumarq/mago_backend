@@ -50,7 +50,7 @@ namespace WebApp.Controllers
         /// <response code="500">Internal server error.</response>
         [HttpGet("{userId}")]
         [Authorize("All")]
-        public async Task<ActionResult<IEnumerable<UsersOnDevicesResponseDTO>>> GetUsersOnDevicesByUserId(string userId, [FromQuery] int? pageNumber = null, [FromQuery] int? pageSize = null)
+        public async Task<ActionResult<IEnumerable<UsersOnDevicesResponseDTO>>> GetUsersOnDevicesByUserId(string userId, [FromQuery] int? pageNumber = 1, [FromQuery] int? pageSize = null)
         {
             var loggedUserId = _authenticationService.GetUserId();
 
