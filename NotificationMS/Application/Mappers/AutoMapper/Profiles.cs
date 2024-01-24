@@ -19,7 +19,7 @@ namespace Application.Mappers.AutoMapper
             CreateMap<NotificationResponseDTO, Status>();
             CreateMap<StatusType, StatusTypeDTO>();
             CreateMap<StatusTypeDTO,  StatusType>();
-
+            CreateMap<NotificationTokenOnUserDTO, NotificationTokenOnUserDTO>();
         }
     }
 }

@@ -7,7 +7,7 @@ public class NotificationsDbContext : DbContext
 {
     public DbSet<Status> Statuses { get; set; }
     public DbSet<StatusType> StatusTypes { get; set; }
-    
+    public DbSet<NotificationTokenOnUser> NotificationTokenOnUser { get; set; }
     public NotificationsDbContext(DbContextOptions<NotificationsDbContext> options) : base(options) { }
     
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
