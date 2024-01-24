@@ -30,9 +30,6 @@ ENV FLASK_APP=manage.py
 # Copy the current directory contents into the container at /app
 COPY . /app/
 
-# Copy the logging configuration file for Gunicorn
-COPY log_config.ini /app
-
 # Expose the port on which the Flask app will run
 EXPOSE 5000
 
