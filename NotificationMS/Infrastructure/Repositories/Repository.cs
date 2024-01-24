@@ -55,7 +55,10 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
     {
         return await _context.Set<T>().FirstOrDefaultAsync(predicate);
     }
-
+    public async Task<IEnumerable<T>> GetCollectionByConditionAsync(Expression<Func<T, bool>> predicate)
+    {
+        return await _entities.Where(predicate).ToListAsync();
+    }
     public async Task<bool?> UpdateAsync(T entity)
     {
         T? existingEntity = await _entities.FindAsync(entity.Id);

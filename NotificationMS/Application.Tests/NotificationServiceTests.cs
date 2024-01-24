@@ -22,6 +22,7 @@ namespace Application.Tests
         private Mock<IMapper> _mockMapper;
         private Mock<IRepository<Status>> _mockNotificationRepository;
         private Mock<IRepository<StatusType>> _mockStatusTypeRepository;
+        private Mock<IRepository<NotificationTokenOnUser>> _mockNotificationTokenOnUserRepository;
         private INotificationService _notificationService;
 
         [SetUp]
@@ -30,7 +31,8 @@ namespace Application.Tests
             _mockMapper = new Mock<IMapper>();
             _mockNotificationRepository = new Mock<IRepository<Status>>();
             _mockStatusTypeRepository = new Mock<IRepository<StatusType>>();
-            _notificationService = new NotificationService(_mockMapper.Object, _mockNotificationRepository.Object, _mockStatusTypeRepository.Object);
+            _mockNotificationTokenOnUserRepository = new Mock<IRepository<NotificationTokenOnUser>>();
+            _notificationService = new NotificationService(_mockMapper.Object, _mockNotificationRepository.Object, _mockStatusTypeRepository.Object, _mockNotificationTokenOnUserRepository.Object);
         }
 
 

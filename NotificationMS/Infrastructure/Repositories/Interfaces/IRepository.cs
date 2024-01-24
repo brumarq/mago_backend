@@ -11,6 +11,7 @@ public interface IRepository<T> where T : BaseEntity
     Task<IEnumerable<T>> GetAllPagedAsync(int pageNumber, int pageSize);
     Task<IEnumerable<T>> GetPagedListByConditionAsync(Expression<Func<T, bool>> filter, int pageNumber, int pageSize);
     Task<T> GetByConditionAsync(Expression<Func<T, bool>> predicate);
+    Task<IEnumerable<T>> GetCollectionByConditionAsync(Expression<Func<T, bool>> predicate);
     Task<bool?> UpdateAsync(T entity);
     Task<bool> DeleteAsync(int id);
 }

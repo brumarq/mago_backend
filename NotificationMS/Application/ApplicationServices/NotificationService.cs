@@ -13,13 +13,16 @@ namespace Application.ApplicationServices
         private readonly IMapper _mapper;
         private readonly IRepository<Status> _notificationRepository;
         private readonly IRepository<StatusType> _statusTypeRepository;
+        private readonly IRepository<NotificationTokenOnUser> _notificationTokenOnUserRepository;
 
 
-        public NotificationService(IMapper mapper, IRepository<Status> notificationRepository,  IRepository<StatusType> statusTypeRepository)
+        public NotificationService(IMapper mapper, IRepository<Status> notificationRepository,  IRepository<StatusType> statusTypeRepository, 
+            IRepository<NotificationTokenOnUser> notificationTokenOnUserRepository)
         {
             _mapper = mapper;
             _notificationRepository = notificationRepository;
             _statusTypeRepository = statusTypeRepository;
+            _notificationTokenOnUserRepository = notificationTokenOnUserRepository;
         }
         
 
@@ -122,11 +125,65 @@ namespace Application.ApplicationServices
 
             return _mapper.Map<StatusTypeDTO>(statusType);
         }
+        public async Task<IEnumerable<NotificationTokenOnUserDTO>> GetNotificationTokensByUserIdAsync(string userId)
+        {
+            var notificationTokenOnUserEntry = await _notificationTokenOnUserRepository.GetCollectionByConditionAsync(n => n.UserId == userId);
+
+            if (!notificationTokenOnUserEntry.Any())
+                throw new NotFoundException("Notification token not found.");
+
+            return _mapper.Map<List<NotificationTokenOnUserDTO>>(notificationTokenOnUserEntry);
+        }
+
+        public async Task DeleteNotificationTokenOnUserByNotificationTokenAsync(string notificationToken)
+        {
+            var notificationTokenOnUser = await _notificationTokenOnUserRepository.GetByConditionAsync(st => st.NotificationToken == notificationToken);
+
+            if (notificationTokenOnUser == null)
+                throw new NotFoundException("Notification token not found.");
+
+            await _notificationTokenOnUserRepository.DeleteAsync(notificationTokenOnUser.Id);
+        }
+
+        public async Task<NotificationTokenOnUserDTO> CreateNotificationTokenOnUserAsync(NotificationTokenOnUserDTO notificationTokenOnUserDTO)
+        {
+            ValidateCreateNotificationTokenOnUserDTO(notificationTokenOnUserDTO);
+
+            var currentTokenEntry = await _notificationTokenOnUserRepository.GetByConditionAsync(n => n.NotificationToken == notificationTokenOnUserDTO.NotificationToken);
+            if (currentTokenEntry != null)
+                throw new BadRequestException("Notification token already exists");
+
+            NotificationTokenOnUser notificationTokenOnUser = new NotificationTokenOnUser
+            {
+                UserId = notificationTokenOnUserDTO.UserId,
+                NotificationToken = notificationTokenOnUserDTO.NotificationToken
+            };
+
+            var createdToken = await _notificationTokenOnUserRepository.CreateAsync(notificationTokenOnUser);
+
+            return _mapper.Map<NotificationTokenOnUserDTO>(createdToken);
+        }
+
 
         private void ValidateCreateStatusTypeDTO(CreateStatusTypeDTO createStatusTypeDTO)
         {
             if (createStatusTypeDTO.Name == null || createStatusTypeDTO.Name == "")
                 throw new BadRequestException("StatusType Name property is required to be filled out");
+        }
+
+        private void ValidateCreateNotificationTokenOnUserDTO(NotificationTokenOnUserDTO notificationTokenOnUserDTO)
+        {
+            switch (notificationTokenOnUserDTO)
+            {
+                case null:
+                    throw new BadRequestException("The object cannot be null.");
+
+                case { UserId: null } or { UserId: "" }:
+                    throw new BadRequestException("The 'UserId' property is required to be filled out");
+
+                case { NotificationToken: null } or { NotificationToken: "" }:
+                    throw new BadRequestException("The 'UserId' property is required to be filled out");
+            }
         }
         private void ValidateCreateNotificationDTO(CreateNotificationDTO createNotificationDTO)
         {

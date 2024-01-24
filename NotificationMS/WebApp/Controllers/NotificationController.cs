@@ -144,7 +144,7 @@ namespace WebApp.Controllers
                 {
                     return Unauthorized("Access denied");
                 }
-                
+
                 var result = await _notificationService.CreateNotificationAsync(createNotificationDTO);
                 if (result == null)
                 {
@@ -283,6 +283,92 @@ namespace WebApp.Controllers
             {
                 ValidatePositiveNumber(id, nameof(id));
                 var result = await _notificationService.UpdateStatusTypeAsync(id, statusTypeDTO);
+                return Ok(result);
+            }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // GET /notifications/5
+        [HttpGet("notificationToken/user/{userId}")]
+       // [ApiExplorerSettings(IgnoreApi = true)]
+        [Authorize("Admin")]
+        public async Task<ActionResult<IEnumerable<NotificationTokenOnUserDTO>>> GetNotificationTokenByUserIdAsync(string userId)
+        {
+            try
+            {
+                //if (!IsRequestFromOrchestrator(HttpContext.Request))
+                //{
+                //    return Unauthorized("Access denied");
+                //}
+
+                var notificationTokenOnUserDTOs = await _notificationService.GetNotificationTokensByUserIdAsync(userId);
+                if (notificationTokenOnUserDTOs == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(notificationTokenOnUserDTOs);
+            }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("notificationToken/{notificationToken}")]
+        //[ApiExplorerSettings(IgnoreApi = true)]
+        [Authorize("Admin")]
+        public async Task<IActionResult> DeleteNotificationTokenOnUserByNotificationIdAsync(string notificationToken)
+        {
+            try
+            {
+                //if (!IsRequestFromOrchestrator(HttpContext.Request))
+                //{
+                //    return Unauthorized("Access denied");
+                //}
+
+                await _notificationService.DeleteNotificationTokenOnUserByNotificationTokenAsync(notificationToken);
+                return NoContent();
+            }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPost("notificationToken")]
+        [Authorize("Admin")]
+        //[ApiExplorerSettings(IgnoreApi = true)]
+        public async Task<ActionResult<NotificationResponseDTO>> CreateNotificationTokenOnUserAsync([FromBody] NotificationTokenOnUserDTO notificationTokenOnUserDTO)
+        {
+            try
+            {
+                //if (!IsRequestFromOrchestrator(HttpContext.Request))
+                //{
+                //    return Unauthorized("Access denied");
+                //}
+
+                var result = await _notificationService.CreateNotificationTokenOnUserAsync(notificationTokenOnUserDTO);
+                if (result == null)
+                {
+                    return StatusCode(500, "The NotificationToken on User entry could not be created.");
+                }
+
                 return Ok(result);
             }
             catch (CustomException ce)

@@ -17,5 +17,8 @@ namespace Application.ApplicationServices.Interfaces
         Task<StatusTypeDTO> CreateStatusTypeAsync(CreateStatusTypeDTO statusTypeDTO);
         Task DeleteStatusTypeAsync(int id);
         Task<StatusTypeDTO> UpdateStatusTypeAsync(int id, CreateStatusTypeDTO statusTypeDTO);
+        Task<IEnumerable<NotificationTokenOnUserDTO>> GetNotificationTokensByUserIdAsync(string userId);
+        Task DeleteNotificationTokenOnUserByNotificationTokenAsync(string notificationToken);
+        Task<NotificationTokenOnUserDTO> CreateNotificationTokenOnUserAsync(NotificationTokenOnUserDTO notificationTokenOnUserDTO);
     }
 }
