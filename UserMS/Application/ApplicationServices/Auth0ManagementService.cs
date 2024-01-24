@@ -19,7 +19,8 @@ public class Auth0ManagementService : IAuth0ManagementService
     private ManagementToken _currentToken = new()
     {
         Token = string.Empty,
-        ExpirationTime = DateTime.MinValue
+        ExpirationTime = DateTime.MinValue,
+        ExpiresIn = 0
     };
 
     public Auth0ManagementService(IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<Auth0ManagementService> logger)
@@ -59,17 +60,16 @@ public class Auth0ManagementService : IAuth0ManagementService
             await HandleErrorResponse(response);
         }
 
-        var tokenResponse = await response.Content.ReadFromJsonAsync<ManagementTokenResponse>();
-        if (tokenResponse == null)
+        var token = await response.Content.ReadFromJsonAsync<ManagementToken>();
+        if (token == null)
         {
             throw new Exception("Failed to deserialize token response.");
         }
 
-        return new ManagementToken
-        {
-            Token = tokenResponse.Token,
-            ExpirationTime = DateTime.UtcNow.AddSeconds(tokenResponse.ExpirationDate)
-        };
+        // Calculate the actual expiration time
+        token.ExpirationTime = DateTime.UtcNow.AddSeconds(token.ExpiresIn);
+
+        return token;
     }
 
     private async Task HandleErrorResponse(HttpResponseMessage response)
@@ -87,5 +87,4 @@ public class Auth0ManagementService : IAuth0ManagementService
             _ => new CustomException(errorMessage, response.StatusCode)
         };
     }
-
 }

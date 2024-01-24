@@ -79,7 +79,7 @@ public class Auth0ManagementServiceTests
     {
         _fakeHttpMessageHandler.SetupResponse("https://example.com/oauth/token",
             new HttpResponseMessage(HttpStatusCode.OK) {
-                Content = JsonContent.Create(new ManagementTokenResponse { Token = "newToken" })
+                Content = JsonContent.Create(new ManagementToken { Token = "newToken" })
             });
         
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
