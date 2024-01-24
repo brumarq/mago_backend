@@ -13,7 +13,6 @@ import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
 import time
 from flask import request
-import log_config
 
 env = env or 'prod' # if no env, assume its production
 
