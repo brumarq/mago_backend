@@ -22,7 +22,8 @@ namespace Application.ApplicationServices
 
 
         public NotificationService(IHttpClientFactory httpClientFactory, IDeviceService deviceService,
-            IUserService userService, IConfiguration configuration, IAuthenticationService authenticationService, IAuthorizationService authorizationService)
+            IUserService userService, IConfiguration configuration, IAuthenticationService authenticationService, 
+            IAuthorizationService authorizationService, INotificationHubService notificationHubService)
         {
             this._httpClientFactory = httpClientFactory;
             _httpClient = httpClientFactory.CreateClient();
@@ -32,7 +33,6 @@ namespace Application.ApplicationServices
             _authorizationService = authorizationService;
             _baseUri = configuration["ApiRequestUris:NotificationBaseUri"];
             _orchestratorApiKey = configuration["OrchestratorApiKey"];
-
         }
 
         public async Task<IEnumerable<NotificationResponseDTO>> GetNotificationsByDeviceIdAsync(int deviceId, int pageNumber, int pageSize)
@@ -104,6 +104,7 @@ namespace Application.ApplicationServices
         {
             try
             {
+                
                 await _deviceService.CheckDeviceExistence(createNotificationDTO.DeviceID);
 
                 await CheckStatusTypeExistence(createNotificationDTO.StatusTypeID);
@@ -115,19 +116,21 @@ namespace Application.ApplicationServices
                 postRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
                 postRequest.Headers.Add("X-Orchestrator-Key", _orchestratorApiKey);
 
-                var response = await _httpClient.SendAsync(postRequest);
+               var response = await _httpClient.SendAsync(postRequest);
 
                 if (response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
                     var notificationResponseDTO = JsonConvert.DeserializeObject<NotificationResponseDTO>(responseContent);
+
+                    //_ = _notificationHubService.SendNotificationToNotificationHub(notificationResponseDTO);
                     return notificationResponseDTO;
                 }
                 else
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
                     throw new CustomException(errorContent, response.StatusCode);
-                }
+                } 
             }
             catch (HttpRequestException e)
             {

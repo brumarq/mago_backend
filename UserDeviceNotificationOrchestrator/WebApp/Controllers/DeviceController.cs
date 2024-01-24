@@ -47,8 +47,27 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
-        
-        
+
+        [HttpGet("device/{deviceId}")]
+        [Authorize("Admin")]
+        public async Task<ActionResult<IEnumerable<UserOnDeviceResponseDTO>>> GetUsersOnDevicesByDeviceId(int deviceId)
+        {
+            try
+            {
+                var usersOnDevices = await _deviceService.GetUsersOnDevicesByDeviceIdAsync(deviceId);
+                return Ok(usersOnDevices);
+            }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, $"Internal server error: {e.Message}");
+            }
+        }
+
+
         /// <summary>
         /// Remove user from a device. Accessible by Admin.
         /// </summary>
@@ -80,6 +99,8 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
+
+
 
         private void ValidatePositiveNumber(int value, string parameterName)
         {

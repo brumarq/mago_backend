@@ -28,6 +28,8 @@ builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<INotificationHubService, NotificationHubService>();
+builder.Services.AddScoped<INotificationTokenService, NotificationTokenService>();
 builder.Services.AddHttpClient();
 
 builder.Services.AddSwaggerGen(c =>
