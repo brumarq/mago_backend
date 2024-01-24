@@ -115,7 +115,7 @@ namespace ServiceTests.Steps
         public void ThenAnObjectWithIdShouldExist(int id)
         {
             Assert.IsNotNull(_jsonObjectResult, "The response does not contain a JSON object.");
-            bool idExists = _jsonObjectResult["id"]?.Value<int>() == id;
+            var idExists = _jsonObjectResult["id"]?.Value<int>() == id;
             Assert.IsTrue(idExists, $"No object with id {id} was found in the response.");
         }
 
