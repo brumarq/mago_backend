@@ -29,7 +29,7 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
         return entity;
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync(int? pageNumber = null, int? pageSize = null)
+    public async Task<IEnumerable<T>> GetAllAsync(int? pageNumber, int? pageSize)
     {
         if (pageNumber.HasValue && pageSize.HasValue)
         {
@@ -39,7 +39,7 @@ public class Repository<T> : IRepository<T> where T : BaseEntity
         return await _entities.ToListAsync();
     }
 
-    public async Task<IEnumerable<T>> GetCollectionByConditionAsync(Expression<Func<T, bool>> predicate, int? pageNumber = null, int? pageSize = null)
+    public async Task<IEnumerable<T>> GetCollectionByConditionAsync(Expression<Func<T, bool>> predicate, int? pageNumber, int? pageSize)
     {
         var query = _entities.Where(predicate);
 

@@ -9,7 +9,6 @@
   <component name="ChangeListManager">
     <list default="true" id="a9b2c98e-ff4c-4af1-a338-0c913b657baf" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.UserDeviceNotificationOrchestrator/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.UserDeviceNotificationOrchestrator/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Application/ApplicationServices/ApplicationStateService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Application/ApplicationServices/ApplicationStateService.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,9 +19,9 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 3
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="2b5BHjjSmeKMk3F8xUEqhSvhlsI" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -36,7 +35,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "Health-Checks",
+    "git-widget-placeholder": "development",
     "last_opened_file_path": "/Users/sander/Developer/Projects/InHolland/$Projects/mago_backend/UserDeviceNotificationOrchestrator",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -78,6 +77,7 @@
       <option name="presentableId" value="Default" />
       <updated>1705494973544</updated>
       <workItem from="1705494974648" duration="1571000" />
+      <workItem from="1705927544505" duration="753000" />
     </task>
     <servers />
   </component>
