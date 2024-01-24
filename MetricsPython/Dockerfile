@@ -22,7 +22,6 @@ RUN curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/so
 # Update the package list and install the ODBC Driver 18 for SQL Server
 RUN apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18
 
-
 # Set production env
 ENV FLASK_ENV=prod
 ENV FLASK_APP=manage.py
@@ -33,4 +32,4 @@ COPY . /app/
 # Expose the port on which the Flask app will run
 EXPOSE 5000
 
-CMD ["gunicorn", "manage:app", "-b", "0.0.0.0:5000", "--access-logfile=-", "--log-level=info"]
+CMD ["flask", "run", "--host", "0.0.0.0", "--port", "5000"]
