@@ -31,7 +31,9 @@ namespace WebApp.Controllers
 
         /// <summary>
         /// Retrieves all notifications. Accessible by Admin.
-        /// </summary>
+        /// </summary>        
+        /// <param name="pageNumber">The number of the page. Defaults to 1.</param>
+        /// <param name="pageSize">The number of items per page. Defaults to 30.</param>
         /// <returns>Returns all notifications for all devices.</returns>
         /// <response code="200" name="NotificationResponseDTO">Returns a list of notifications.</response>
         /// <response code="401">Unauthorized access.</response>
@@ -64,7 +66,15 @@ namespace WebApp.Controllers
             }
         }
 
-        // GET /notifications/5
+        /// <summary>
+        /// Retrieves notification by their id. Accessible by Admin and users on device.
+        /// </summary>
+        /// <returns>Returns notification for specified notification id.</returns>
+        /// <response code="200" name="NotificationResponseDTO">Returns a list of notifications.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="403">Forbidden access.</response>
+        /// <response code="400">Bad request.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpGet("{id}")]
         [ApiExplorerSettings(IgnoreApi = true)]
         [Authorize("All")]
@@ -97,10 +107,21 @@ namespace WebApp.Controllers
             }
         }
 
-
-        // GET /notifications/device/5?pageNumber=1&pageSize=10
+        /// <summary>
+        /// Retrieves notification by device id. Accessible by Admin.
+        /// </summary>        
+        /// <param name="deviceId">The ID of the device to notifications for.</param>
+        /// <param name="pageNumber">The number of the page. Defaults to 1.</param>
+        /// <param name="pageSize">The number of items per page. Defaults to 30.</param>
+        /// <returns>Returns all notifications for the specified device.</returns>
+        /// <response code="200" name="NotificationResponseDTO">Returns a list of notifications.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="403">Forbidden access.</response>
+        /// <response code="400">Bad request.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpGet("device/{deviceId}")]
         [ApiExplorerSettings(IgnoreApi = true)]
+        [Authorize("All")]
         public async Task<ActionResult<NotificationResponseDTO>> GetNotificationsForDeviceAsync(int deviceId, int pageNumber, int pageSize)
         {
             try
@@ -109,10 +130,10 @@ namespace WebApp.Controllers
                 ValidatePositiveNumber(pageNumber, nameof(pageNumber));
                 ValidatePositiveNumber(pageSize, nameof(pageSize));
 
-                //if (!IsRequestFromOrchestrator(HttpContext.Request))
-                //{
-                //    return Unauthorized("Access denied");
-                //}
+                if (!IsRequestFromOrchestrator(HttpContext.Request))
+                {
+                    return Unauthorized("Access denied");
+                }
 
                 var notificationDTO = await _notificationService.GetNotificationsByDeviceIdPagedAsync(deviceId, pageNumber, pageSize);
                 if (notificationDTO == null)
@@ -132,7 +153,16 @@ namespace WebApp.Controllers
             }
         }
 
-        // POST /<notifications>
+        /// <summary>
+        /// Creates a notification. Accessible by Admin.
+        /// </summary>        
+        /// <param name="createNotificationDTO">The notification to be created.</param>
+        /// <returns>Returns the response DTO of the created notification.</returns>
+        /// <response code="200" name="NotificationResponseDTO">Returns a list of notifications.</response>
+        /// <response code="401">Unauthorized access.</response>
+        /// <response code="403">Forbidden access.</response>
+        /// <response code="400">Bad request.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpPost]
         [Authorize("Admin")]
         [ApiExplorerSettings(IgnoreApi = true)]
