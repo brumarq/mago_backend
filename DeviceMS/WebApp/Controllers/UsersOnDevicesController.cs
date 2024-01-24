@@ -39,7 +39,7 @@ namespace WebApp.Controllers
             _orchestratorApiKey = configuration["OrchestratorApiKey"];
 
         }
-        
+
         /// <summary>
         /// Retrieves users associated with devices for a given user ID. Accessible by all authorized users.
         /// </summary>
@@ -54,12 +54,12 @@ namespace WebApp.Controllers
         {
             var loggedUserId = _authenticationService.GetUserId();
 
-            if (!loggedUserId.Equals(userId) && 
+            if (!loggedUserId.Equals(userId) &&
                 _authenticationService.HasPermission("client"))
             {
                 return Unauthorized($"The logged user cannot access this device.");
             }
-            
+
             try
             {
                 var usersOnDevices = await _usersOnDevicesService.GetUsersOnDevicesByUserIdAsync(userId);
@@ -74,7 +74,7 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
-        
+
         /// <summary>
         /// Creates a new user-device association. Accessible by Admin.
         /// </summary>
@@ -94,7 +94,7 @@ namespace WebApp.Controllers
                 {
                     return Unauthorized("Access denied");
                 }
-                
+
                 var newUserOnDeviceEntry = await _usersOnDevicesService.CreateUserOnDeviceAsync(createUserOnDeviceDTO);
 
                 return (newUserOnDeviceEntry == null)
@@ -130,15 +130,15 @@ namespace WebApp.Controllers
                 {
                     return Unauthorized("Access denied");
                 }
-                
+
                 var deleteResult = await _usersOnDevicesService.DeleteUserOnDeviceAsync(id);
                 if (deleteResult)
                 {
-                    return NoContent(); 
+                    return NoContent();
                 }
                 else
                 {
-                    return NotFound($"UserOnDevice with ID {id} was not found."); 
+                    return NotFound($"UserOnDevice with ID {id} was not found.");
                 }
             }
             catch (CustomException ce)
@@ -150,7 +150,32 @@ namespace WebApp.Controllers
                 return StatusCode(500, $"Internal server error: {e.Message}");
             }
         }
-        
+
+        [HttpGet("device/{deviceId}")]
+        [Authorize("Admin")]
+        //[ApiExplorerSettings(IgnoreApi = true)]
+        public async Task<ActionResult<IEnumerable<UsersOnDevicesResponseDTO>>> GetUsersOnDevicesByDeviceId(int deviceId)
+        {
+            try
+            {
+                //if (!IsRequestFromOrchestrator(HttpContext.Request))
+                //{
+                //    return Unauthorized("Access denied");
+                //}
+
+                var usersOnDevices = await _usersOnDevicesService.GetUsersOnDevicesByDeviceIdAsync(deviceId);
+                return Ok(usersOnDevices);
+            }
+            catch (CustomException ce)
+            {
+                return StatusCode((int)ce.StatusCode, ce.Message);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, $"Internal server error: {e.Message}");
+            }
+        }
+
         private bool IsRequestFromOrchestrator(HttpRequest request)
         {
             if (!request.Headers.TryGetValue("X-Orchestrator-Key", out var receivedKey))

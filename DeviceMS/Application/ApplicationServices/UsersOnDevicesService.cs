@@ -53,6 +53,13 @@ namespace Application.ApplicationServices
             return _mapper.Map<IEnumerable<UsersOnDevicesResponseDTO>>(userOnDevices);
         }
 
+        public async Task<IEnumerable<UsersOnDevicesResponseDTO>> GetUsersOnDevicesByDeviceIdAsync(int deviceId)
+        {
+            var userOnDevices = await _userOnDeviceRepository.GetCollectionByConditionAsync(uod => uod.DeviceId == deviceId);
+
+            return _mapper.Map<IEnumerable<UsersOnDevicesResponseDTO>>(userOnDevices);
+        }
+
         private void ValidateCreateUserOnDeviceDTO(CreateUserOnDeviceDTO createUserOnDeviceDTO)
         {
             if (string.IsNullOrEmpty(createUserOnDeviceDTO.UserId))
