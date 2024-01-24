@@ -101,6 +101,26 @@ namespace Application.ApplicationServices
             return userOnDeviceResponseDTOs;
         }
 
+        public async Task<IEnumerable<UserOnDeviceResponseDTO>> GetUsersOnDevicesByDeviceIdAsync(int deviceId)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{_baseUriUserOnDevice}device/{deviceId}");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _authenticationService.GetToken());
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                    throw new NotFoundException("UserOnDevice not found");
+                else
+                    throw new Exception($"UserOnDevice request failed: {response.StatusCode}: {response.ReasonPhrase}");
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            var userOnDeviceResponseDTOs = JsonConvert.DeserializeObject<List<UserOnDeviceResponseDTO>>(content);
+
+            return userOnDeviceResponseDTOs;
+        }
+
         public async Task<UserOnDeviceResponseDTO> CreateUserOnDeviceEntryAsync(CreateUserOnDeviceDTO createUserOnDeviceDTO)
         {
            
@@ -203,5 +223,7 @@ namespace Application.ApplicationServices
                 throw new Exception($"Request failed: {e.Message}");
             }
         }
+
+
     }
 }

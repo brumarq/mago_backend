@@ -13,6 +13,7 @@ namespace Application.ApplicationServices.Interfaces
         Task CheckDeviceExistence(int deviceID);
         Task<UserOnDeviceResponseDTO> CreateUserOnDeviceEntryAsync(CreateUserOnDeviceDTO createUserOnDeviceDTO);
         Task<IEnumerable<UserOnDeviceResponseDTO>> GetUserOnDeviceEntryByUserId(string userId);
+        Task<IEnumerable<UserOnDeviceResponseDTO>> GetUsersOnDevicesByDeviceIdAsync(int deviceId);
         Task<IActionResult> DeleteUserOnDeviceEntryAsync(string userId, int deviceId);
     }
 }
