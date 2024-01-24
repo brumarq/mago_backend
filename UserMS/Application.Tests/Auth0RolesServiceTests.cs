@@ -7,12 +7,14 @@ using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
 using Application.Exceptions;
 using Domain.Entities;
+using NUnit.Framework;
 
 namespace Application.Tests;
 
 [TestFixture]
 public class Auth0RolesServiceTests
 {
+    // Mock objects for dependencies of Auth0RolesService
     private Mock<IAuth0ManagementService> _mockAuth0ManagementService = null!;
     private Mock<IHttpClientFactory> _mockHttpClientFactory = null!;
     private Mock<IConfiguration> _mockConfiguration = null!;
@@ -24,16 +26,23 @@ public class Auth0RolesServiceTests
     [SetUp]
     public void SetUp()
     {
+        // Initializing the mock objects
         _mockAuth0ManagementService = new Mock<IAuth0ManagementService>();
         _mockHttpClientFactory = new Mock<IHttpClientFactory>();
         _mockConfiguration = new Mock<IConfiguration>();
         _mockLogger = new Mock<ILogger<Auth0RolesService>>();
+
+        // Setting up the Auth0RolesService with mocked dependencies
         _auth0RolesService = new Auth0RolesService(_mockLogger.Object, _mockAuth0ManagementService.Object, _mockHttpClientFactory.Object, _mockConfiguration.Object);
         
+        // Configuring mock responses for role IDs and management audience
         _mockConfiguration.Setup(c => c["Auth0-Roles:admin"]).Returns("adminRoleId");
         _mockConfiguration.Setup(c => c["Auth0-Management:Audience"]).Returns("https://random.com/api/v2/");
         
+        // Mocking the token retrieval for Auth0 management service
         _mockAuth0ManagementService.Setup(service => service.GetToken()).ReturnsAsync(new ManagementToken { Token = "mockToken" });
+
+        // Setting up the fake HTTP handler and client to mock HTTP requests
         _fakeHttpMessageHandler = new FakeHttpMessageHandler();
         _fakeHttpClient = new HttpClient(_fakeHttpMessageHandler);
     }
@@ -41,6 +50,7 @@ public class Auth0RolesServiceTests
     [TearDown]
     public void TearDown()
     {
+        // Disposing the fake HTTP handler and client after each test to ensure clean state
         _fakeHttpMessageHandler.Dispose();
         _fakeHttpClient.Dispose();
     }
@@ -48,21 +58,22 @@ public class Auth0RolesServiceTests
     [Test]
     public void UnassignRoleAsync_SuccessfulUnassignment_DoesNotThrowException()
     {
-        // Arrange
+        // Arrange: Set up a successful HTTP response for role unassignment
         const string userId = "userId";
         
-        _fakeHttpMessageHandler.SetupResponse("https://random.com/api/v2/users/" + userId + "/roles",
+        _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/users/{userId}/roles",
             new HttpResponseMessage(HttpStatusCode.NoContent));
         
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
 
-        // Act & Assert
+        // Act & Assert: Ensure that unassigning a role does not throw an exception
         Assert.DoesNotThrowAsync(() => _auth0RolesService.UnassignRoleAsync("admin", userId));
     }
     
     [Test]
     public void UnassignRoleAsync_UnsuccessfulResponse_ThrowsUserRoleException()
     {
+        // Arrange: Mock an unsuccessful HTTP response for role unassignment
         const string userId = "userId";
         
         _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/users/{userId}/roles",
@@ -70,23 +81,29 @@ public class Auth0RolesServiceTests
         
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
 
+        // Act & Assert: Verify that a BadRequestException is thrown for an unsuccessful operation
         Assert.ThrowsAsync<BadRequestException>(() => _auth0RolesService.UnassignRoleAsync("admin", userId));
     }
+
     
     [Test]
     public void AssignRole_SuccessfulAssignment_DoesNotThrowException()
     {
+        // Arrange: Mock a successful HTTP response for role assignment
         _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/roles/adminRoleId/users",
             new HttpResponseMessage(HttpStatusCode.NoContent));
         
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
 
+        // Act & Assert: Check that assigning a role does not throw an exception
         Assert.DoesNotThrowAsync(() => _auth0RolesService.AssignRole("admin", "userId"));
     }
+
     
     [Test]
     public void AssignRole_UnsuccessfulResponse_ThrowsUserRoleException()
     {
+        // Arrange: Mock an unsuccessful HTTP response for role assignment
         const string roleId = "adminRoleId";
         
         _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/roles/{roleId}/users",
@@ -94,16 +111,18 @@ public class Auth0RolesServiceTests
         
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
 
+        // Act & Assert: Verify that a BadRequestException is thrown for an unsuccessful operation
         Assert.ThrowsAsync<BadRequestException>(() => _auth0RolesService.AssignRole("admin", "userId"));
     }
+
     
     [Test]
     public async Task GetRole_SuccessfulRetrieval_ReturnsRoleName()
     {
+        // Arrange: Mock a successful HTTP response for retrieving a role
         const string expectedRoleName = "admin";
-        
-        var roles = new List<Role> { new Role { Name = expectedRoleName } };
-        
+        var roles = new List<Role> { new() { Name = expectedRoleName } };
+
         _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/users/userId/roles",
             new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -112,14 +131,18 @@ public class Auth0RolesServiceTests
         
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
 
+        // Act: Attempt to retrieve the role name
         var result = await _auth0RolesService.GetRole("userId");
 
+        // Assert: Verify that the retrieved role name matches the expected value
         Assert.That(result, Is.EqualTo(expectedRoleName));
     }
+
 
     [Test]
     public void GetRole_UnsuccessfulResponse_ThrowsUserRoleException()
     {
+        // Arrange: Mock an unsuccessful HTTP response for retrieving a role
         const string userId = "userId";
         
         _fakeHttpMessageHandler.SetupResponse($"https://random.com/api/v2/users/{userId}/roles",
@@ -127,8 +150,10 @@ public class Auth0RolesServiceTests
         
         _mockHttpClientFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_fakeHttpClient);
 
+        // Act & Assert: Verify that a BadRequestException is thrown for an unsuccessful operation
         Assert.ThrowsAsync<BadRequestException>(() => _auth0RolesService.GetRole(userId));
     }
+
     
     private class FakeHttpMessageHandler : DelegatingHandler
     {

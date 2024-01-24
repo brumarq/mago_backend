@@ -26,9 +26,9 @@ namespace Application.ApplicationServices
             return _mapper.Map<DeviceTypeResponseDTO>(newDeviceType);
         }
 
-        public async Task<IEnumerable<DeviceTypeResponseDTO>> GetDeviceTypesAsync()
+        public async Task<IEnumerable<DeviceTypeResponseDTO>> GetDeviceTypesAsync(int? pageNumber = null, int? pageSize = null)
         {
-            var deviceTypes = await _repository.GetAllAsync();
+            var deviceTypes = await _repository.GetAllAsync(pageNumber, pageSize);
             return _mapper.Map<IEnumerable<DeviceTypeResponseDTO>>(deviceTypes);
         }
 
@@ -45,9 +45,9 @@ namespace Application.ApplicationServices
                 opt => opt.AfterMap((src, dest) => dest.Id = id)));
         }
 
-        public async Task<IEnumerable<LabelValueOptionDTO>> GetDeviceTypeDropdown()
+        public async Task<IEnumerable<LabelValueOptionDTO>> GetDeviceTypeDropdown(int? pageNumber = null, int? pageSize = null)
         {
-            var deviceTypes = await _repository.GetAllAsync();
+            var deviceTypes = await _repository.GetAllAsync(pageNumber, pageSize);
             return _mapper.Map<IEnumerable<LabelValueOptionDTO>>(deviceTypes);
         }
 

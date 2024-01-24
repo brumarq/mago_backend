@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
+using Application.Enums;
 using Application.Exceptions;
 using Application.Helpers;
 using Domain.Entities;
@@ -170,75 +171,66 @@ public class Auth0Service : IAuth0Service
         };
     }
     
-    public async Task<List<UserCompressedDTO>> GetAllUsers()
+    public async Task<List<UserCompressedDTO>> GetAllUsers(int pageNumber = 1, int pageSize = 100, UserRole? role = null)
     {
-        var roleNames = new List<string> { "admin", "client" };
         var allUsersWithRoles = new List<UserCompressedDTO>();
 
-        // For each available role, get the users assigned to it
-        foreach (var roleName in roleNames)
+        // Process for each role if UserRole.None is chosen, otherwise process for the selected role
+        if (role == null)
         {
-            var roleId = _configuration[$"Auth0-Roles:{roleName}"];
-            if (string.IsNullOrEmpty(roleId))
-            {
-                _logger.LogError($"Role ID for {roleName} not found in configuration.");
-                continue; // Skip role, continue with the next one
-            }
-
-            var users = await GetUsersByRoleId(roleId);
-
-            // Transform each user into a UserCompressedDTO with the assigned role.
-            var usersWithRole = users.Select(user => new UserCompressedDTO
-            {
-                User = user,
-                Role = roleName
-            }).ToList();
-
-            allUsersWithRoles.AddRange(usersWithRole);
+            allUsersWithRoles.AddRange(await ProcessRole("admin", pageNumber, pageSize));
+            allUsersWithRoles.AddRange(await ProcessRole("client", pageNumber, pageSize));
+        }
+        else
+        {
+            allUsersWithRoles.AddRange(await ProcessRole(role.ToString().ToLower(), pageNumber, pageSize));
         }
 
         return allUsersWithRoles;
     }
 
-
-    public async Task<List<UserCompressed>> GetUsersByRoleId(string roleId)
+    private async Task<List<UserCompressedDTO>> ProcessRole(string roleName, int pageNumber, int pageSize)
     {
-        var token = await _auth0ManagementService.GetToken();
-
-        var client = _httpClientFactory.CreateClient();
-
-        var allUsers = new List<UserCompressed>();
-        var page = 0;
-        const int perPage = 100;
-        var totalUsers = 0;
-
-        do
+        var roleId = _configuration[$"Auth0-Roles:{roleName}"];
+        if (string.IsNullOrEmpty(roleId))
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, 
-                $"{_configuration["Auth0-Management:Audience"]}roles/{roleId}/users?per_page={perPage}&page={page}&include_totals=true"
-                )
-            {
-                Headers = { { "Authorization", $"Bearer {token.Token}" } }
-            };
+            _logger.LogError($"Role ID for {roleName} not found in configuration.");
+            return new List<UserCompressedDTO>(); // Return an empty list if role ID is not found
+        }
 
-            var response = await client.SendAsync(request);
+        var users = await GetUsersByRoleId(roleId, pageNumber, pageSize);
 
-            if (!response.IsSuccessStatusCode) await HandleException(response);
-
-            var result = await response.Content.ReadFromJsonAsync<Auth0UsersResponse>();
-
-            if (result?.Users != null)
-            {
-                allUsers.AddRange(result.Users);
-                totalUsers = result.Total;
-            }
-
-            page++;
-        } while (perPage * page < totalUsers);
-
-        return allUsers;
+        // Transform each user into a UserCompressedDTO with the assigned role.
+        return users.Select(user => new UserCompressedDTO
+        {
+            User = user,
+            Role = roleName
+        }).ToList();
     }
 
+
+    public async Task<List<UserCompressed>> GetUsersByRoleId(string roleId, int pageNumber, int pageSize)
+    {
+        var token = await _auth0ManagementService.GetToken();
+        var client = _httpClientFactory.CreateClient();
+
+        var request = new HttpRequestMessage(HttpMethod.Get, 
+            $"{_configuration["Auth0-Management:Audience"]}roles/{roleId}/users?per_page={pageSize}&page={pageNumber - 1}&include_totals=true")
+        {
+            Headers = { { "Authorization", $"Bearer {token.Token}" } }
+        };
+
+        var response = await client.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            await HandleException(response);
+        }
+
+        var result = await response.Content.ReadFromJsonAsync<Auth0UsersResponse>();
+        return result?.Users ?? new List<UserCompressed>(); // Return the users or an empty list if null
+    }
+    
     // Delete User
     public async Task<bool> DeleteUserAsync(string userId)
     {

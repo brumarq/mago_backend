@@ -48,7 +48,7 @@ namespace Application.Tests
                 AuthId = "Auth123"
             };
 
-            _usersOnDevicesServiceMock.Setup(uod => uod.GetUsersOnDevicesByUserIdAsync(loggedInUserId))
+            _usersOnDevicesServiceMock.Setup(uod => uod.GetUsersOnDevicesByUserIdAsync(loggedInUserId, It.IsAny<int?>(), It.IsAny<int?>()))
                 .ReturnsAsync(new List<UsersOnDevicesResponseDTO> { new UsersOnDevicesResponseDTO { Device = device } });
 
             var result = await _authorizationService.IsDeviceAccessibleToUser(loggedInUserId, deviceId);
@@ -63,7 +63,7 @@ namespace Application.Tests
             var loggedInUserId = "userId123";
             var deviceId = 1;
 
-            _usersOnDevicesServiceMock.Setup(uod => uod.GetUsersOnDevicesByUserIdAsync(loggedInUserId))
+            _usersOnDevicesServiceMock.Setup(uod => uod.GetUsersOnDevicesByUserIdAsync(loggedInUserId, It.IsAny<int?>(), It.IsAny<int?>()))
                 .ReturnsAsync(new List<UsersOnDevicesResponseDTO>());
 
             var result = await _authorizationService.IsDeviceAccessibleToUser(loggedInUserId, deviceId);

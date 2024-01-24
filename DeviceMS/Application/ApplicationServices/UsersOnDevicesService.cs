@@ -46,9 +46,9 @@ namespace Application.ApplicationServices
             return await _userOnDeviceRepository.DeleteAsync(id);  
         }
 
-        public async Task<IEnumerable<UsersOnDevicesResponseDTO>> GetUsersOnDevicesByUserIdAsync(string userId)
+        public async Task<IEnumerable<UsersOnDevicesResponseDTO>> GetUsersOnDevicesByUserIdAsync(string userId, int? pageNumber = null, int? pageSize = null)
         {
-            var userOnDevices = await _userOnDeviceRepository.GetCollectionByConditionAsync(uod => uod.UserId == userId);
+            var userOnDevices = await _userOnDeviceRepository.GetCollectionByConditionAsync(uod => uod.UserId == userId, pageNumber, pageSize);
 
             return _mapper.Map<IEnumerable<UsersOnDevicesResponseDTO>>(userOnDevices);
         }

@@ -326,7 +326,7 @@ public class DeviceServiceTests
             },
         };
 
-        _mockRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(devices);
+        _mockRepository.Setup(repo => repo.GetAllAsync(It.IsAny<int?>(), It.IsAny<int?>())).ReturnsAsync(devices);
 
         var service = new DeviceService(_mapper, _mockRepository.Object, _mockDeviceTypeService.Object);
 
@@ -344,7 +344,7 @@ public class DeviceServiceTests
         // Arrange
         var emptyDeviceList = new List<Device>(); // Empty list of devices
 
-        _mockRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(emptyDeviceList);
+        _mockRepository.Setup(repo => repo.GetAllAsync(It.IsAny<int?>(), It.IsAny<int?>())).ReturnsAsync(emptyDeviceList);
 
         var service = new DeviceService(_mapper, _mockRepository.Object, _mockDeviceTypeService.Object);
 

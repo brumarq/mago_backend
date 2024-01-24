@@ -11,6 +11,7 @@ using Prometheus;
 using WebApp.Middleware.Authentication;
 using System.Diagnostics;
 using WebApp.Middleware.Prometheus;
+using Swashbuckle.AspNetCore.Newtonsoft;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         { securitySchema, new[] { "Bearer" } }
     });
+    
 
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -83,6 +85,7 @@ builder.Services.AddSingleton<IAuth0ManagementService, Auth0ManagementService>()
 builder.Services.AddScoped<IAuth0Service, Auth0Service>();
 builder.Services.AddScoped<IAuth0RolesService, Auth0RolesService>();
 builder.Services.AddScoped<IApplicationStateService, ApplicationStateService>();
+builder.Services.AddSwaggerGenNewtonsoftSupport(); // explicit opt-in - needs to be placed after AddSwaggerGen()
 
 builder.Services.AddHttpClient();
 

@@ -258,13 +258,13 @@ public class UsersOnDevicesServiceTests
             },
         };
 
-        _mockUsersOnDevicesRepository.Setup(repo => repo.GetCollectionByConditionAsync(It.IsAny<Expression<Func<UsersOnDevices, bool>>>()))
+        _mockUsersOnDevicesRepository.Setup(repo => repo.GetCollectionByConditionAsync(It.IsAny<Expression<Func<UsersOnDevices, bool>>>(), It.IsAny<int?>(), It.IsAny<int?>()))
             .ReturnsAsync(mockUserOnDevices);
 
         var service = new UsersOnDevicesService(_mapper, _mockUsersOnDevicesRepository.Object, _mockDeviceService.Object);
 
         // Act
-        var result = await service.GetUsersOnDevicesByUserIdAsync(userId);
+        var result = await service.GetUsersOnDevicesByUserIdAsync(userId, It.IsAny<int?>(), It.IsAny<int?>());
 
         // Assert
         Assert.IsNotNull(result);

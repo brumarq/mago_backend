@@ -1,4 +1,4 @@
-from flask_restx import Resource, reqparse
+from flask_restx import Resource
 from app.main.application.namespaces.aggregated_logs_namespace import AggregatedLogsNamespace
 from app.main.application.service.aggregated_logs_service import AggregatedLogsService
 from app.main.domain.enums.aggregated_log_date_type import AggregatedLogDateType
@@ -9,6 +9,7 @@ from app.main.domain.entities.monthly_average import MonthlyAverage
 from app.main.domain.entities.yearly_average import YearlyAverage
 from app.main.application.service.aggregated_logs_service import AggregatedLogsService
 from app.main.webapp.middleware.authentication import requires_auth
+from flask import request
 
 api = AggregatedLogsNamespace.api
 
@@ -21,14 +22,6 @@ def initialize_aggregated_logs_service():
     )
 
 aggregated_logs_service = initialize_aggregated_logs_service()
-
-# Define query request parser
-parser = reqparse.RequestParser()
-parser.add_argument('page_number', type=int, help='The page number (starts at 1) | Defaults to 1')
-parser.add_argument('page_size', type=int, help='The page size | Defaults to 50')
-parser.add_argument('start_date', type=str, help='Start date for filtering (optional) | Format: YYYY-MM-DD')
-parser.add_argument('end_date', type=str, help='End date for filtering (optional) | Format: YYYY-MM-DD')
-
 
 @api.route('/<string:aggregated_log_date_type>/<int(signed=True):device_id>/<int(signed=True):field_id>')
 @api.doc(params={'aggregated_log_date_type': 'Aggregation log date type',
@@ -59,9 +52,8 @@ class AggregatedLogList(Resource):
     @requires_auth
     def get(self, aggregated_log_date_type: str, device_id: int, field_id: int):
         """Provides list of aggregated logs based on date type"""
-        args = parser.parse_args()
-        page_number = args.get('page_number')
-        page_size = args.get('page_size')
-        start_date = args.get('start_date')
-        end_date = args.get('end_date')
+        page_number = request.args.get('page_number', default=1, type=int)
+        page_size = request.args.get('page_size', default=50, type=int)
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
         return self.aggregated_logs_service.get_aggregated_logs(aggregated_log_date_type, device_id, field_id, page_number, page_size, start_date, end_date)

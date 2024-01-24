@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Application.ApplicationServices;
 using Application.ApplicationServices.Interfaces;
 using Application.DTOs;
+using Application.Enums;
 using Application.Exceptions;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -66,20 +67,34 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
-    /// Retrieves a list of all users. Accessible only by admin users.
+    /// Retrieves a paginated list of users with an optional role filter. Accessible only by admin users.
+    /// If no pagination parameters or role filter is provided, the first 100 users are returned.
     /// </summary>
-    /// <returns>Returns a list of all users.</returns>
-    /// <response code="200">Returns the list of users.</response>
+    /// <param name="pageNumber">The page number for pagination (starting from 1). Defaults to 1.</param>
+    /// <param name="pageSize">The number of items per page. Defaults to 100.</param>
+    /// <param name="role">Optional filter for user role (e.g., 'Client' or 'Admin').</param>
+    /// <returns>Returns a paginated list of users, optionally filtered by role.</returns>
+    /// <response code="200">Returns the paginated list of users.</response>
+    /// <response code="400">Bad request if the pagination parameters are invalid.</response>
     /// <response code="401">Unauthorized access.</response>
     /// <response code="403">Forbidden access.</response>
     /// <response code="500">Internal server error.</response>
     [HttpGet]
     [Authorize("Admin")]
-    public async Task<ActionResult<IEnumerable<UserCompressedDTO>>> GetAllUsers()
+    public async Task<ActionResult<IEnumerable<UserCompressedDTO>>> GetAllUsers(
+        [FromQuery] int pageNumber = 1, 
+        [FromQuery] int pageSize = 100, 
+        [FromQuery] UserRole? role = null)
     {
         try
         {
-            var users = await _auth0Service.GetAllUsers();
+            // Validate pageNumber and pageSize
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Invalid pagination parameters.");
+            }
+
+            var users = await _auth0Service.GetAllUsers(pageNumber, pageSize, role);
             return Ok(users);
         }
         catch (CustomException ce)
@@ -95,6 +110,7 @@ public class UserController : ControllerBase
             return StatusCode(500, $"Internal server error: {e.Message}");
         }
     }
+
 
     /// <summary>
     /// Updates a user's information by their ID. Accessible by all users (both admin and client).
