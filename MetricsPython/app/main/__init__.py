@@ -9,7 +9,8 @@ db = SQLAlchemy()
 def create_app(config_name: str) -> Flask:
     app = Flask(__name__)
     app.config.from_object(config_by_name[config_name])
-    app.logger.setLevel(logging.DEBUG)
+    app.logger.setLevel(logging.INFO)
     db.init_app(app)
     
     return app
+
