@@ -75,6 +75,7 @@ namespace WebApp.Controllers
             }
         }
 
+
         /// <summary>
         /// Creates a new user-device association. Accessible by Admin.
         /// </summary>
@@ -153,15 +154,15 @@ namespace WebApp.Controllers
 
         [HttpGet("device/{deviceId}")]
         [Authorize("Admin")]
-        //[ApiExplorerSettings(IgnoreApi = true)]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult<IEnumerable<UsersOnDevicesResponseDTO>>> GetUsersOnDevicesByDeviceId(int deviceId)
         {
             try
             {
-                //if (!IsRequestFromOrchestrator(HttpContext.Request))
-                //{
-                //    return Unauthorized("Access denied");
-                //}
+                if (!IsRequestFromOrchestrator(HttpContext.Request))
+                {
+                    return Unauthorized("Access denied");
+                }
 
                 var usersOnDevices = await _usersOnDevicesService.GetUsersOnDevicesByDeviceIdAsync(deviceId);
                 return Ok(usersOnDevices);
