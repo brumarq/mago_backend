@@ -109,10 +109,10 @@ namespace WebApp.Controllers
                 ValidatePositiveNumber(pageNumber, nameof(pageNumber));
                 ValidatePositiveNumber(pageSize, nameof(pageSize));
 
-                //if (!IsRequestFromOrchestrator(HttpContext.Request))
-                //{
-                //    return Unauthorized("Access denied");
-                //}
+                if (!IsRequestFromOrchestrator(HttpContext.Request))
+                {
+                    return Unauthorized("Access denied");
+                }
 
                 var notificationDTO = await _notificationService.GetNotificationsByDeviceIdPagedAsync(deviceId, pageNumber, pageSize);
                 if (notificationDTO == null)
@@ -295,18 +295,17 @@ namespace WebApp.Controllers
             }
         }
 
-        // GET /notifications/5
         [HttpGet("notificationToken/user/{userId}")]
-       // [ApiExplorerSettings(IgnoreApi = true)]
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Authorize("Admin")]
         public async Task<ActionResult<IEnumerable<NotificationTokenOnUserDTO>>> GetNotificationTokenByUserIdAsync(string userId)
         {
             try
             {
-                //if (!IsRequestFromOrchestrator(HttpContext.Request))
-                //{
-                //    return Unauthorized("Access denied");
-                //}
+                if (!IsRequestFromOrchestrator(HttpContext.Request))
+                {
+                    return Unauthorized("Access denied");
+                }
 
                 var notificationTokenOnUserDTOs = await _notificationService.GetNotificationTokensByUserIdAsync(userId);
                 if (notificationTokenOnUserDTOs == null)
@@ -327,16 +326,16 @@ namespace WebApp.Controllers
         }
 
         [HttpDelete("notificationToken/{notificationToken}")]
-        //[ApiExplorerSettings(IgnoreApi = true)]
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Authorize("Admin")]
         public async Task<IActionResult> DeleteNotificationTokenOnUserByNotificationIdAsync(string notificationToken)
         {
             try
             {
-                //if (!IsRequestFromOrchestrator(HttpContext.Request))
-                //{
-                //    return Unauthorized("Access denied");
-                //}
+                if (!IsRequestFromOrchestrator(HttpContext.Request))
+                {
+                    return Unauthorized("Access denied");
+                }
 
                 await _notificationService.DeleteNotificationTokenOnUserByNotificationTokenAsync(notificationToken);
                 return NoContent();
@@ -353,15 +352,15 @@ namespace WebApp.Controllers
 
         [HttpPost("notificationToken")]
         [Authorize("Admin")]
-        //[ApiExplorerSettings(IgnoreApi = true)]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult<NotificationResponseDTO>> CreateNotificationTokenOnUserAsync([FromBody] NotificationTokenOnUserDTO notificationTokenOnUserDTO)
         {
             try
             {
-                //if (!IsRequestFromOrchestrator(HttpContext.Request))
-                //{
-                //    return Unauthorized("Access denied");
-                //}
+                if (!IsRequestFromOrchestrator(HttpContext.Request))
+                {
+                    return Unauthorized("Access denied");
+                }
 
                 var result = await _notificationService.CreateNotificationTokenOnUserAsync(notificationTokenOnUserDTO);
                 if (result == null)
