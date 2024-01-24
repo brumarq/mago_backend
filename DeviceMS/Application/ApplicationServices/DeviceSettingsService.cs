@@ -18,9 +18,9 @@ namespace Application.ApplicationServices
             _repository = repository;
         }
 
-        public async Task<IEnumerable<SettingValueResponseDTO>> GetSettingsForDeviceAsync(int deviceId)
+        public async Task<IEnumerable<SettingValueResponseDTO>> GetSettingsForDeviceAsync(int deviceId, int? pageNumber = null, int? pageSize = null)
         {
-            var deviceSettings = await _repository.GetCollectionByConditionAsync(sv => sv.Device.Id == deviceId);
+            var deviceSettings = await _repository.GetCollectionByConditionAsync(sv => sv.Device.Id == deviceId, pageNumber, pageSize);
 
             if (!deviceSettings.Any())
                 throw new NotFoundException($"No settings found for Device with ID: {deviceId}");

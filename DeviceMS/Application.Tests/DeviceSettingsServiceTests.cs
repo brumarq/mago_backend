@@ -444,7 +444,7 @@ public class DeviceSettingsServiceTests
         };
 
         _mockRepository.Setup(repo =>
-                repo.GetCollectionByConditionAsync(It.IsAny<Expression<Func<SettingValue, bool>>>()))
+                repo.GetCollectionByConditionAsync(It.IsAny<Expression<Func<SettingValue, bool>>>(), It.IsAny<int?>(), It.IsAny<int?>()))
             .ReturnsAsync(settingValues);
 
         var service = new DeviceSettingsService(_mapper, _mockRepository.Object);
@@ -465,7 +465,7 @@ public class DeviceSettingsServiceTests
         var emptySettingsList = new List<SettingValue>(); // Empty SettingValues List
 
         _mockRepository.Setup(repo =>
-                repo.GetCollectionByConditionAsync(It.IsAny<Expression<Func<SettingValue, bool>>>()))
+                repo.GetCollectionByConditionAsync(It.IsAny<Expression<Func<SettingValue, bool>>>(), It.IsAny<int?>(), It.IsAny<int?>()))
             .ReturnsAsync(emptySettingsList);
 
         var service = new DeviceSettingsService(_mapper, _mockRepository.Object);
