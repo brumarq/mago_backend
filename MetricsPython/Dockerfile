@@ -22,7 +22,6 @@ RUN curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/so
 # Update the package list and install the ODBC Driver 18 for SQL Server
 RUN apt-get update && ACCEPT_EULA=Y apt-get install -y msodbcsql18
 
-
 # Set production env
 ENV FLASK_ENV=prod
 ENV FLASK_APP=manage.py

@@ -126,8 +126,8 @@ jobs:
 
             echo "Creating GitHub issue for deployment failure."
             gh issue create \
-            --title "Deployment Rollback Executed for ${{ env.APP_NAME }}" \
-            --body "The deployment of ${{ env.APP_NAME }} failed and a rollback was executed. Further investigation is required."
+            --title "Deployment Rollback Executed for ${{ env.APP_NAME }} - ${{ env.ENVIRONMENT }} environment" \
+            --body "The deployment of ${{ env.APP_NAME }} failed and a rollback was executed in the ${{ env.ENVIRONMENT }} environment. Further investigation is required."
 
             echo "Exiting with failure status."
             exit 1
