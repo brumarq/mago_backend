@@ -5,10 +5,10 @@
 package mocks
 
 import (
-	"FirmwareGO/domain/entities"
-	context "context"
+	. "FirmwareGO/domain/entities"
 	reflect "reflect"
 
+	gin "github.com/gin-gonic/gin"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -35,6 +35,84 @@ func (m *MockIRepository) EXPECT() *MockIRepositoryMockRecorder {
 	return m.recorder
 }
 
+// Create mocks base method.
+func (m *MockIRepository) Create(ctx *gin.Context, entity **FileSend) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", ctx, entity)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Create indicates an expected call of Create.
+func (mr *MockIRepositoryMockRecorder) Create(ctx, entity interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIRepository)(nil).Create), ctx, entity)
+}
+
+// Delete mocks base method.
+func (m *MockIRepository) Delete(ctx *gin.Context, id uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockIRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockIRepository)(nil).Delete), ctx, id)
+}
+
+// GetAll mocks base method.
+func (m *MockIRepository) GetAll(ctx *gin.Context) ([]*FileSend, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAll", ctx)
+	ret0, _ := ret[0].([]*FileSend)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAll indicates an expected call of GetAll.
+func (mr *MockIRepositoryMockRecorder) GetAll(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIRepository)(nil).GetAll), ctx)
+}
+
+// GetByCondition mocks base method.
+func (m *MockIRepository) GetByCondition(ctx *gin.Context, condition map[string]interface{}) (**FileSend, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByCondition", ctx, condition)
+	ret0, _ := ret[0].(**FileSend)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByCondition indicates an expected call of GetByCondition.
+func (mr *MockIRepositoryMockRecorder) GetByCondition(ctx, condition interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByCondition", reflect.TypeOf((*MockIRepository)(nil).GetByCondition), ctx, condition)
+}
+
+// GetCollectionByCondition mocks base method.
+func (m *MockIRepository) GetCollectionByCondition(ctx *gin.Context, condition map[string]interface{}, orderBy ...string) ([]*FileSend, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, condition}
+	for _, a := range orderBy {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetCollectionByCondition", varargs...)
+	ret0, _ := ret[0].([]*FileSend)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCollectionByCondition indicates an expected call of GetCollectionByCondition.
+func (mr *MockIRepositoryMockRecorder) GetCollectionByCondition(ctx, condition interface{}, orderBy ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, condition}, orderBy...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCollectionByCondition", reflect.TypeOf((*MockIRepository)(nil).GetCollectionByCondition), varargs...)
+}
+
 // IsDatabaseConnected mocks base method.
 func (m *MockIRepository) IsDatabaseConnected() bool {
 	m.ctrl.T.Helper()
@@ -49,86 +127,8 @@ func (mr *MockIRepositoryMockRecorder) IsDatabaseConnected() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsDatabaseConnected", reflect.TypeOf((*MockIRepository)(nil).IsDatabaseConnected))
 }
 
-// Create mocks base method.
-func (m *MockIRepository) Create(ctx context.Context, entity **entities.FileSend) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, entity)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Create indicates an expected call of Create.
-func (mr *MockIRepositoryMockRecorder) Create(ctx, entity interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockIRepository)(nil).Create), ctx, entity)
-}
-
-// Delete mocks base method.
-func (m *MockIRepository) Delete(ctx context.Context, id uint) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", ctx, id)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Delete indicates an expected call of Delete.
-func (mr *MockIRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockIRepository)(nil).Delete), ctx, id)
-}
-
-// GetAll mocks base method.
-func (m *MockIRepository) GetAll(ctx context.Context) ([]*entities.FileSend, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll", ctx)
-	ret0, _ := ret[0].([]*entities.FileSend)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAll indicates an expected call of GetAll.
-func (mr *MockIRepositoryMockRecorder) GetAll(ctx interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockIRepository)(nil).GetAll), ctx)
-}
-
-// GetByCondition mocks base method.
-func (m *MockIRepository) GetByCondition(ctx context.Context, condition map[string]interface{}) (**entities.FileSend, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByCondition", ctx, condition)
-	ret0, _ := ret[0].(**entities.FileSend)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetByCondition indicates an expected call of GetByCondition.
-func (mr *MockIRepositoryMockRecorder) GetByCondition(ctx, condition interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByCondition", reflect.TypeOf((*MockIRepository)(nil).GetByCondition), ctx, condition)
-}
-
-// GetCollectionByCondition mocks base method.
-func (m *MockIRepository) GetCollectionByCondition(ctx context.Context, condition map[string]interface{}, orderBy ...string) ([]*entities.FileSend, error) {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, condition}
-	for _, a := range orderBy {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "GetCollectionByCondition", varargs...)
-	ret0, _ := ret[0].([]*entities.FileSend)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetCollectionByCondition indicates an expected call of GetCollectionByCondition.
-func (mr *MockIRepositoryMockRecorder) GetCollectionByCondition(ctx, condition interface{}, orderBy ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, condition}, orderBy...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCollectionByCondition", reflect.TypeOf((*MockIRepository)(nil).GetCollectionByCondition), varargs...)
-}
-
 // Update mocks base method.
-func (m *MockIRepository) Update(ctx context.Context, entity **entities.FileSend) error {
+func (m *MockIRepository) Update(ctx *gin.Context, entity **FileSend) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", ctx, entity)
 	ret0, _ := ret[0].(error)

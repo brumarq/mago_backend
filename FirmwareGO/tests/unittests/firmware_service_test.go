@@ -5,15 +5,19 @@ import (
 	. "FirmwareGO/application/services"
 	. "FirmwareGO/domain/entities"
 	. "FirmwareGO/tests/mocks"
-	"context"
 	"errors"
+	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"net/http/httptest"
 	"testing"
 	"time"
 )
 
 func TestFirmwareService_CreateFileSend(t *testing.T) {
+	rec := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(rec)
+
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -72,7 +76,7 @@ func TestFirmwareService_CreateFileSend(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.setup()
 
-			_, err := service.CreateFileSend(context.Background(), tc.dto)
+			_, err := service.CreateFileSend(ctx, tc.dto)
 
 			if tc.wantErr {
 				assert.Error(t, err)
@@ -84,6 +88,9 @@ func TestFirmwareService_CreateFileSend(t *testing.T) {
 }
 
 func TestFirmwareService_GetFirmwareHistoryByDeviceId(t *testing.T) {
+	rec := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(rec)
+
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -159,7 +166,7 @@ func TestFirmwareService_GetFirmwareHistoryByDeviceId(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.mockSetup()
 
-			result, err := service.GetFirmwareHistoryByDeviceId(context.Background(), tc.deviceId)
+			result, err := service.GetFirmwareHistoryByDeviceId(ctx, tc.deviceId)
 
 			if tc.wantErr {
 				assert.Error(t, err)
