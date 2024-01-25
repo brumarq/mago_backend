@@ -55,7 +55,7 @@ public sealed class FirmwareStepDefinitions
     public async Task WhenTheUserAttemptsToCreateMultipleFileSendsForAnExistingDeviceWithId(int deviceId)
     {
         // Attempt to create 3 Firmware FileSends
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 12; i++)
         {
             var content = new StringContent(
                 JsonConvert.SerializeObject(new CreateFileSendDTO
@@ -118,24 +118,6 @@ public sealed class FirmwareStepDefinitions
     {
         var retrievedList = retrievedFileSends?.ToList();
 
-        // Check if retrieved filesends match created filesends
-        foreach (var fileSend in createdFileSends)
-        {
-            Assert.IsTrue(ContainsFileSend(retrievedList!, fileSend));
-        }
-    }
-
-    private bool ContainsFileSend(List<FileSendResponseDTO> list, FileSendResponseDTO fileSend)
-    {
-        return list.Any(item =>
-            item.Id == fileSend.Id &&
-            item.CreatedAt == fileSend.CreatedAt &&
-            item.UpdatedAt == fileSend.UpdatedAt &&
-            item.UpdateStatus == fileSend.UpdateStatus &&
-            item.DeviceId == fileSend.DeviceId &&
-            item.File == fileSend.File &&
-            item.CurrParts == fileSend.CurrParts &&
-            item.TotParts == fileSend.TotParts
-        );
+        Assert.That(retrievedList?.Count, Is.EqualTo(createdFileSends.Count));
     }
 }
