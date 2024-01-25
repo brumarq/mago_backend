@@ -70,6 +70,8 @@ func (controller *FirmwareController) CreateFirmwareFileSend(context *gin.Contex
 // @Produce json
 // @Security JWTAuth
 // @Param deviceId path int true "Device ID"
+// @Param page query int false "Page number"
+// @Param page_size query int false "Number of items per page"
 // @Success 200 {array} FileSendResponseDTO "List of firmware records"
 // @Failure 404 {object} map[string]string "Firmware Record not found"
 // @Failure 500 {object} map[string]string "Internal server error"
