@@ -5,8 +5,8 @@ import (
 	"FirmwareGO/application/mappers"
 	. "FirmwareGO/domain/entities"
 	. "FirmwareGO/infrastructure/repositories/interfaces"
-	"context"
 	"errors"
+	"github.com/gin-gonic/gin"
 )
 
 type FirmwareService struct {
@@ -17,7 +17,7 @@ func NewFirmwareService(repo IRepository[*FileSend]) *FirmwareService {
 	return &FirmwareService{Repo: repo}
 }
 
-func (service *FirmwareService) CreateFileSend(ctx context.Context, newFileSendDto CreateFileSendDTO) (*FileSendResponseDTO, error) {
+func (service *FirmwareService) CreateFileSend(ctx *gin.Context, newFileSendDto CreateFileSendDTO) (*FileSendResponseDTO, error) {
 	// Validate DTO before proceeding
 	if err := validateFileSendDTO(newFileSendDto); err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func (service *FirmwareService) CreateFileSend(ctx context.Context, newFileSendD
 	return &responseDto, nil
 }
 
-func (service *FirmwareService) GetFirmwareHistoryByDeviceId(ctx context.Context, deviceId int) ([]*FileSendResponseDTO, error) {
+func (service *FirmwareService) GetFirmwareHistoryByDeviceId(ctx *gin.Context, deviceId int) ([]*FileSendResponseDTO, error) {
 
 	condition := map[string]interface{}{"device_id": deviceId}
 
