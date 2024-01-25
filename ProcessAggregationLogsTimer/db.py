@@ -26,6 +26,7 @@ class Database:
                 raise ValueError("select_query function should only be used for SELECT queries.")
 
         except Exception as e:
+            self.connection.rollback()
             print(f"Error executing query: {e}")
             raise
 
@@ -48,6 +49,7 @@ class Database:
                 raise ValueError("insert_query function should only be used for INSERT queries.")
 
         except Exception as e:
+            self.connection.rollback()
             print(f"Error executing query: {e}")
             raise
 
