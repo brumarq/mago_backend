@@ -4,5 +4,5 @@ from typing import Tuple, Dict
 class BaseFieldService(ABC):
     
     @abstractmethod
-    def create_field(self, data) -> Tuple[Dict[str, str]]:
+    def create_field(self, data: Tuple[Dict[str, str]]) -> Tuple[Dict[str, str]]:
         pass
